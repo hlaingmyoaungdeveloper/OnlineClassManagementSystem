@@ -1,0 +1,14 @@
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\bin\Debug\net8.0\OnlineClassManagementSystem.Database.deps.json
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\bin\Debug\net8.0\OnlineClassManagementSystem.Database.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\bin\Debug\net8.0\OnlineClassManagementSystem.Database.pdb
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.AssemblyInfoInputs.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.AssemblyInfo.cs
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.csproj.CoreCompileInputs.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\refint\OnlineClassManagementSystem.Database.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.pdb
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\ref\OnlineClassManagementSystem.Database.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\bin\Debug\net8.0\OnlineClassManagementSystem.Database.runtimeconfig.json
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.csproj.AssemblyReference.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.genruntimeconfig.cache

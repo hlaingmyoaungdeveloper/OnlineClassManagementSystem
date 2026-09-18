@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="OnlineClassManagementSystem.Database/OnlineClassManagementSystem.Database.csproj" />
+  <Project Path="OnlineClassManagementSystem.Domain/OnlineClassManagementSystem.Domain.csproj" />
+</Solution>
