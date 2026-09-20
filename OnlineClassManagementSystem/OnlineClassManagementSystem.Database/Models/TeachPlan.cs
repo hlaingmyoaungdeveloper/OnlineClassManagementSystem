@@ -19,6 +19,16 @@ public partial class TeachPlan
 
     public DateTime? CompletedDate { get; set; }
 
+    public DateTime CreatedDateTime { get; set; }
+
+    public DateTime ModifiedDateTime { get; set; }
+
+    public bool IsDelete { get; set; }
+
+    public string? CreatedBy { get; set; }
+
+    public string? ModifiedBy { get; set; }
+
     public virtual TblSubClass Class { get; set; } = null!;
 
     public virtual TblSubject Subject { get; set; } = null!;

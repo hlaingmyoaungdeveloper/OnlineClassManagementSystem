@@ -1,0 +1,16 @@
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\bin\Debug\net8.0\OnlineClassManagementSystem.Domain.deps.json
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\bin\Debug\net8.0\OnlineClassManagementSystem.Domain.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\bin\Debug\net8.0\OnlineClassManagementSystem.Domain.pdb
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\bin\Debug\net8.0\OnlineClassManagementSystem.Database.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\bin\Debug\net8.0\OnlineClassManagementSystem.Database.pdb
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.csproj.AssemblyReference.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.AssemblyInfoInputs.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.AssemblyInfo.cs
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.csproj.CoreCompileInputs.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.sourcelink.json
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineCl.CB5656EC.Up2Date
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\refint\OnlineClassManagementSystem.Domain.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.pdb
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\ref\OnlineClassManagementSystem.Domain.dll

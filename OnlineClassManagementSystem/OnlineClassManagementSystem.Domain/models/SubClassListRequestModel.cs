@@ -27,12 +27,14 @@ public class SubClassModel
 
     public string Place { get; set; } = null!;
 
-    public DateOnly OpenDate { get; set; }
+    public DateOnly? OpenDate { get; set; }
 
     public string OpenTime { get; set; } = null!;
 
     public int StudentLimit { get; set; }
 
     public int? StudentCount { get; set; }
+
+    public bool IsDelete { get; set; }
 }
 

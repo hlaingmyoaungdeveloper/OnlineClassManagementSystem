@@ -12,3 +12,5 @@ C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagemen
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\bin\Debug\net8.0\OnlineClassManagementSystem.Database.runtimeconfig.json
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.csproj.AssemblyReference.cache
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.genruntimeconfig.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineClassManagementSystem.Database.sourcelink.json
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Database\obj\Debug\net8.0\OnlineCl.85FE5918.Up2Date
