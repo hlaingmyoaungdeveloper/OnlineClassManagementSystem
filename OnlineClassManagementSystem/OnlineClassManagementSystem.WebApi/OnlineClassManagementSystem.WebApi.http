@@ -1,0 +1,6 @@
+@OnlineClassManagementSystem.WebApi_HostAddress = http://localhost:5165
+
+GET {{OnlineClassManagementSystem.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

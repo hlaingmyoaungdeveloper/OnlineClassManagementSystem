@@ -1,0 +1,102 @@
+[
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.SubClassController",
+    "Method": "GetSubClassesAsync",
+    "RelativePath": "api/SubClass",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.SubClassController",
+    "Method": "CreateSubClassAsync",
+    "RelativePath": "api/SubClass",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.SubClassCreateRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.SubClassController",
+    "Method": "PatchSubClassAsync",
+    "RelativePath": "api/SubClass/{id}",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.SubClassPatchRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.SubClassController",
+    "Method": "GetSubClassAsync",
+    "RelativePath": "api/SubClass/{SubClassId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "SubClassId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.SubClassController",
+    "Method": "DeleteSubClassAsync",
+    "RelativePath": "api/SubClass/{SubClassId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "SubClassId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.WeatherForecastController",
+    "Method": "Get",
+    "RelativePath": "WeatherForecast",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[OnlineClassManagementSystem.WebApi.WeatherForecast, OnlineClassManagementSystem.WebApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ],
+    "EndpointName": "GetWeatherForecast"
+  }
+]
