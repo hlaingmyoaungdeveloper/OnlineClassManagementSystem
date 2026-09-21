@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OnlineClassManagementSystem.Domain.models;
+
+public class TimetableDeleteRequestModel
+{
+    public int TimetableId { get; set; }
+}
+
+public class TimetableDeleteResponseModel
+{
+    public bool IsSuccess { get; set; }
+    public string Message { get; set; }
+}
