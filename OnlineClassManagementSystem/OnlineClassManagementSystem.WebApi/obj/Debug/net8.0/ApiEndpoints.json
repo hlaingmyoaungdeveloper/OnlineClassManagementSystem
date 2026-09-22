@@ -1,5 +1,84 @@
 [
   {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.EnrollmentController",
+    "Method": "GetEnrollmentsAsync",
+    "RelativePath": "api/Enrollment",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.EnrollmentController",
+    "Method": "CreateEnrollmentAsync",
+    "RelativePath": "api/Enrollment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.EnrollmentCreateRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.EnrollmentController",
+    "Method": "GetEnrollmentAsync",
+    "RelativePath": "api/Enrollment/{EnrollmentId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "EnrollmentId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.EnrollmentController",
+    "Method": "DeleteEnrollmentAsync",
+    "RelativePath": "api/Enrollment/{EnrollmentId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "EnrollmentId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.EnrollmentController",
+    "Method": "PatchEnrollmentAsync",
+    "RelativePath": "api/Enrollment/{id}",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.EnrollmentPatchRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.SubClassController",
     "Method": "GetSubClassesAsync",
     "RelativePath": "api/SubClass",
@@ -72,6 +151,101 @@
     "Parameters": [
       {
         "Name": "SubClassId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TimetablesController",
+    "Method": "GetTimetablesAsync",
+    "RelativePath": "api/Timetables",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TimetablesController",
+    "Method": "CreateTimetableAsync",
+    "RelativePath": "api/Timetables",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.TimetableCreateRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TimetablesController",
+    "Method": "PatchTimetableAsync",
+    "RelativePath": "api/Timetables/{id}",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.TimetablePatchRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TimetablesController",
+    "Method": "DeleteTimetableAsync",
+    "RelativePath": "api/Timetables/{TimetableId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "TimetableId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TimetablesController",
+    "Method": "GetTimetablesByClassAsync",
+    "RelativePath": "api/Timetables/club/{SubClassId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "SubClassId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TimetablesController",
+    "Method": "GetTimetablesByTeacherAsync",
+    "RelativePath": "api/Timetables/teacher/{TeacherId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "TeacherId",
         "Type": "System.Int32",
         "IsRequired": true
       }
