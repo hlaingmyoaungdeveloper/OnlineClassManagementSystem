@@ -23,6 +23,8 @@ public partial class TblEnrollment
 
     public string? ModifiedBy { get; set; }
 
+    public string Status { get; set; } = null!;
+
     public virtual TblSubClass Class { get; set; } = null!;
 
     public virtual TblUser Student { get; set; } = null!;

@@ -60,10 +60,10 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
             return BadRequest(result);
         }
 
-        [HttpDelete("{EnrollmentId}")]
-        public async Task<IActionResult> DeleteEnrollmentAsync([FromRoute] EnrollmentDeleteRequestModel model)
+        [HttpPatch]
+        public async Task<IActionResult> UpdateEnrollmentStatusAsync([FromBody] EnrollmentUpdateStatusResquestModel model)
         {
-            var result = await _service.DeleteEnrollmentAsync(model);
+            var result = await _service.UpdateEnrollmentStatusAsync(model);
             if (result.IsSuccess)
             {
                 return Ok(result);

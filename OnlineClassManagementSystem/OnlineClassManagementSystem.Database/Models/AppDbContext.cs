@@ -73,6 +73,10 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ModifiedDateTime)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("pending");
 
             entity.HasOne(d => d.Class).WithMany(p => p.TblEnrollments)
                 .HasForeignKey(d => d.ClassId)

@@ -32,6 +32,7 @@ public class EnrollmentService
                      StudentId = x.StudentId,
                      StudentName = x.Student.Username,
                      EnrollDate = x.EnrollDate,
+                     Status = x.Status,
                      IsDelete = x.IsDelete
                  }).ToListAsync();
 
@@ -299,44 +300,78 @@ public class EnrollmentService
         }
     }
 
-    public async Task<EnrollmentDeleteResponseModel> DeleteEnrollmentAsync(EnrollmentDeleteRequestModel model)
+    public async Task<EnrollmentUpdateStatusResponseModel> UpdateEnrollmentStatusAsync(EnrollmentUpdateStatusResquestModel model)
     {
         try
         {
-            var enrollment = await _db.TblEnrollments.FirstOrDefaultAsync(x => !x.IsDelete && x.EnrollmentId == model.EnrollmentId);
+            var validStatuses = new List<string> { "pending", "confirm", "canceled" };
+            string newStatus = model.Status?.ToLower() ?? "";
 
-            if (enrollment is null)
+            if (!validStatuses.Contains(newStatus))
             {
-                return new EnrollmentDeleteResponseModel
+                return new EnrollmentUpdateStatusResponseModel
                 {
                     IsSuccess = false,
-                    Message = "Enrollment doesn't exist"
+                    Message = "Invalid status. Allowed values are: pending, confirm, canceled"
                 };
             }
 
-            var subClass = await _db.TblSubClasses.FirstOrDefaultAsync(x => !x.IsDelete && x.SubClassId == enrollment.ClassId);
-            if (subClass is not null && (subClass.StudentCount ?? 0) > 0)
+            var enrollment = await _db.TblEnrollments
+                .FirstOrDefaultAsync(x => !x.IsDelete && x.EnrollmentId == model.EnrollmentId);
+
+            if (enrollment is null)
             {
-                subClass.StudentCount--;
+                return new EnrollmentUpdateStatusResponseModel
+                {
+                    IsSuccess = false,
+                    Message = "Enrollment does not exist"
+                };
             }
 
-            enrollment.IsDelete = true;
-            enrollment.ModifiedDateTime = DateTime.Now;
+            string currentStatus = enrollment.Status.ToLower();
+            if (currentStatus == newStatus)
+            {
+                return new EnrollmentUpdateStatusResponseModel
+                {
+                    IsSuccess = false,
+                    Message = $"Enrollment is already {newStatus}."
+                };
+            }
 
+            if (currentStatus == "canceled")
+            {
+                return new EnrollmentUpdateStatusResponseModel
+                {
+                    IsSuccess = false,
+                    Message = "Cannot change the status of an already canceled enrollment."
+                };
+            }
+
+            if (currentStatus == "confirm")
+            {
+                return new EnrollmentUpdateStatusResponseModel
+                {
+                    IsSuccess = false,
+                    Message = "Cannot change the status of an already confirmed enrollment."
+                };
+            }
+
+            enrollment.Status = newStatus;
+            enrollment.ModifiedDateTime = DateTime.Now;
             int result = await _db.SaveChangesAsync();
 
-            return new EnrollmentDeleteResponseModel
+            return new EnrollmentUpdateStatusResponseModel
             {
                 IsSuccess = result > 0,
-                Message = result > 0 ? "Successfully deleted Enrollment" : "Failed to delete Enrollment"
+                Message = result > 0 ? $"Successfully updated Enrollment Status to {newStatus}." : "Failed to update Enrollment Status."
             };
         }
         catch (Exception ex)
         {
-            return new EnrollmentDeleteResponseModel
+            return new EnrollmentUpdateStatusResponseModel
             {
                 IsSuccess = false,
-                Message = ex.Message
+                Message = ex.InnerException != null ? ex.InnerException.Message : ex.Message
             };
         }
     }
