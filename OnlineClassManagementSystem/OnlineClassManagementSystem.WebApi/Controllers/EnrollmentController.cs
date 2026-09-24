@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineClassManagementSystem.Domain.features.Enrollment;
-using OnlineClassManagementSystem.Domain.models;
+using OnlineClassManagementSystem.Domain.models.Enrollment;
 using System.Threading.Tasks;
 
 namespace OnlineClassManagementSystem.WebApi.Controllers

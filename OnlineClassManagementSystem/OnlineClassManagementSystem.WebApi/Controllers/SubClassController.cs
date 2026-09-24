@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineClassManagementSystem.Domain.features.SubClass;
-using OnlineClassManagementSystem.Domain.models;
+using OnlineClassManagementSystem.Domain.models.SubClass;
 
 namespace OnlineClassManagementSystem.WebApi.Controllers
 {

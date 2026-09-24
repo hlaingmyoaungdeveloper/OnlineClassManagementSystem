@@ -4,17 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineClassManagementSystem.Domain.models;
+namespace OnlineClassManagementSystem.Domain.models.SubClass;
 
-public class SubClassEditRequestModel
+public class SubClassCreateRequestModel
 {
-    public int SubClassId { get; set; }
-}
-
-public class SubClassEditResponseModel 
-{
-    public bool IsSuccess { get; set; }
-    public string Message { get; set; }
     public string ClassName { get; set; } = null!;
 
     public string Place { get; set; } = null!;
@@ -28,3 +21,8 @@ public class SubClassEditResponseModel
     public int? StudentCount { get; set; }
 }
 
+public class SubClassCreateResponseModel
+{
+    public bool IsSuccess { get; set; }
+    public string Message { get; set; }
+}

@@ -1,6 +1,6 @@
 using System;
 
-namespace OnlineClassManagementSystem.Domain.models;
+namespace OnlineClassManagementSystem.Domain.models.Enrollment;
 
 public class EnrollmentPatchRequestModel
 {

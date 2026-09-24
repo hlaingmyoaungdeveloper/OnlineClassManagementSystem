@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineClassManagementSystem.Domain.models;
+namespace OnlineClassManagementSystem.Domain.models.Timetable;
 
 public class TimetableCreateRequestModel
 {

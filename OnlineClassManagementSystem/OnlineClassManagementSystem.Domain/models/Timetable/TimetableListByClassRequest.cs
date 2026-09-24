@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineClassManagementSystem.Domain.models;
+namespace OnlineClassManagementSystem.Domain.models.Timetable;
 
-public class TimetableListByTeacherRequestModel
+public class TimetableListByClassRequest
 {
-    public int TeacherId { get; set; }
+    public int SubClassId { get; set; }
 }
 
-public class TimetableListByTeacherResponseModel
+public class TimetableListByClassResponseModel
 {
     public bool IsSuccess { get; set; }
     public string Message { get; set; }
