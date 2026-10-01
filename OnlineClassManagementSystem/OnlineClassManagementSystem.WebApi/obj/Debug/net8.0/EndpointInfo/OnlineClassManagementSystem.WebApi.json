@@ -44,31 +44,39 @@
             "description": "OK"
           }
         }
-      }
-    },
-    "/api/Enrollment/{EnrollmentId}": {
-      "get": {
+      },
+      "patch": {
         "tags": [
           "Enrollment"
         ],
-        "parameters": [
-          {
-            "name": "EnrollmentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollmentUpdateStatusResquestModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollmentUpdateStatusResquestModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollmentUpdateStatusResquestModel"
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "OK"
           }
         }
-      },
-      "delete": {
+      }
+    },
+    "/api/Enrollment/{EnrollmentId}": {
+      "get": {
         "tags": [
           "Enrollment"
         ],
@@ -493,6 +501,20 @@
         },
         "additionalProperties": false
       },
+      "EnrollmentUpdateStatusResquestModel": {
+        "type": "object",
+        "properties": {
+          "enrollmentId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "SubClassCreateRequestModel": {
         "type": "object",
         "properties": {
@@ -545,11 +567,6 @@
             "nullable": true
           },
           "studentLimit": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "studentCount": {
             "type": "integer",
             "format": "int32",
             "nullable": true

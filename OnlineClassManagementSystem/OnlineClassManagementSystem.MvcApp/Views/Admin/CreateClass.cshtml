@@ -1,0 +1,105 @@
+@model OnlineClassManagementSystem.MvcApp.ViewModels.SubClassFormViewModel
+@{
+    ViewData["Title"] = Model.IsEdit ? "Edit Class" : "Create Class";
+}
+
+<div class="max-w-2xl mx-auto">
+    <div class="mb-6 flex items-center gap-3">
+        <a href="@Url.Action("Classes","Admin")"
+           class="p-2 rounded-xl hover:bg-white text-slate-500 hover:text-slate-800 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </a>
+        <div>
+            <p class="text-slate-500 text-sm">@(Model.IsEdit ? "Update the details for this class." : "Fill in the details to create a new class.")</p>
+        </div>
+    </div>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="mb-5 flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+            <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+        <form asp-action="@(Model.IsEdit ? "EditClass" : "CreateClass")"
+              asp-controller="Admin"
+              asp-route-id="@(Model.IsEdit ? Model.SubClassId : (int?)null)"
+              method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Class Name -->
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Class Name <span class="text-red-500">*</span></label>
+                    <input type="text" name="ClassName" value="@Model.ClassName" required
+                           class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                           placeholder="e.g. Web Development Fundamentals" />
+                </div>
+
+                <!-- Location -->
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Location / Place <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <input type="text" name="Place" value="@Model.Place" required
+                               class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                               placeholder="e.g. Room 101 or Online (Zoom)" />
+                    </div>
+                </div>
+
+                <!-- Start Date -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Start Date <span class="text-red-500">*</span></label>
+                    <input type="date" name="OpenDate" value="@Model.OpenDate" required
+                           class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" />
+                </div>
+
+                <!-- Time -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Class Time <span class="text-red-500">*</span></label>
+                    <input type="text" name="OpenTime" value="@Model.OpenTime" required
+                           class="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                           placeholder="e.g. 09:00 AM - 11:00 AM" />
+                </div>
+
+                <!-- Student Limit -->
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Student Limit <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <input type="number" name="StudentLimit" value="@Model.StudentLimit" min="1" max="500" required
+                               class="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                               placeholder="e.g. 30" />
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1.5">Maximum number of students that can enroll.</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="submit"
+                        class="flex-1 sm:flex-none px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all duration-200">
+                    @(Model.IsEdit ? "💾 Save Changes" : "✨ Create Class")
+                </button>
+                <a href="@Url.Action("Classes","Admin")"
+                   class="flex-1 sm:flex-none px-8 py-2.5 text-center bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-all duration-200">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

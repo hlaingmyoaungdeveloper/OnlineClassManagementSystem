@@ -19,7 +19,23 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.EnrollmentCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Domain.models.Enrollment.EnrollmentCreateRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.EnrollmentController",
+    "Method": "UpdateEnrollmentStatusAsync",
+    "RelativePath": "api/Enrollment",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.Enrollment.EnrollmentUpdateStatusResquestModel",
         "IsRequired": true
       }
     ],
@@ -30,22 +46,6 @@
     "Method": "GetEnrollmentAsync",
     "RelativePath": "api/Enrollment/{EnrollmentId}",
     "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "EnrollmentId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.EnrollmentController",
-    "Method": "DeleteEnrollmentAsync",
-    "RelativePath": "api/Enrollment/{EnrollmentId}",
-    "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -72,7 +72,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.EnrollmentPatchRequestModel",
+        "Type": "OnlineClassManagementSystem.Domain.models.Enrollment.EnrollmentPatchRequestModel",
         "IsRequired": true
       }
     ],
@@ -98,7 +98,7 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.SubClassCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Domain.models.SubClass.SubClassCreateRequestModel",
         "IsRequired": true
       }
     ],
@@ -119,7 +119,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.SubClassPatchRequestModel",
+        "Type": "OnlineClassManagementSystem.Domain.models.SubClass.SubClassPatchRequestModel",
         "IsRequired": true
       }
     ],
@@ -177,7 +177,7 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.TimetableCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Domain.models.Timetable.TimetableCreateRequestModel",
         "IsRequired": true
       }
     ],
@@ -198,7 +198,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.TimetablePatchRequestModel",
+        "Type": "OnlineClassManagementSystem.Domain.models.Timetable.TimetablePatchRequestModel",
         "IsRequired": true
       }
     ],
