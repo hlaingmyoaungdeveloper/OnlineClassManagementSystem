@@ -158,6 +158,85 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TeachPlanController",
+    "Method": "GetTeachPlansAsync",
+    "RelativePath": "api/TeachPlan",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TeachPlanController",
+    "Method": "CreateTeachPlanAsync",
+    "RelativePath": "api/TeachPlan",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.TeachPlan.TeachPlanCreateRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TeachPlanController",
+    "Method": "GetTeachPlanAsync",
+    "RelativePath": "api/TeachPlan/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TeachPlanController",
+    "Method": "PatchTeachPlanAsync",
+    "RelativePath": "api/TeachPlan/{id}",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "model",
+        "Type": "OnlineClassManagementSystem.Domain.models.TeachPlan.TeachPlanPatchRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TeachPlanController",
+    "Method": "DeleteTeachPlanAsync",
+    "RelativePath": "api/TeachPlan/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.TimetablesController",
     "Method": "GetTimetablesAsync",
     "RelativePath": "api/Timetables",

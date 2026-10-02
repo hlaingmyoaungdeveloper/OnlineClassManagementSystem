@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using OnlineClassManagementSystem.Database.Models;
 using OnlineClassManagementSystem.Domain.features.Enrollment;
 using OnlineClassManagementSystem.Domain.features.SubClass;
+using OnlineClassManagementSystem.Domain.features.TeachPlan;
 using OnlineClassManagementSystem.Domain.features.Timetable;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 builder.Services.AddScoped<SubClassService>();
 builder.Services.AddScoped<EnrollmentService>();
 builder.Services.AddScoped<TimetableService>();
+builder.Services.AddScoped<TeachPlanService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
