@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnlineClassManagementSystem.MvcApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e11a3fca1cca5d23a5e22b82a4c998209da9bf95")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+35037efc87d4a4052b3c04fd116cce7a0e8a7294")]
 [assembly: System.Reflection.AssemblyProductAttribute("OnlineClassManagementSystem.MvcApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnlineClassManagementSystem.MvcApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -26,6 +26,7 @@ public class SubClassService
                  .Where(x => !x.IsDelete)
                  .Select(x => new SubClassModel
                  {
+                     SubClassId = x.SubClassId,
                      ClassName = x.ClassName,
                      Place = x.Place,
                      OpenDate = x.OpenDate,
@@ -264,7 +265,7 @@ public class SubClassService
     {
         try
         {
-            // Note: If you implement Soft Delete, add "&& x.IsDelete == false" to this query.
+           
             var subClass = await _db.TblSubClasses.FirstOrDefaultAsync(x =>!x.IsDelete && x.SubClassId == model.SubClassId);
 
             if (subClass is null)

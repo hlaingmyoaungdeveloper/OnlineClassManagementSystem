@@ -1,35 +1,26 @@
-using OnlineClassManagementSystem.MvcApp.Services;
+using Microsoft.EntityFrameworkCore;
+using OnlineClassManagementSystem.Database.Models;
+using OnlineClassManagementSystem.Domain.features.Enrollment;
+using OnlineClassManagementSystem.Domain.features.SubClass;
+using OnlineClassManagementSystem.Domain.features.Timetable;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
-// --- Session for role-based auth simulation ---
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromHours(8);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
-// --- Typed HTTP Client (IHttpClientFactory Pattern) ---
-builder.Services.AddHttpClient<OcmsApiService>(client =>
-{
-    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"]
-        ?? "https://localhost:7196";
-    client.BaseAddress = new Uri(baseUrl);
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
-
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"))
+);
+builder.Services.AddScoped<SubClassService>();
+builder.Services.AddScoped<EnrollmentService>();
+builder.Services.AddScoped<TimetableService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -37,8 +28,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
-app.UseSession();
 
 app.UseAuthorization();
 

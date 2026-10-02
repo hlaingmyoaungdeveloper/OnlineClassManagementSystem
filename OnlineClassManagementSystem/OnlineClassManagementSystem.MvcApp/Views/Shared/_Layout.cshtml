@@ -3,139 +3,124 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Online Class Management System - Manage classes, enrollments and schedules." />
-    <title>@ViewData["Title"] — OCMS</title>
-
-    <!-- Tailwind CSS CDN -->
+    <title>@ViewData["Title"] - Online Class Management</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/OnlineClassManagementSystem.MvcApp.styles.css" asp-append-version="true" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-                    animation: {
-                        'fade-in': 'fadeIn 0.4s ease-out',
-                        'slide-in': 'slideIn 0.3s ease-out',
-                    },
-                    keyframes: {
-                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(8px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        slideIn: { '0%': { transform: 'translateX(-8px)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } },
-                    }
-                }
-            }
-        }
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        .sidebar-gradient { background: linear-gradient(180deg, #4338ca 0%, #3730a3 40%, #312e81 100%); }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 99px; }
-        .toast-enter { animation: fadeIn 0.4s ease-out; }
-        @@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        * { font-family: 'Inter', sans-serif; }
+        .sidebar-link { transition: all 0.2s ease; }
+        .sidebar-link:hover { background: rgba(255,255,255,0.1); transform: translateX(4px); }
+        .sidebar-link.active { background: rgba(255,255,255,0.15); border-right: 3px solid #60a5fa; }
+        .content-area { scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent; }
     </style>
-    @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
-
-@{
-    var isLoggedIn = Context.Session.GetString("UserRole") != null;
-    var pageTitle = ViewData["Title"]?.ToString() ?? "Dashboard";
-    var username = Context.Session.GetString("Username") ?? "";
-    var role = Context.Session.GetString("UserRole") ?? "";
-}
-
-@if (isLoggedIn)
-{
-    <div class="flex h-screen overflow-hidden">
-
-        <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar-gradient flex flex-col w-64 flex-shrink-0 shadow-2xl z-30 transition-all duration-300 overflow-hidden">
-            @await Html.PartialAsync("_Sidebar")
-        </aside>
-
-        <!-- Main Area -->
-        <div class="flex flex-col flex-1 overflow-hidden">
-
-            <!-- Top Navbar -->
-            <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm z-20">
-                <div class="flex items-center gap-4">
-                    <button onclick="document.getElementById('sidebar').classList.toggle('hidden')"
-                            class="lg:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
-                    <div>
-                        <h1 class="text-lg font-bold text-slate-800">@pageTitle</h1>
-                        <p class="text-xs text-slate-400">Online Class Management System</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full
-                        @(role == "Admin" ? "bg-orange-100 text-orange-700" :
-                          role == "Teacher" ? "bg-green-100 text-green-700" :
-                          "bg-blue-100 text-blue-700")">
-                        <span class="w-1.5 h-1.5 rounded-full
-                            @(role == "Admin" ? "bg-orange-500" :
-                              role == "Teacher" ? "bg-green-500" : "bg-blue-500")"></span>
-                        @role
-                    </span>
-                    <div class="flex items-center gap-2">
-                        <div class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow">
-                            @(username.Length > 0 ? username[0].ToString().ToUpper() : "?")
-                        </div>
-                        <span class="hidden md:block text-sm font-medium text-slate-700">@username</span>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Toast Notifications -->
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="toast-enter mx-6 mt-4 flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm shadow-sm">
-                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+<body class="bg-gray-50 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col fixed h-full z-30 shadow-xl">
+        <!-- Brand -->
+        <div class="px-6 py-5 border-b border-white/10">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="flex items-center gap-3 no-underline">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
-                    @TempData["SuccessMessage"]
                 </div>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="toast-enter mx-6 mt-4 flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm shadow-sm">
-                    <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    @TempData["ErrorMessage"]
+                <div>
+                    <span class="text-base font-bold text-white block leading-tight">ClassManager</span>
+                    <span class="text-[11px] text-blue-300/80 font-medium">Online Platform</span>
                 </div>
-            }
-
-            <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto p-6" style="animation: fadeIn 0.4s ease-out;">
-                @RenderBody()
-            </main>
+            </a>
         </div>
-    </div>
-}
-else
-{
-    <main class="min-h-screen">
-        @RenderBody()
-    </main>
-}
 
-@await RenderSectionAsync("Scripts", required: false)
-<script>
-    document.querySelectorAll('.toast-enter').forEach(el => {
-        setTimeout(() => {
-            el.style.transition = 'opacity 0.4s';
-            el.style.opacity = '0';
-            setTimeout(() => el.remove(), 400);
-        }, 5000);
-    });
-</script>
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 py-4 space-y-1">
+            <p class="px-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Main Menu</p>
+
+            <a asp-area="" asp-controller="Home" asp-action="Index"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+            </a>
+
+            <p class="px-3 pt-4 text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Management</p>
+
+            <a asp-area="" asp-controller="SubClass" asp-action="Index"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Classes
+            </a>
+
+            <a asp-area="" asp-controller="Enrollment" asp-action="Index"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Enrollments
+            </a>
+
+            <a asp-area="" asp-controller="Schedule" asp-action="Index"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Schedules
+            </a>
+
+            <p class="px-3 pt-4 text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Settings</p>
+
+            <a asp-area="" asp-controller="Home" asp-action="Privacy"
+               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Privacy
+            </a>
+        </nav>
+
+        <!-- Footer -->
+        <div class="px-5 py-4 border-t border-white/10">
+            <p class="text-[11px] text-slate-500">&copy; 2026 ClassManager</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 ml-64 flex flex-col min-h-screen">
+        <!-- Top Bar -->
+        <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-20 shadow-sm">
+            <div>
+                <h1 class="text-lg font-semibold text-gray-800">@(ViewData["Title"] ?? "Dashboard")</h1>
+                <p class="text-xs text-gray-400 mt-0.5">Online Class Management System</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow">
+                    A
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 p-8 content-area">
+            @RenderBody()
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 bg-white px-8 py-3">
+            <p class="text-xs text-gray-400">&copy; 2026 Online Class Management System &mdash; <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-blue-500 hover:underline">Privacy Policy</a></p>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-

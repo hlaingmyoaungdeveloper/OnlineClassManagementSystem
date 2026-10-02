@@ -21,7 +21,7 @@ public class SubClassListResponseModel
 
 public class SubClassModel
 {
-   // public int SubClassId { get; set; }
+   public int SubClassId { get; set; }
 
     public string ClassName { get; set; } = null!;
 

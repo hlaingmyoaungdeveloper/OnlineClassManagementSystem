@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineClassManagementSystem.Database\OnlineClassManagementSystem.Database.csproj" />
+    <ProjectReference Include="..\OnlineClassManagementSystem.Domain\OnlineClassManagementSystem.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,60 +1,32 @@
 using Microsoft.AspNetCore.Mvc;
-using OnlineClassManagementSystem.MvcApp.Services;
-using OnlineClassManagementSystem.MvcApp.ViewModels;
+using OnlineClassManagementSystem.MvcApp.Models;
+using System.Diagnostics;
 
-namespace OnlineClassManagementSystem.MvcApp.Controllers;
-
-public class HomeController : Controller
+namespace OnlineClassManagementSystem.MvcApp.Controllers
 {
-    private readonly OcmsApiService _api;
-
-    public HomeController(OcmsApiService api)
+    public class HomeController : Controller
     {
-        _api = api;
-    }
+        private readonly ILogger<HomeController> _logger;
 
-    [HttpGet]
-    public IActionResult Index()
-    {
-        // If already "logged in" via session, redirect to correct dashboard
-        var role = HttpContext.Session.GetString("UserRole");
-        return role switch
+        public HomeController(ILogger<HomeController> logger)
         {
-            "Admin" => RedirectToAction("Dashboard", "Admin"),
-            "Teacher" => RedirectToAction("MyClasses", "Teacher"),
-            "Student" => RedirectToAction("BrowseClasses", "Student"),
-            _ => View()
-        };
-    }
-
-    [HttpPost]
-    public IActionResult Login(LoginViewModel model)
-    {
-        if (model.UserId <= 0 || string.IsNullOrWhiteSpace(model.Username))
-        {
-            model.ErrorMessage = "Please provide a valid User ID and Username.";
-            return View("Index", model);
+            _logger = logger;
         }
 
-        // Store session
-        HttpContext.Session.SetInt32("UserId", model.UserId);
-        HttpContext.Session.SetString("Username", model.Username);
-        HttpContext.Session.SetString("UserRole", model.Role);
-
-        return model.Role switch
+        public IActionResult Index()
         {
-            "Admin" => RedirectToAction("Dashboard", "Admin"),
-            "Teacher" => RedirectToAction("MyClasses", "Teacher"),
-            _ => RedirectToAction("BrowseClasses", "Student")
-        };
-    }
+            return View();
+        }
 
-    public IActionResult Logout()
-    {
-        HttpContext.Session.Clear();
-        return RedirectToAction("Index");
-    }
+        public IActionResult Privacy()
+        {
+            return View();
+        }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error() => View();
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
 }
