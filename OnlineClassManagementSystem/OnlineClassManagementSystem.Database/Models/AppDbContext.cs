@@ -19,6 +19,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<TblSubject> TblSubjects { get; set; }
 
+    public virtual DbSet<TblTeachingTracking> TblTeachingTrackings { get; set; }
+
     public virtual DbSet<TblUser> TblUsers { get; set; }
 
     public virtual DbSet<TeachPlan> TeachPlans { get; set; }
@@ -124,6 +126,29 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.SubjectName).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<TblTeachingTracking>(entity =>
+        {
+            entity.HasKey(e => e.TrackId).HasName("PK__Tbl_Teac__7A74F8E0E0415EDD");
+
+            entity.ToTable("Tbl_TeachingTracking");
+
+            entity.Property(e => e.CreatedDateTime)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.DateTaught).HasColumnType("datetime");
+            entity.Property(e => e.ModifiedDateTime).HasColumnType("datetime");
+            entity.Property(e => e.TopicTaught).HasMaxLength(255);
+
+            entity.HasOne(d => d.SubClass).WithMany(p => p.TblTeachingTrackings)
+                .HasForeignKey(d => d.SubClassId)
+                .HasConstraintName("FK_TeachingLog_SubClass");
+
+            entity.HasOne(d => d.Teacher).WithMany(p => p.TblTeachingTrackings)
+                .HasForeignKey(d => d.TeacherId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TeachingLog_Teacher");
         });
 
         modelBuilder.Entity<TblUser>(entity =>

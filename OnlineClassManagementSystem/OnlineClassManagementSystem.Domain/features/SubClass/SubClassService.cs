@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OnlineClassManagementSystem.Database.Models;
 using OnlineClassManagementSystem.Domain.models.SubClass;
 using System;
@@ -277,19 +277,16 @@ public class SubClassService
                 };
             }
 
-            //var hasEnrollments = await _db.TblEnrollments.AnyAsync(x => x.SubClassId == model.SubClassId);
+            var hasEnrollments = await _db.TblEnrollments.AnyAsync(x => !x.IsDelete && x.ClassId == model.SubClassId);
 
-            //if (hasEnrollments)
-            //{
-            //    return new SubClassDeleteResponseModel
-            //    {
-            //        IsSuccess = false,
-            //        Message = "Cannot delete SubClass because it has enrollments."
-            //    };
-            //}
-
-            //// Hard delete
-            //_db.TblSubClasses.Remove(subClass);
+            if (hasEnrollments)
+            {
+                return new SubClassDeleteResponseModel
+                {
+                    IsSuccess = false,
+                    Message = "Cannot delete SubClass because it has enrollments."
+                };
+            }
 
             subClass.IsDelete = true;
 

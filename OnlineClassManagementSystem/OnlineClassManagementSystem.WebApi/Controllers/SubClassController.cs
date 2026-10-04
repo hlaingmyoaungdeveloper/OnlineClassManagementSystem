@@ -4,10 +4,9 @@ using OnlineClassManagementSystem.Domain.models.SubClass;
 
 namespace OnlineClassManagementSystem.WebApi.Controllers
 {
-    // ၁။ ဤ Attributes နှစ်ခု မဖြစ်မနေ ထည့်ရပါမည်
     [Route("api/[controller]")]
     [ApiController]
-    public class SubClassController : ControllerBase // ၂။ Controller အစား ControllerBase ပြောင်းပါ
+    public class SubClassController : ControllerBase 
     {
         private readonly SubClassService _service;
 
@@ -17,7 +16,6 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
         }
 
         [HttpGet]
-        // ၃။ နာမည်တူနေမှုကို ရှောင်ရှားရန် GetSubClassesAsync (အများကိန်း) ဟု ပြင်ထားပါသည်
         public async Task<IActionResult> GetSubClassesAsync()
         {
             var result = await _service.GetSubClassesAsync(new SubClassListRequestModel());
@@ -53,7 +51,6 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> PatchSubClassAsync(int id, [FromBody] SubClassPatchRequestModel model)
         {
-            // Patch ၏ Model အား [FromBody] မှလာမည်ဟု တိကျစွာ သတ်မှတ်ပေးခြင်းက ပိုကောင်းပါသည်
             var result = await _service.PatchSubClassAsync(id, model);
             if (result.IsSuccess)
             {

@@ -143,14 +143,14 @@ public class EnrollmentService
 
             bool isAlreadyEnrolled = await _db.TblEnrollments
                 .AsNoTracking()
-                .AnyAsync(x => !x.IsDelete && x.ClassId == model.ClassId && x.StudentId == model.StudentId);
+                .AnyAsync(x => !x.IsDelete && x.StudentId == model.StudentId);
 
             if (isAlreadyEnrolled)
             {
                 return new EnrollmentCreateResponseModel
                 {
                     IsSuccess = false,
-                    Message = "Student is already enrolled in this class"
+                    Message = "Student is already enrolled in a class. A student can only enroll in one class."
                 };
             }
 
@@ -264,14 +264,14 @@ public class EnrollmentService
             if (model.ClassId != null || model.StudentId != null)
             {
                 bool isDuplicate = await _db.TblEnrollments
-                    .AnyAsync(x => !x.IsDelete && x.ClassId == targetClassId && x.StudentId == targetStudentId && x.EnrollmentId != id);
+                    .AnyAsync(x => !x.IsDelete && x.StudentId == targetStudentId && x.EnrollmentId != id);
 
                 if (isDuplicate)
                 {
                     return new EnrollmentPatchResponseModel
                     {
                         IsSuccess = false,
-                        Message = "Enrollment for this student in this class already exists"
+                        Message = "Student is already enrolled in a class. A student can only enroll in one class."
                     };
                 }
             }
