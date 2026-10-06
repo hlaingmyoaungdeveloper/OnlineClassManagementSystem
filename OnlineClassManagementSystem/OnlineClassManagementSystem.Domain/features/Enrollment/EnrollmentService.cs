@@ -32,8 +32,7 @@ public class EnrollmentService
                      StudentId = x.StudentId,
                      StudentName = x.Student.Username,
                      EnrollDate = x.EnrollDate,
-                     Status = x.Status,
-                     IsDelete = x.IsDelete
+                     Status = x.Status
                  }).ToListAsync();
 
             return new EnrollmentListResponseModel()

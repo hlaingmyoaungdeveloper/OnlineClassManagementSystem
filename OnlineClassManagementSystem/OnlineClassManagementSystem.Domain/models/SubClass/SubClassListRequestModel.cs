@@ -35,6 +35,6 @@ public class SubClassModel
 
     public int? StudentCount { get; set; }
 
-    public bool IsDelete { get; set; }
+    //public bool IsDelete { get; set; }
 }
 

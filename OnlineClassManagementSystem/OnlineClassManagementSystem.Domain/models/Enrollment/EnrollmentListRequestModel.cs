@@ -29,5 +29,5 @@ public class EnrollmentModel
     public string? Status { get; set; }
     public DateTime? EnrollDate { get; set; }
 
-    public bool IsDelete { get; set; }
+    //public bool IsDelete { get; set; }
 }

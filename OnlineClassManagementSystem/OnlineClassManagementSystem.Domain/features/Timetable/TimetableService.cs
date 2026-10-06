@@ -29,6 +29,7 @@ public class TimetableService
                 .Where(x => !x.IsDelete)
                 .Select(x => new TimetableModel
                 {
+                    Id = x.Id,
                     SubClassId = x.ClassId,
                     ClassName = x.Class.ClassName,
                     TeacherId = x.TeacherId,
@@ -38,8 +39,7 @@ public class TimetableService
                     DayOfWeek = x.DayOfWeek,
                     StartTime = x.StartTime,
                     EndTime = x.EndTime,
-                    Mode = x.Mode,
-                    CreatedDateTime = x.CreatedDateTime
+                    Mode = x.Mode
                 })
                 .ToListAsync();
 
@@ -72,6 +72,7 @@ public class TimetableService
                 .Where(x => !x.IsDelete && x.ClassId == model.SubClassId)
                 .Select(x => new TimetableModel
                 {
+                    Id = x.Id,
                     SubClassId = x.ClassId,
                     ClassName= x.Class.ClassName,
                     TeacherId = x.TeacherId,
@@ -81,8 +82,7 @@ public class TimetableService
                     DayOfWeek = x.DayOfWeek,
                     StartTime = x.StartTime,
                     EndTime = x.EndTime,
-                    Mode = x.Mode,
-                    CreatedDateTime = x.CreatedDateTime
+                    Mode = x.Mode
                 })
                 .ToListAsync();
 
@@ -125,6 +125,7 @@ public class TimetableService
                 .Where(x => !x.IsDelete && x.TeacherId == model.TeacherId)
                 .Select(x => new TimetableModel
                 {
+                    Id = x.Id,
                     SubClassId = x.ClassId,
                     ClassName = x.Class.ClassName,
                     TeacherId = x.TeacherId,
@@ -134,8 +135,7 @@ public class TimetableService
                     DayOfWeek = x.DayOfWeek,
                     StartTime = x.StartTime,
                     EndTime = x.EndTime,
-                    Mode = x.Mode,
-                    CreatedDateTime = x.CreatedDateTime
+                    Mode = x.Mode
                 })
                 .ToListAsync();
 

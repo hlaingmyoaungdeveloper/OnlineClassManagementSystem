@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnlineClassManagementSystem.WebApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7c1e644b7f14b2c633814b12e3d43335b2701a24")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a85dc7b4a21f5246d28a6c52bd0df21b346ebbea")]
 [assembly: System.Reflection.AssemblyProductAttribute("OnlineClassManagementSystem.WebApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnlineClassManagementSystem.WebApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

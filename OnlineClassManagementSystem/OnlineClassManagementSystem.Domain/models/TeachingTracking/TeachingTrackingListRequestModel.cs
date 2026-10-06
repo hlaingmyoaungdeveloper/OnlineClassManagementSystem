@@ -36,17 +36,4 @@ public class TeachingTrackingModel
 
     public string? Remarks { get; set; }
 
-    public string? Reamrks
-    {
-        get => Remarks;
-        set => Remarks = value;
-    }
-
-    public DateTime CreatedDateTime { get; set; }
-
-    public DateTime? ModifiedDateTime { get; set; }
-
-    public int? CreatedBy { get; set; }
-
-    public int? ModifiedBy { get; set; }
 }

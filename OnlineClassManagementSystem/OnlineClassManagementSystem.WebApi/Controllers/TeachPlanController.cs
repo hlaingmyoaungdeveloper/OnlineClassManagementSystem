@@ -37,7 +37,7 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
             return BadRequest(result);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{Id}")]
         public async Task<IActionResult> GetTeachPlanAsync([FromRoute] TeachPlanEditRequestModel model)
         {
             var result = await _service.GetTeachPlanAsync(model);

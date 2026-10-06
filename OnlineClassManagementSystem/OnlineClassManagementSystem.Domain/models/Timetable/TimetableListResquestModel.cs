@@ -15,7 +15,7 @@ public class TimetableListResponseModel
 
 public class TimetableModel
 {
-    //public int Id { get; set; }
+    public int Id { get; set; }
 
     public int SubClassId { get; set; }
 
@@ -37,6 +37,5 @@ public class TimetableModel
 
     public string Mode { get; set; } = null!;
 
-    public DateTime CreatedDateTime { get; set; }
 }
 
