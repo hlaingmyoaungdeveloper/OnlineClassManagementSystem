@@ -21,7 +21,7 @@ public class TimetableService
     {
         try
         {
-            List<TimetableModel> timetables = await _db.Schedules
+            List<TimetableModel> timetables = await _db.TblTimeTables
                 .AsNoTracking()
                 .Include(x => x.Class)
                 .Include(x => x.Teacher)
@@ -64,7 +64,7 @@ public class TimetableService
     {
         try
         {
-            List<TimetableModel> timetables = await _db.Schedules
+            List<TimetableModel> timetables = await _db.TblTimeTables
                 .AsNoTracking()
                 .Include(x => x.Class)
                 .Include(x => x.Teacher)
@@ -117,7 +117,7 @@ public class TimetableService
     {
         try
         {
-            List<TimetableModel> timetables = await _db.Schedules
+            List<TimetableModel> timetables = await _db.TblTimeTables
                 .AsNoTracking()
                 .Include(x => x.Class)
                 .Include(x => x.Teacher)
@@ -253,7 +253,7 @@ public class TimetableService
                 };
             }
 
-            bool isTeacherOverlapped = await _db.Schedules
+            bool isTeacherOverlapped = await _db.TblTimeTables
                 .AsNoTracking()
                 .AnyAsync(x => !x.IsDelete
                             && x.DayOfWeek == model.DayOfWeek
@@ -271,7 +271,7 @@ public class TimetableService
                 };
             }
 
-            Schedule schedule = new()
+            TblTimeTable timeTable = new()
             {
                 ClassId = model.SubClassId,
                 TeacherId = model.TeacherId,
@@ -285,7 +285,7 @@ public class TimetableService
                 IsDelete = false
             };
 
-            _db.Schedules.Add(schedule);
+            _db.TblTimeTables.Add(timeTable);
             int result = await _db.SaveChangesAsync();
 
             return new TimetableCreateResponseModel
@@ -308,7 +308,7 @@ public class TimetableService
     {
         try
         {
-            var schedule = await _db.Schedules
+            var schedule = await _db.TblTimeTables
                 .FirstOrDefaultAsync(x => !x.IsDelete && x.Id == id);
 
             if (schedule is null)
@@ -427,7 +427,7 @@ public class TimetableService
     {
         try
         {
-            var schedule = await _db.Schedules
+            var schedule = await _db.TblTimeTables
                 .FirstOrDefaultAsync(x => !x.IsDelete && x.Id == model.TimetableId);
 
             if (schedule is null)

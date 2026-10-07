@@ -5,8 +5,7 @@ namespace OnlineClassManagementSystem.Domain.models.TeachingTracking;
 
 public class TeachingTrackingListRequestModel
 {
-    public int? SubClassId { get; set; }
-    public int? TeacherId { get; set; }
+
 }
 
 public class TeachingTrackingListResponseModel
@@ -20,6 +19,10 @@ public class TeachingTrackingModel
 {
     public int TrackId { get; set; }
 
+    public int TeachPlanId { get; set; }
+
+    public string? TopicTaught { get; set; }
+
     public int SubClassId { get; set; }
 
     public string? ClassName { get; set; }
@@ -28,11 +31,10 @@ public class TeachingTrackingModel
 
     public string? TeacherName { get; set; }
 
-    public string TopicTaught { get; set; } = null!;
+    public DateOnly DateTaught { get; set; }
 
-    public DateTime DateTaught { get; set; }
-
-    public TimeOnly Duration { get; set; }
+    public TimeOnly StartTime { get; set; }
+    public TimeOnly EndTime { get; set; }
 
     public string? Remarks { get; set; }
 

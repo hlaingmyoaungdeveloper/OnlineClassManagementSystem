@@ -21,40 +21,40 @@ public class TeachingTrackingService
     {
         try
         {
-            var query = _db.TblTeachingTrackings
+            var query = _db.TblTeachTrackings
                 .AsNoTracking()
-                .Include(x => x.SubClass)
-                .Include(x => x.Teacher)
-                .AsQueryable();
+                .Include(x => x.TeachPlan)
+                .Where(x => !x.IsDelete);
 
-            if (model.SubClassId.HasValue && model.SubClassId.Value > 0)
-            {
-                query = query.Where(x => x.SubClassId == model.SubClassId.Value);
-            }
+            var trackings = await query.ToListAsync();
+            var subClassIds = trackings.Select(x => x.SubClassId).Distinct().ToList();
+            var teacherIds = trackings.Select(x => x.TeacherId).Distinct().ToList();
 
-            if (model.TeacherId.HasValue && model.TeacherId.Value > 0)
-            {
-                query = query.Where(x => x.TeacherId == model.TeacherId.Value);
-            }
+            var classNames = await _db.TblSubClasses
+                .AsNoTracking()
+                .Where(x => subClassIds.Contains(x.SubClassId))
+                .ToDictionaryAsync(x => x.SubClassId, x => x.ClassName);
+            var teacherNames = await _db.TblUsers
+                .AsNoTracking()
+                .Where(x => teacherIds.Contains(x.UserId))
+                .ToDictionaryAsync(x => x.UserId, x => x.Username);
 
-            List<TeachingTrackingModel> trackingList = await query
+            List<TeachingTrackingModel> trackingList = trackings
                 .Select(x => new TeachingTrackingModel
                 {
-                    TrackId = x.TrackId,
+                    TrackId = x.TeachTrackingId,
+                    TeachPlanId = x.TeachPlanId,
+                    TopicTaught = x.TeachPlan.Topic,
                     SubClassId = x.SubClassId,
-                    ClassName = x.SubClass != null ? x.SubClass.ClassName : null,
+                    ClassName = classNames.GetValueOrDefault(x.SubClassId),
                     TeacherId = x.TeacherId,
-                    TeacherName = x.Teacher != null ? x.Teacher.Username : null,
-                    TopicTaught = x.TopicTaught,
+                    TeacherName = teacherNames.GetValueOrDefault(x.TeacherId),
                     DateTaught = x.DateTaught,
-                    Duration = x.Duration,
-                    Remarks = x.Reamrks,
-                    CreatedDateTime = x.CreatedDateTime,
-                    ModifiedDateTime = x.ModifiedDateTime,
-                    CreatedBy = x.CreatedBy,
-                    ModifiedBy = x.ModifiedBy
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime,
+                    Remarks = x.Remarks
                 })
-                .ToListAsync();
+                .ToList();
 
             return new TeachingTrackingListResponseModel
             {
@@ -77,11 +77,10 @@ public class TeachingTrackingService
     {
         try
         {
-            var tracking = await _db.TblTeachingTrackings
+            var tracking = await _db.TblTeachTrackings
                 .AsNoTracking()
-                .Include(x => x.SubClass)
-                .Include(x => x.Teacher)
-                .FirstOrDefaultAsync(x => x.TrackId == model.TrackId);
+                .Include(x => x.TeachPlan)
+                .FirstOrDefaultAsync(x => !x.IsDelete && x.TeachTrackingId == model.TrackId);
 
             if (tracking is null)
             {
@@ -92,23 +91,32 @@ public class TeachingTrackingService
                 };
             }
 
+            string? className = await _db.TblSubClasses
+                .AsNoTracking()
+                .Where(x => x.SubClassId == tracking.SubClassId)
+                .Select(x => x.ClassName)
+                .FirstOrDefaultAsync();
+            string? teacherName = await _db.TblUsers
+                .AsNoTracking()
+                .Where(x => x.UserId == tracking.TeacherId)
+                .Select(x => x.Username)
+                .FirstOrDefaultAsync();
+
             return new TeachingTrackingEditResponseModel
             {
                 IsSuccess = true,
                 Message = "Teaching tracking fetched successfully",
-                TrackId = tracking.TrackId,
+                TrackId = tracking.TeachTrackingId,
+                TeachPlanId = tracking.TeachPlanId,
+                TopicTaught = tracking.TeachPlan.Topic,
                 SubClassId = tracking.SubClassId,
-                ClassName = tracking.SubClass?.ClassName,
+                ClassName = className,
                 TeacherId = tracking.TeacherId,
-                TeacherName = tracking.Teacher?.Username,
-                TopicTaught = tracking.TopicTaught,
+                TeacherName = teacherName,
                 DateTaught = tracking.DateTaught,
-                Duration = tracking.Duration,
-                Remarks = tracking.Reamrks,
-                CreatedDateTime = tracking.CreatedDateTime,
-                ModifiedDateTime = tracking.ModifiedDateTime,
-                CreatedBy = tracking.CreatedBy,
-                ModifiedBy = tracking.ModifiedBy
+                StartTime = tracking.StartTime,
+                EndTime = tracking.EndTime,
+                Remarks = tracking.Remarks
             };
         }
         catch (Exception ex)
@@ -141,12 +149,12 @@ public class TeachingTrackingService
             };
         }
 
-        if (string.IsNullOrWhiteSpace(model.TopicTaught))
+        if (model.TeachPlanId <= 0)
         {
             return new TeachingTrackingCreateResponseModel
             {
                 IsSuccess = false,
-                Message = "TopicTaught is required"
+                Message = "TeachPlanId is required and must be greater than 0"
             };
         }
 
@@ -178,19 +186,32 @@ public class TeachingTrackingService
                 };
             }
 
-            TblTeachingTracking tracking = new()
+            bool isTeachPlanExists = await _db.TblTeachPlans
+                .AsNoTracking()
+                .AnyAsync(x => !x.IsDelete && x.TeachPlanId == model.TeachPlanId);
+
+            if (!isTeachPlanExists)
             {
+                return new TeachingTrackingCreateResponseModel
+                {
+                    IsSuccess = false,
+                    Message = "TeachPlan does not exist"
+                };
+            }
+
+            TblTeachTracking tracking = new()
+            {
+                TeachPlanId = model.TeachPlanId,
                 SubClassId = model.SubClassId,
                 TeacherId = model.TeacherId,
-                TopicTaught = model.TopicTaught,
-                DateTaught = model.DateTaught == default ? DateTime.Now : model.DateTaught,
-                Duration = model.Duration,
-                Reamrks = model.Remarks,
-                CreatedDateTime = DateTime.Now,
-                CreatedBy = model.CreatedBy
+                DateTaught = model.DateTaught == default ? DateOnly.FromDateTime(DateTime.Now) : model.DateTaught,
+                StartTime = model.StartTime,
+                EndTime = model.EndTime,
+                Remarks = model.Remarks,
+                CreatedDateTime = DateTime.Now
             };
 
-            _db.TblTeachingTrackings.Add(tracking);
+            _db.TblTeachTrackings.Add(tracking);
             int result = await _db.SaveChangesAsync();
 
             return new TeachingTrackingCreateResponseModel
@@ -213,8 +234,8 @@ public class TeachingTrackingService
     {
         try
         {
-            var tracking = await _db.TblTeachingTrackings
-                .FirstOrDefaultAsync(x => x.TrackId == id);
+            var tracking = await _db.TblTeachTrackings
+                .FirstOrDefaultAsync(x => !x.IsDelete && x.TeachTrackingId == id);
 
             if (tracking is null)
             {
@@ -259,9 +280,21 @@ public class TeachingTrackingService
                 tracking.TeacherId = model.TeacherId.Value;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.TopicTaught))
+            if (model.TeachPlanId.HasValue && model.TeachPlanId.Value != tracking.TeachPlanId)
             {
-                tracking.TopicTaught = model.TopicTaught;
+                bool isTeachPlanExists = await _db.TblTeachPlans
+                    .AnyAsync(x => !x.IsDelete && x.TeachPlanId == model.TeachPlanId.Value);
+
+                if (!isTeachPlanExists)
+                {
+                    return new TeachingTrackingPatchResponseModel
+                    {
+                        IsSuccess = false,
+                        Message = "TeachPlan does not exist"
+                    };
+                }
+
+                tracking.TeachPlanId = model.TeachPlanId.Value;
             }
 
             if (model.DateTaught.HasValue && model.DateTaught.Value != default)
@@ -271,17 +304,21 @@ public class TeachingTrackingService
 
             if (model.Duration.HasValue)
             {
-                tracking.Duration = model.Duration.Value;
+                if (model.StartTime.HasValue && model.EndTime.HasValue && model.StartTime.Value > model.EndTime.Value)
+                {
+                    return new TeachingTrackingPatchResponseModel
+                    {
+                        IsSuccess = false,
+                        Message = "StartTime cannot be later than EndTime."
+                    };
+                }
+                tracking.StartTime = model.StartTime.Value;
+                tracking.EndTime = model.EndTime.Value;
             }
 
             if (model.Remarks is not null)
             {
-                tracking.Reamrks = model.Remarks;
-            }
-
-            if (model.ModifiedBy.HasValue)
-            {
-                tracking.ModifiedBy = model.ModifiedBy.Value;
+                tracking.Remarks = model.Remarks;
             }
 
             tracking.ModifiedDateTime = DateTime.Now;
@@ -308,8 +345,8 @@ public class TeachingTrackingService
     {
         try
         {
-            var tracking = await _db.TblTeachingTrackings
-                .FirstOrDefaultAsync(x => x.TrackId == model.TrackId);
+            var tracking = await _db.TblTeachTrackings
+                .FirstOrDefaultAsync(x => !x.IsDelete && x.TeachTrackingId == model.TrackId);
 
             if (tracking is null)
             {
@@ -320,7 +357,8 @@ public class TeachingTrackingService
                 };
             }
 
-            _db.TblTeachingTrackings.Remove(tracking);
+            tracking.IsDelete = true;
+            tracking.ModifiedDateTime = DateTime.Now;
             int result = await _db.SaveChangesAsync();
 
             return new TeachingTrackingDeleteResponseModel

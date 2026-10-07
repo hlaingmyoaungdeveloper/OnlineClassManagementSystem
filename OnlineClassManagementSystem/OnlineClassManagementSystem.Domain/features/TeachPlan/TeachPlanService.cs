@@ -21,18 +21,15 @@ public class TeachPlanService
     {
         try
         {
-            List<TeachPlanModel> teachPlans = await _db.TeachPlans
+            List<TeachPlanModel> teachPlans = await _db.TblTeachPlans
                 .AsNoTracking()
                 .Where(x => !x.IsDelete)
                 .Select(x => new TeachPlanModel
                 {
-                    Id = x.Id,
-                    TeacherId = x.TeacherId,
-                    ClassId = x.ClassId,
+                    Id = x.TeachPlanId,
                     SubjectId = x.SubjectId,
-                    Topic = x.Topic,
-                    IsCompleted = x.IsCompleted,
-                    CompletedDate = x.CompletedDate
+                    SubjectName = x.Subject.SubjectName,
+                    Topic = x.Topic
                 }).ToListAsync();
 
             return new TeachPlanListResponseModel
@@ -56,9 +53,10 @@ public class TeachPlanService
     {
         try
         {
-            var teachPlan = await _db.TeachPlans
+            var teachPlan = await _db.TblTeachPlans
+                .Include(x => x.Subject)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => !x.IsDelete && x.Id == model.Id);
+                .FirstOrDefaultAsync(x => !x.IsDelete && x.TeachPlanId == model.Id);
 
             if (teachPlan is null)
             {
@@ -73,12 +71,10 @@ public class TeachPlanService
             {
                 IsSuccess = true,
                 Message = "TeachPlan Fetched Successfully",
-                TeacherId = teachPlan.TeacherId,
-                ClassId = teachPlan.ClassId,
+                Id = teachPlan.TeachPlanId,
                 SubjectId = teachPlan.SubjectId,
-                Topic = teachPlan.Topic,
-                IsCompleted = teachPlan.IsCompleted,
-                CompletedDate = teachPlan.CompletedDate
+                SubjectName = teachPlan.Subject.SubjectName,
+                Topic = teachPlan.Topic
             };
         }
         catch (Exception ex)
@@ -104,32 +100,6 @@ public class TeachPlanService
 
         try
         {
-            bool isTeacherExists = await _db.TblUsers
-                .AsNoTracking()
-                .AnyAsync(x => x.UserId == model.TeacherId);
-
-            if (!isTeacherExists)
-            {
-                return new TeachPlanCreateResponseModel
-                {
-                    IsSuccess = false,
-                    Message = "Teacher does not exist"
-                };
-            }
-
-            bool isClassExists = await _db.TblSubClasses
-                .AsNoTracking()
-                .AnyAsync(x => !x.IsDelete && x.SubClassId == model.ClassId);
-
-            if (!isClassExists)
-            {
-                return new TeachPlanCreateResponseModel
-                {
-                    IsSuccess = false,
-                    Message = "Class does not exist"
-                };
-            }
-
             bool isSubjectExists = await _db.TblSubjects
                 .AsNoTracking()
                 .AnyAsync(x => x.SubjectId == model.SubjectId);
@@ -143,18 +113,15 @@ public class TeachPlanService
                 };
             }
 
-            Database.Models.TeachPlan teachPlan = new()
+            TblTeachPlan teachPlan = new()
             {
-                TeacherId = model.TeacherId,
-                ClassId = model.ClassId,
                 SubjectId = model.SubjectId,
                 Topic = model.Topic,
-                IsCompleted = false,
                 CreatedDateTime = DateTime.Now,
                 ModifiedDateTime = DateTime.Now
             };
 
-            _db.TeachPlans.Add(teachPlan);
+            _db.TblTeachPlans.Add(teachPlan);
             int result = await _db.SaveChangesAsync();
 
             return new TeachPlanCreateResponseModel
@@ -177,8 +144,8 @@ public class TeachPlanService
     {
         try
         {
-            var teachPlan = await _db.TeachPlans
-                .FirstOrDefaultAsync(x => !x.IsDelete && x.Id == id);
+            var teachPlan = await _db.TblTeachPlans
+                .FirstOrDefaultAsync(x => !x.IsDelete && x.TeachPlanId == id);
 
             if (teachPlan is null)
             {
@@ -187,38 +154,6 @@ public class TeachPlanService
                     IsSuccess = false,
                     Message = "TeachPlan doesn't exist"
                 };
-            }
-
-            if (model.TeacherId.HasValue)
-            {
-                bool isTeacherExists = await _db.TblUsers
-                    .AnyAsync(x => x.UserId == model.TeacherId.Value);
-
-                if (!isTeacherExists)
-                {
-                    return new TeachPlanPatchResponseModel
-                    {
-                        IsSuccess = false,
-                        Message = "Teacher does not exist"
-                    };
-                }
-                teachPlan.TeacherId = model.TeacherId.Value;
-            }
-
-            if (model.ClassId.HasValue)
-            {
-                bool isClassExists = await _db.TblSubClasses
-                    .AnyAsync(x => !x.IsDelete && x.SubClassId == model.ClassId.Value);
-
-                if (!isClassExists)
-                {
-                    return new TeachPlanPatchResponseModel
-                    {
-                        IsSuccess = false,
-                        Message = "Class does not exist"
-                    };
-                }
-                teachPlan.ClassId = model.ClassId.Value;
             }
 
             if (model.SubjectId.HasValue)
@@ -240,20 +175,6 @@ public class TeachPlanService
             if (!string.IsNullOrWhiteSpace(model.Topic))
             {
                 teachPlan.Topic = model.Topic;
-            }
-
-            if (model.IsCompleted.HasValue)
-            {
-                teachPlan.IsCompleted = model.IsCompleted.Value;
-                if (model.IsCompleted.Value && teachPlan.CompletedDate is null)
-                {
-                    teachPlan.CompletedDate = DateTime.Now;
-                }
-            }
-
-            if (model.CompletedDate.HasValue)
-            {
-                teachPlan.CompletedDate = model.CompletedDate.Value;
             }
 
             teachPlan.ModifiedDateTime = DateTime.Now;
@@ -279,8 +200,8 @@ public class TeachPlanService
     {
         try
         {
-            var teachPlan = await _db.TeachPlans
-                .FirstOrDefaultAsync(x => !x.IsDelete && x.Id == model.Id);
+            var teachPlan = await _db.TblTeachPlans
+                .FirstOrDefaultAsync(x => !x.IsDelete && x.TeachPlanId == model.Id);
 
             if (teachPlan is null)
             {

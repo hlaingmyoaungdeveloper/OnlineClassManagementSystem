@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OnlineClassManagementSystem.Database.Models;
 
-public partial class Schedule
+public partial class TblTimeTable
 {
     public int Id { get; set; }
 

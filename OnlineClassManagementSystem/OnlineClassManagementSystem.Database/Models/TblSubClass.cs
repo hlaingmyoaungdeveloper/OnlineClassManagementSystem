@@ -29,11 +29,7 @@ public partial class TblSubClass
 
     public string? ModifiedBy { get; set; }
 
-    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
-
     public virtual ICollection<TblEnrollment> TblEnrollments { get; set; } = new List<TblEnrollment>();
 
-    public virtual ICollection<TblTeachingTracking> TblTeachingTrackings { get; set; } = new List<TblTeachingTracking>();
-
-    public virtual ICollection<TeachPlan> TeachPlans { get; set; } = new List<TeachPlan>();
+    public virtual ICollection<TblTimeTable> TblTimeTables { get; set; } = new List<TblTimeTable>();
 }

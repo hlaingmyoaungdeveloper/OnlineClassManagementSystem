@@ -7,7 +7,7 @@ public partial class TblUser
 {
     public int UserId { get; set; }
 
-    public string Username { get; set; } = null!;
+    public string FullName { get; set; } = null!;
 
     public string Email { get; set; } = null!;
 
@@ -23,11 +23,9 @@ public partial class TblUser
 
     public string? ModifiedBy { get; set; }
 
-    public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+    public string? TelegramUsername { get; set; }
 
     public virtual ICollection<TblEnrollment> TblEnrollments { get; set; } = new List<TblEnrollment>();
 
-    public virtual ICollection<TblTeachingTracking> TblTeachingTrackings { get; set; } = new List<TblTeachingTracking>();
-
-    public virtual ICollection<TeachPlan> TeachPlans { get; set; } = new List<TeachPlan>();
+    public virtual ICollection<TblTimeTable> TblTimeTables { get; set; } = new List<TblTimeTable>();
 }

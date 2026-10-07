@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace OnlineClassManagementSystem.Domain.models.TeachPlan;
@@ -19,15 +19,7 @@ public class TeachPlanModel
 {
     public int Id { get; set; }
 
-    public int TeacherId { get; set; }
-
-    public int ClassId { get; set; }
-
     public int SubjectId { get; set; }
-
+    public string SubjectName { get; set; } = null!;
     public string Topic { get; set; } = null!;
-
-    public bool? IsCompleted { get; set; }
-
-    public DateTime? CompletedDate { get; set; }
 }
