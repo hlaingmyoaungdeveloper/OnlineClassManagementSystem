@@ -995,6 +995,16 @@
         "runtime": {
           "bin/placeholder/OnlineClassManagementSystem.Database.dll": {}
         }
+      },
+      "OnlineClassManagementSystem.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/OnlineClassManagementSystem.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/OnlineClassManagementSystem.Shared.dll": {}
+        }
       }
     }
   },
@@ -2743,11 +2753,17 @@
       "type": "project",
       "path": "../OnlineClassManagementSystem.Database/OnlineClassManagementSystem.Database.csproj",
       "msbuildProject": "../OnlineClassManagementSystem.Database/OnlineClassManagementSystem.Database.csproj"
+    },
+    "OnlineClassManagementSystem.Shared/1.0.0": {
+      "type": "project",
+      "path": "../OnlineClassManagementSystem.Shared/OnlineClassManagementSystem.Shared.csproj",
+      "msbuildProject": "../OnlineClassManagementSystem.Shared/OnlineClassManagementSystem.Shared.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "OnlineClassManagementSystem.Database >= 1.0.0"
+      "OnlineClassManagementSystem.Database >= 1.0.0",
+      "OnlineClassManagementSystem.Shared >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -2786,6 +2802,9 @@
           "projectReferences": {
             "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Database\\OnlineClassManagementSystem.Database.csproj": {
               "projectPath": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Database\\OnlineClassManagementSystem.Database.csproj"
+            },
+            "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj": {
+              "projectPath": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj"
             }
           }
         }

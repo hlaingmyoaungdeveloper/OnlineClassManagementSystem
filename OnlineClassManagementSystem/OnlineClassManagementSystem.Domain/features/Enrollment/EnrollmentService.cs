@@ -30,7 +30,7 @@ public class EnrollmentService
                      ClassId = x.ClassId,
                      ClassName = x.Class.ClassName,
                      StudentId = x.StudentId,
-                     StudentName = x.Student.Username,
+                     StudentName = x.Student.FullName,
                      EnrollDate = x.EnrollDate,
                      Status = x.Status
                  }).ToListAsync();
@@ -79,7 +79,7 @@ public class EnrollmentService
                 ClassId = enrollment.ClassId,
                 ClassName = enrollment.Class?.ClassName,
                 StudentId = enrollment.StudentId,
-                StudentName = enrollment.Student?.Username,
+                StudentName = enrollment.Student?.FullName,
                 EnrollDate = enrollment.EnrollDate
             };
         }

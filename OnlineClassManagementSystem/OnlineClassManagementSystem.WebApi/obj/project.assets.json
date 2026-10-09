@@ -1087,13 +1087,24 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
-          "OnlineClassManagementSystem.Database": "1.0.0"
+          "OnlineClassManagementSystem.Database": "1.0.0",
+          "OnlineClassManagementSystem.Shared": "1.0.0"
         },
         "compile": {
           "bin/placeholder/OnlineClassManagementSystem.Domain.dll": {}
         },
         "runtime": {
           "bin/placeholder/OnlineClassManagementSystem.Domain.dll": {}
+        }
+      },
+      "OnlineClassManagementSystem.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/OnlineClassManagementSystem.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/OnlineClassManagementSystem.Shared.dll": {}
         }
       }
     }
@@ -3196,11 +3207,17 @@
       "type": "project",
       "path": "../OnlineClassManagementSystem.Domain/OnlineClassManagementSystem.Domain.csproj",
       "msbuildProject": "../OnlineClassManagementSystem.Domain/OnlineClassManagementSystem.Domain.csproj"
+    },
+    "OnlineClassManagementSystem.Shared/1.0.0": {
+      "type": "project",
+      "path": "../OnlineClassManagementSystem.Shared/OnlineClassManagementSystem.Shared.csproj",
+      "msbuildProject": "../OnlineClassManagementSystem.Shared/OnlineClassManagementSystem.Shared.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "OnlineClassManagementSystem.Domain >= 1.0.0",
+      "OnlineClassManagementSystem.Shared >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.6.2"
     ]
   },
@@ -3240,6 +3257,9 @@
           "projectReferences": {
             "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\OnlineClassManagementSystem.Domain.csproj": {
               "projectPath": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\OnlineClassManagementSystem.Domain.csproj"
+            },
+            "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj": {
+              "projectPath": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj"
             }
           }
         }

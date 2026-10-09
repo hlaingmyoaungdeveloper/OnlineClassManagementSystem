@@ -8,8 +8,8 @@
     ".NETCoreApp,Version=v8.0": {
       "OnlineClassManagementSystem.MvcApp/1.0.0": {
         "dependencies": {
-          "OnlineClassManagementSystem.Database": "1.0.0",
-          "OnlineClassManagementSystem.Domain": "1.0.0"
+          "OnlineClassManagementSystem.Domain": "1.0.0",
+          "OnlineClassManagementSystem.Shared": "1.0.0"
         },
         "runtime": {
           "OnlineClassManagementSystem.MvcApp.dll": {}
@@ -576,10 +576,19 @@
       },
       "OnlineClassManagementSystem.Domain/1.0.0": {
         "dependencies": {
-          "OnlineClassManagementSystem.Database": "1.0.0"
+          "OnlineClassManagementSystem.Database": "1.0.0",
+          "OnlineClassManagementSystem.Shared": "1.0.0"
         },
         "runtime": {
           "OnlineClassManagementSystem.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "OnlineClassManagementSystem.Shared/1.0.0": {
+        "runtime": {
+          "OnlineClassManagementSystem.Shared.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -886,6 +895,11 @@
       "sha512": ""
     },
     "OnlineClassManagementSystem.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "OnlineClassManagementSystem.Shared/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

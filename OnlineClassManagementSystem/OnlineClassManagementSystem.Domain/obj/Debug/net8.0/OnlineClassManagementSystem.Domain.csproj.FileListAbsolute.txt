@@ -14,3 +14,5 @@ C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagemen
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\refint\OnlineClassManagementSystem.Domain.dll
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\OnlineClassManagementSystem.Domain.pdb
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\obj\Debug\net8.0\ref\OnlineClassManagementSystem.Domain.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\bin\Debug\net8.0\OnlineClassManagementSystem.Shared.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Domain\bin\Debug\net8.0\OnlineClassManagementSystem.Shared.pdb

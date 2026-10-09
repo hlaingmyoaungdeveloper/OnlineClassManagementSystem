@@ -267,6 +267,133 @@
         }
       }
     },
+    "/api/TeachingTracking": {
+      "get": {
+        "tags": [
+          "TeachingTracking"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "TeachingTracking"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeachingTrackingCreateRequestModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeachingTrackingCreateRequestModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeachingTrackingCreateRequestModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TeachingTracking/{TrackId}": {
+      "get": {
+        "tags": [
+          "TeachingTracking"
+        ],
+        "parameters": [
+          {
+            "name": "TrackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "TeachingTracking"
+        ],
+        "parameters": [
+          {
+            "name": "TrackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TeachingTracking/{id}": {
+      "patch": {
+        "tags": [
+          "TeachingTracking"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeachingTrackingPatchRequestModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeachingTrackingPatchRequestModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeachingTrackingPatchRequestModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/TeachPlan": {
       "get": {
         "tags": [
@@ -308,7 +435,7 @@
         }
       }
     },
-    "/api/TeachPlan/{id}": {
+    "/api/TeachPlan/{Id}": {
       "get": {
         "tags": [
           "TeachPlan"
@@ -329,7 +456,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/TeachPlan/{id}": {
       "patch": {
         "tags": [
           "TeachPlan"
@@ -544,6 +673,133 @@
         }
       }
     },
+    "/api/User": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequestModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequestModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequestModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/User/{UserId}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/User/{id}": {
+      "patch": {
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatchRequestModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatchRequestModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPatchRequestModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/WeatherForecast": {
       "get": {
         "tags": [
@@ -702,14 +958,6 @@
       "TeachPlanCreateRequestModel": {
         "type": "object",
         "properties": {
-          "teacherId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "classId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "subjectId": {
             "type": "integer",
             "format": "int32"
@@ -724,16 +972,6 @@
       "TeachPlanPatchRequestModel": {
         "type": "object",
         "properties": {
-          "teacherId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "classId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
           "subjectId": {
             "type": "integer",
             "format": "int32",
@@ -742,14 +980,81 @@
           "topic": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TeachingTrackingCreateRequestModel": {
+        "type": "object",
+        "properties": {
+          "teachPlanId": {
+            "type": "integer",
+            "format": "int32"
           },
-          "isCompleted": {
-            "type": "boolean",
+          "subClassId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "teacherId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dateTaught": {
+            "type": "string",
+            "format": "date"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time",
             "nullable": true
           },
-          "completedDate": {
+          "endTime": {
             "type": "string",
-            "format": "date-time",
+            "format": "time",
+            "nullable": true
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TeachingTrackingPatchRequestModel": {
+        "type": "object",
+        "properties": {
+          "teachPlanId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "subClassId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "teacherId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dateTaught": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "endTime": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
+          "remarks": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -822,6 +1127,50 @@
             "nullable": true
           },
           "mode": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCreateRequestModel": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "telegramUsername": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserPatchRequestModel": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "telegramUsername": {
             "type": "string",
             "nullable": true
           }

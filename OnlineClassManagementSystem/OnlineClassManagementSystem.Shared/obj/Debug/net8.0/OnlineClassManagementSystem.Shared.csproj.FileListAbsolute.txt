@@ -1,0 +1,12 @@
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\OnlineClassManagementSystem.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\OnlineClassManagementSystem.Shared.AssemblyInfoInputs.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\OnlineClassManagementSystem.Shared.AssemblyInfo.cs
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\OnlineClassManagementSystem.Shared.csproj.CoreCompileInputs.cache
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\OnlineClassManagementSystem.Shared.sourcelink.json
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\bin\Debug\net8.0\OnlineClassManagementSystem.Shared.deps.json
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\bin\Debug\net8.0\OnlineClassManagementSystem.Shared.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\bin\Debug\net8.0\OnlineClassManagementSystem.Shared.pdb
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\OnlineClassManagementSystem.Shared.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\refint\OnlineClassManagementSystem.Shared.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\OnlineClassManagementSystem.Shared.pdb
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.Shared\obj\Debug\net8.0\ref\OnlineClassManagementSystem.Shared.dll

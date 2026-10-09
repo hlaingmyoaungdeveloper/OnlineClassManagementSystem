@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OnlineClassManagementSystem.Database\OnlineClassManagementSystem.Database.csproj" />
+    <ProjectReference Include="..\OnlineClassManagementSystem.Shared\OnlineClassManagementSystem.Shared.csproj" />
   </ItemGroup>
 
 </Project>

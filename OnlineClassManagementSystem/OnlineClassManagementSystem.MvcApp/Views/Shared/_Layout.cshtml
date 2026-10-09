@@ -1,123 +1,46 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Online Class Management</title>
+    <title>@ViewData["Title"] - OnlineClassManagementSystem.MvcApp</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/OnlineClassManagementSystem.MvcApp.styles.css" asp-append-version="true" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'Inter', sans-serif; }
-        .sidebar-link { transition: all 0.2s ease; }
-        .sidebar-link:hover { background: rgba(255,255,255,0.1); transform: translateX(4px); }
-        .sidebar-link.active { background: rgba(255,255,255,0.15); border-right: 3px solid #60a5fa; }
-        .content-area { scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent; }
-    </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col fixed h-full z-30 shadow-xl">
-        <!-- Brand -->
-        <div class="px-6 py-5 border-b border-white/10">
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="flex items-center gap-3 no-underline">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">OnlineClassManagementSystem.MvcApp</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
                 </div>
-                <div>
-                    <span class="text-base font-bold text-white block leading-tight">ClassManager</span>
-                    <span class="text-[11px] text-blue-300/80 font-medium">Online Platform</span>
-                </div>
-            </a>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="flex-1 px-3 py-4 space-y-1">
-            <p class="px-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Main Menu</p>
-
-            <a asp-area="" asp-controller="Home" asp-action="Index"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                Dashboard
-            </a>
-
-            <p class="px-3 pt-4 text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Management</p>
-
-            <a asp-area="" asp-controller="SubClass" asp-action="Index"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Classes
-            </a>
-
-            <a asp-area="" asp-controller="Enrollment" asp-action="Index"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                Enrollments
-            </a>
-
-            <a asp-area="" asp-controller="Schedule" asp-action="Index"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Schedules
-            </a>
-
-            <p class="px-3 pt-4 text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Settings</p>
-
-            <a asp-area="" asp-controller="Home" asp-action="Privacy"
-               class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white no-underline">
-                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                Privacy
-            </a>
+            </div>
         </nav>
-
-        <!-- Footer -->
-        <div class="px-5 py-4 border-t border-white/10">
-            <p class="text-[11px] text-slate-500">&copy; 2026 ClassManager</p>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="flex-1 ml-64 flex flex-col min-h-screen">
-        <!-- Top Bar -->
-        <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-            <div>
-                <h1 class="text-lg font-semibold text-gray-800">@(ViewData["Title"] ?? "Dashboard")</h1>
-                <p class="text-xs text-gray-400 mt-0.5">Online Class Management System</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow">
-                    A
-                </div>
-            </div>
-        </header>
-
-        <!-- Page Content -->
-        <main class="flex-1 p-8 content-area">
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
             @RenderBody()
         </main>
-
-        <!-- Footer -->
-        <footer class="border-t border-gray-200 bg-white px-8 py-3">
-            <p class="text-xs text-gray-400">&copy; 2026 Online Class Management System &mdash; <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-blue-500 hover:underline">Privacy Policy</a></p>
-        </footer>
     </div>
 
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - OnlineClassManagementSystem.MvcApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

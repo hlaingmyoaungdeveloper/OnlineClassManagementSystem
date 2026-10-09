@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnlineClassManagementSystem.Database")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+35aab92ac36f8968089e5602503b9d8db2f51e20")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e66c619cda27b418044d98e720e4451e2ef4d8fe")]
 [assembly: System.Reflection.AssemblyProductAttribute("OnlineClassManagementSystem.Database")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnlineClassManagementSystem.Database")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

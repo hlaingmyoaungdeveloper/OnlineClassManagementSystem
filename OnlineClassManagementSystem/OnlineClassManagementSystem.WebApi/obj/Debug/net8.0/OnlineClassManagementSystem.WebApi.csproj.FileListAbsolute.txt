@@ -92,3 +92,5 @@ C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagemen
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.WebApi\obj\Debug\net8.0\OnlineClassManagementSystem.WebApi.genruntimeconfig.cache
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.WebApi\obj\Debug\net8.0\ref\OnlineClassManagementSystem.WebApi.dll
 C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.WebApi\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.WebApi\bin\Debug\net8.0\OnlineClassManagementSystem.Shared.dll
+C:\Users\USER\Documents\Project\OnlineClassManagementSystem\OnlineClassManagementSystem.WebApi\bin\Debug\net8.0\OnlineClassManagementSystem.Shared.pdb

@@ -1,5 +1,59 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model OnlineClassManagementSystem.Domain.models.SubClass.SubClassListResponseModel
+
 @{
+    ViewData["Title"] = "SubClass Management";
 }
+
+<div class="container mt-4">
+    <h2 class="mb-3">SubClass Management</h2>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+        </div>
+    }
+    else if (Model != null)
+    {
+        <div class="alert alert-info">
+            @Model.Message
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Class Name</th>
+                        <th>Place</th>
+                        <th>Open Date</th>
+                        <th>Open Time</th>
+                        <th>Student Limit</th>
+                        <th>Student Count</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.SubClassList != null)
+                    {
+                        @foreach (var item in Model.SubClassList)
+                        {
+                            <tr>
+                                <td>@item.SubClassId</td>
+                                <td>@item.ClassName</td>
+                                <td>@item.Place</td>
+                                <td>
+                                    @(item.OpenDate?.ToString("dd-MM-yyyy")
+                                      ?? "-")
+                                </td>
+                                <td>@item.OpenTime</td>
+                                <td>@item.StudentLimit</td>
+                                <td>@(item.StudentCount ?? 0)</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

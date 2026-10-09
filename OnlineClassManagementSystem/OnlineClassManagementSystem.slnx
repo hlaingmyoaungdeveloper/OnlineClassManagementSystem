@@ -1,5 +1,7 @@
 <Solution>
   <Project Path="OnlineClassManagementSystem.Database/OnlineClassManagementSystem.Database.csproj" />
   <Project Path="OnlineClassManagementSystem.Domain/OnlineClassManagementSystem.Domain.csproj" />
+  <Project Path="OnlineClassManagementSystem.MvcApp/OnlineClassManagementSystem.MvcApp.csproj" Id="1924a644-ea8b-4019-abe1-115937007167" />
+  <Project Path="OnlineClassManagementSystem.Shared/OnlineClassManagementSystem.Shared.csproj" Id="53cedbda-b968-4a9c-8d4e-12b64a62c22d" />
   <Project Path="OnlineClassManagementSystem.WebApi/OnlineClassManagementSystem.WebApi.csproj" Id="314907fb-8c89-48db-b8b8-bc3aee91d46d" />
 </Solution>

@@ -5,6 +5,7 @@ using OnlineClassManagementSystem.Domain.features.SubClass;
 using OnlineClassManagementSystem.Domain.features.TeachPlan;
 using OnlineClassManagementSystem.Domain.features.TeachingTracking;
 using OnlineClassManagementSystem.Domain.features.Timetable;
+using OnlineClassManagementSystem.Domain.features.User;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"))
 );
 builder.Services.AddScoped<SubClassService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<EnrollmentService>();
 builder.Services.AddScoped<TimetableService>();
 builder.Services.AddScoped<TeachPlanService>();

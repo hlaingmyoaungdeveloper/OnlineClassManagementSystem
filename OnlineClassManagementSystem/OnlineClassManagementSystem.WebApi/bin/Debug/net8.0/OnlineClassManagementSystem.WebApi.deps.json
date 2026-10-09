@@ -9,6 +9,7 @@
       "OnlineClassManagementSystem.WebApi/1.0.0": {
         "dependencies": {
           "OnlineClassManagementSystem.Domain": "1.0.0",
+          "OnlineClassManagementSystem.Shared": "1.0.0",
           "Swashbuckle.AspNetCore": "6.6.2"
         },
         "runtime": {
@@ -621,10 +622,19 @@
       },
       "OnlineClassManagementSystem.Domain/1.0.0": {
         "dependencies": {
-          "OnlineClassManagementSystem.Database": "1.0.0"
+          "OnlineClassManagementSystem.Database": "1.0.0",
+          "OnlineClassManagementSystem.Shared": "1.0.0"
         },
         "runtime": {
           "OnlineClassManagementSystem.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "OnlineClassManagementSystem.Shared/1.0.0": {
+        "runtime": {
+          "OnlineClassManagementSystem.Shared.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -966,6 +976,11 @@
       "sha512": ""
     },
     "OnlineClassManagementSystem.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "OnlineClassManagementSystem.Shared/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
