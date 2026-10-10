@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OnlineClassManagementSystem.Domain.models.TeachPlan;
+namespace OnlineClassManagementSystem.Shared.models.TeachPlan;
 
 public class TeachPlanListRequestModel
 {

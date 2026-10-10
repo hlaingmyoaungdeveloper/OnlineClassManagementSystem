@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineClassManagementSystem.Domain.features.TeachPlan;
-using OnlineClassManagementSystem.Domain.models.TeachPlan;
+using OnlineClassManagementSystem.Shared.models.TeachPlan;
 
 namespace OnlineClassManagementSystem.WebApi.Controllers
 {

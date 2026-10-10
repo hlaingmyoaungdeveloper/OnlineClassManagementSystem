@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OnlineClassManagementSystem.Domain.models.User
+namespace OnlineClassManagementSystem.Shared.models.User
 {
     public class UserModel
     {

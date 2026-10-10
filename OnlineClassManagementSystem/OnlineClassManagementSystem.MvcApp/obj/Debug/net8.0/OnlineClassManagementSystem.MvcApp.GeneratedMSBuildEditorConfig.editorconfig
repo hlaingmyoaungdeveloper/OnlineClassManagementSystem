@@ -39,6 +39,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/SubClass/CreateSubClass.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViQ2xhc3NcQ3JlYXRlU3ViQ2xhc3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/SubClass/EditSubClass.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViQ2xhc3NcRWRpdFN1YkNsYXNzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/SubClass/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViQ2xhc3NcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

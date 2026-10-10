@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineClassManagementSystem.Domain.features.Timetable;
-using OnlineClassManagementSystem.Domain.models.Timetable;
+using OnlineClassManagementSystem.Shared.models.Timetable;
 using System.Threading.Tasks;
 
 namespace OnlineClassManagementSystem.WebApi.Controllers

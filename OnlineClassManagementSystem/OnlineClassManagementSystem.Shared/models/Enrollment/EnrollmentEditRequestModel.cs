@@ -1,6 +1,6 @@
 using System;
 
-namespace OnlineClassManagementSystem.Domain.models.Enrollment;
+namespace OnlineClassManagementSystem.Shared.models.Enrollment;
 
 public class EnrollmentEditRequestModel
 {

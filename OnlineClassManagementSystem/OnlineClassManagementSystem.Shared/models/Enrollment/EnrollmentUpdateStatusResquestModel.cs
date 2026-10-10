@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineClassManagementSystem.Domain.models.Enrollment;
+namespace OnlineClassManagementSystem.Shared.models.Enrollment;
 
 public class EnrollmentUpdateStatusResquestModel
 {

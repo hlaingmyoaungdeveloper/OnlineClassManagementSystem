@@ -1,6 +1,6 @@
 using System;
 
-namespace OnlineClassManagementSystem.Domain.models.TeachPlan;
+namespace OnlineClassManagementSystem.Shared.models.TeachPlan;
 
 public class TeachPlanDeleteRequestModel
 {

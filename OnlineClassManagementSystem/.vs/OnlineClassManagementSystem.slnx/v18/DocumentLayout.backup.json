@@ -7,28 +7,148 @@
       "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\controllers\\subclasscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\services\\subclassapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\services\\subclassapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\views\\subclass\\editsubclass.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\views\\subclass\\editsubclass.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\timetable\\timetabledeleterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\timetable\\timetabledeleterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\views\\subclass\\createsubclass.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\views\\subclass\\createsubclass.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\views\\subclass\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\views\\subclass\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\user\\usermodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\user\\usermodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\timetable\\timetablepatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\timetable\\timetablepatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\timetable\\timetablelistresquestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\timetable\\timetablelistresquestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5375B3F1-A3EF-86AE-90ED-D54A90B2ECD4}|OnlineClassManagementSystem.Domain\\OnlineClassManagementSystem.Domain.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.domain\\features\\enrollment\\enrollmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5375B3F1-A3EF-86AE-90ED-D54A90B2ECD4}|OnlineClassManagementSystem.Domain\\OnlineClassManagementSystem.Domain.csproj|solutionrelative:onlineclassmanagementsystem.domain\\features\\enrollment\\enrollmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\timetable\\timetablelistbyteacherrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\timetable\\timetablelistbyteacherrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\timetable\\timetablelistbyclassrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\timetable\\timetablelistbyclassrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\timetable\\timetablecreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\timetable\\timetablecreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachplan\\teachplanpatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachplan\\teachplanpatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachplan\\teachplanlistrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachplan\\teachplanlistrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachplan\\teachplaneditrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachplan\\teachplaneditrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachplan\\teachplandeleterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachplan\\teachplandeleterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachplan\\teachplancreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachplan\\teachplancreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackingpatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackingpatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackinglistrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackinglistrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackingeditrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackingeditrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackingdeleterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackingdeleterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackingcreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\teachingtracking\\teachingtrackingcreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmentupdatestatusresquestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmentupdatestatusresquestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmentpatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmentpatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmentlistrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmentlistrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmenteditrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmenteditrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmentcreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\enrollment\\enrollmentcreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\subclass\\subclasspatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\subclass\\subclasspatchrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\subclass\\subclasslistrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\subclass\\subclasslistrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\subclass\\subclassdeleterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\subclass\\subclassdeleterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\subclass\\subclasscreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\subclass\\subclasscreaterequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.shared\\models\\subclass\\subclasseditrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53CEDBDA-B968-4A9C-8D4E-12B64A62C22D}|OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj|solutionrelative:onlineclassmanagementsystem.shared\\models\\subclass\\subclasseditrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{314907FB-8C89-48DB-B8B8-BC3AEE91D46D}|OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.webapi\\controllers\\subclasscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{314907FB-8C89-48DB-B8B8-BC3AEE91D46D}|OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj|solutionrelative:onlineclassmanagementsystem.webapi\\controllers\\subclasscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\services\\subclassapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\services\\subclassapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5375B3F1-A3EF-86AE-90ED-D54A90B2ECD4}|OnlineClassManagementSystem.Domain\\OnlineClassManagementSystem.Domain.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.domain\\features\\subclass\\subclassservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5375B3F1-A3EF-86AE-90ED-D54A90B2ECD4}|OnlineClassManagementSystem.Domain\\OnlineClassManagementSystem.Domain.csproj|solutionrelative:onlineclassmanagementsystem.domain\\features\\subclass\\subclassservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{314907FB-8C89-48DB-B8B8-BC3AEE91D46D}|OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.webapi\\controllers\\enrollmentcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -87,10 +207,6 @@
       "RelativeMoniker": "D:0:0:{314907FB-8C89-48DB-B8B8-BC3AEE91D46D}|OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj|solutionrelative:onlineclassmanagementsystem.webapi\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5375B3F1-A3EF-86AE-90ED-D54A90B2ECD4}|OnlineClassManagementSystem.Domain\\OnlineClassManagementSystem.Domain.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.domain\\features\\enrollment\\enrollmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5375B3F1-A3EF-86AE-90ED-D54A90B2ECD4}|OnlineClassManagementSystem.Domain\\OnlineClassManagementSystem.Domain.csproj|solutionrelative:onlineclassmanagementsystem.domain\\features\\enrollment\\enrollmentservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{58AB01A9-A8B4-47CD-08BE-5FB04506F2BD}|OnlineClassManagementSystem.Database\\OnlineClassManagementSystem.Database.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.database\\models\\tbluser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{58AB01A9-A8B4-47CD-08BE-5FB04506F2BD}|OnlineClassManagementSystem.Database\\OnlineClassManagementSystem.Database.csproj|solutionrelative:onlineclassmanagementsystem.database\\models\\tbluser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -118,8 +234,398 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UserModels.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\User\\UserModels.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\User\\UserModels.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\User\\UserModels.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\User\\UserModels.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:29:45.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\Index.cshtml",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\Index.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\Index.cshtml",
+              "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-10-09T17:00:36.285Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "EditSubClass.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\EditSubClass.cshtml",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\EditSubClass.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\EditSubClass.cshtml",
+              "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\EditSubClass.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-10-10T15:18:13.149Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CreateSubClass.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\CreateSubClass.cshtml",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\CreateSubClass.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\CreateSubClass.cshtml",
+              "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\CreateSubClass.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-10-10T04:29:04.163Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "TimetableDeleteRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableDeleteRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableDeleteRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableDeleteRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableDeleteRequestModel.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAvwBAAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:29:17.39Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SubClassController.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Controllers\\SubClassController.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Controllers\\SubClassController.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Controllers\\SubClassController.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Controllers\\SubClassController.cs",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAwwAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-09T16:48:41.838Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "TimetablePatchRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetablePatchRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetablePatchRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetablePatchRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetablePatchRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:29:37.361Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "TimetableListResquestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListResquestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListResquestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListResquestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListResquestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:29:31.576Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "EnrollmentService.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\Enrollment\\EnrollmentService.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\Enrollment\\EnrollmentService.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\Enrollment\\EnrollmentService.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Domain\\features\\Enrollment\\EnrollmentService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFEAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-06T16:59:14.843Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "TimetableListByTeacherRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListByTeacherRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListByTeacherRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListByTeacherRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListByTeacherRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:29:27.302Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "TimetableListByClassRequest.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListByClassRequest.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListByClassRequest.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListByClassRequest.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableListByClassRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:29:22.585Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "TimetableCreateRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableCreateRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableCreateRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableCreateRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Timetable\\TimetableCreateRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:29:11.845Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "TeachPlanPatchRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanPatchRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanPatchRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanPatchRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanPatchRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:29:03.577Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "TeachPlanListRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanListRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanListRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanListRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanListRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:56.954Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "TeachPlanEditRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanEditRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanEditRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanEditRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanEditRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:51.098Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "TeachPlanDeleteRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanDeleteRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanDeleteRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanDeleteRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanDeleteRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:46.988Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "TeachPlanCreateRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanCreateRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanCreateRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanCreateRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachPlan\\TeachPlanCreateRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:41.174Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "TeachingTrackingPatchRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingPatchRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingPatchRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingPatchRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingPatchRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:30.895Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "TeachingTrackingListRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingListRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingListRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingListRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingListRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:26.916Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "TeachingTrackingEditRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingEditRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingEditRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingEditRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingEditRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:21.38Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "TeachingTrackingDeleteRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingDeleteRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingDeleteRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingDeleteRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingDeleteRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:17.419Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "TeachingTrackingCreateRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingCreateRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingCreateRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingCreateRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\TeachingTracking\\TeachingTrackingCreateRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:10.501Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "EnrollmentUpdateStatusResquestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentUpdateStatusResquestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentUpdateStatusResquestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentUpdateStatusResquestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentUpdateStatusResquestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:28:02.964Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "EnrollmentPatchRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentPatchRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentPatchRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentPatchRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentPatchRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:27:58.313Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "EnrollmentListRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentListRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentListRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentListRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentListRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:27:54.1Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "EnrollmentEditRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentEditRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentEditRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentEditRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentEditRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:27:49.588Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "EnrollmentCreateRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentCreateRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentCreateRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentCreateRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\Enrollment\\EnrollmentCreateRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:27:44.138Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "SubClassPatchRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassPatchRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassPatchRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassPatchRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassPatchRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:27:22.963Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "SubClassDeleteRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassDeleteRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassDeleteRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassDeleteRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassDeleteRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:27:10.777Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "SubClassEditRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassEditRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassEditRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassEditRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassEditRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-10T15:26:42.151Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
@@ -134,72 +640,84 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 28,
               "Title": "SubClassListRequestModel.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassListRequestModel.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassListRequestModel.cs",
               "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassListRequestModel.cs",
               "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassListRequestModel.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAA5wCgAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-09T17:03:15.31Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\Index.cshtml",
-              "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\Index.cshtml",
-              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\Index.cshtml",
-              "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Views\\SubClass\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-10-09T17:00:36.285Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 33,
               "Title": "SubClassApiService.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Services\\SubClassApiService.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Services\\SubClassApiService.cs",
               "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Services\\SubClassApiService.cs",
               "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Services\\SubClassApiService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAXAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAqwBQAAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-09T16:51:19.961Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "SubClassController.cs",
-              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Controllers\\SubClassController.cs",
-              "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Controllers\\SubClassController.cs",
-              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Controllers\\SubClassController.cs",
-              "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Controllers\\SubClassController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAnAAAAAAAAAA==",
+              "DocumentIndex": 30,
+              "Title": "SubClassCreateRequestModel.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassCreateRequestModel.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassCreateRequestModel.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassCreateRequestModel.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassCreateRequestModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T16:48:41.838Z",
+              "WhenOpened": "2026-10-10T04:11:06.921Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 35,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-10-10T04:02:40.919Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
               "Title": "SubClassController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\SubClassController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\SubClassController.cs",
               "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\SubClassController.cs",
               "RelativeToolTip": "OnlineClassManagementSystem.WebApi\\Controllers\\SubClassController.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAgwCMAAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-04T08:26:03.746Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 34,
+              "Title": "SubClassService.cs",
+              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\SubClass\\SubClassService.cs",
+              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\SubClass\\SubClassService.cs",
+              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\SubClass\\SubClassService.cs",
+              "RelativeToolTip": "OnlineClassManagementSystem.Domain\\features\\SubClass\\SubClassService.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAYwCEAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-09T16:19:00.13Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
               "Title": "EnrollmentController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\EnrollmentController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\EnrollmentController.cs",
@@ -207,24 +725,12 @@
               "RelativeToolTip": "OnlineClassManagementSystem.WebApi\\Controllers\\EnrollmentController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-04T08:27:34.705Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "SubClassService.cs",
-              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\SubClass\\SubClassService.cs",
-              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\SubClass\\SubClassService.cs",
-              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\SubClass\\SubClassService.cs",
-              "RelativeToolTip": "OnlineClassManagementSystem.Domain\\features\\SubClass\\SubClassService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T16:19:00.13Z",
+              "WhenOpened": "2026-10-04T08:27:34.705Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 36,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Program.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Program.cs",
@@ -232,12 +738,11 @@
               "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T15:12:26.454Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-09T15:12:26.454Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 38,
               "Title": "TeachPlanService.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\TeachPlan\\TeachPlanService.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\TeachPlan\\TeachPlanService.cs",
@@ -245,11 +750,12 @@
               "RelativeToolTip": "OnlineClassManagementSystem.Domain\\features\\TeachPlan\\TeachPlanService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAC4AAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-04T07:48:19.56Z"
+              "WhenOpened": "2026-10-04T07:48:19.56Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 39,
               "Title": "TeachingTrackingService.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\TeachingTracking\\TeachingTrackingService.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\TeachingTracking\\TeachingTrackingService.cs",
@@ -257,11 +763,12 @@
               "RelativeToolTip": "OnlineClassManagementSystem.Domain\\features\\TeachingTracking\\TeachingTrackingService.cs",
               "ViewState": "AgIAAHwBAAAAAAAAAAAAAHgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-06T18:34:42.04Z"
+              "WhenOpened": "2026-10-06T18:34:42.04Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 40,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\Class1.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\Class1.cs",
@@ -273,7 +780,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 41,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\appsettings.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\appsettings.json",
@@ -285,7 +792,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 42,
               "Title": "launchSettings.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Properties\\launchSettings.json",
@@ -297,7 +804,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 43,
               "Title": "launchSettings.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Properties\\launchSettings.json",
@@ -309,7 +816,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 45,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\appsettings.Development.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\appsettings.Development.json",
@@ -321,7 +828,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 46,
               "Title": "OnlineClassManagementSystem.WebApi.http",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.http",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.http",
@@ -333,7 +840,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 44,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\appsettings.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\appsettings.json",
@@ -345,7 +852,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 47,
               "Title": "OnlineClassManagementSystem.WebApi.csproj",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj",
@@ -357,7 +864,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 48,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Program.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Program.cs",
@@ -369,7 +876,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 50,
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\UserController.cs",
@@ -377,11 +884,12 @@
               "RelativeToolTip": "OnlineClassManagementSystem.WebApi\\Controllers\\UserController.cs",
               "ViewState": "AgIAACUAAAAAAAAAAIAwwDMAAABBAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T12:42:51.641Z"
+              "WhenOpened": "2026-10-09T12:42:51.641Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 51,
               "Title": "TblUser.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Database\\Models\\TblUser.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Database\\Models\\TblUser.cs",
@@ -393,7 +901,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 52,
               "Title": "TblTeachTracking.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Database\\Models\\TblTeachTracking.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Database\\Models\\TblTeachTracking.cs",
@@ -405,7 +913,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 49,
               "Title": "TimetableService.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\Timetable\\TimetableService.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\Timetable\\TimetableService.cs",
@@ -413,23 +921,12 @@
               "RelativeToolTip": "OnlineClassManagementSystem.Domain\\features\\Timetable\\TimetableService.cs",
               "ViewState": "AgIAABcAAAAAAAAAAAAgwIsAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-06T16:30:31.142Z"
+              "WhenOpened": "2026-10-06T16:30:31.142Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
-              "Title": "EnrollmentService.cs",
-              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\Enrollment\\EnrollmentService.cs",
-              "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\Enrollment\\EnrollmentService.cs",
-              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\Enrollment\\EnrollmentService.cs",
-              "RelativeToolTip": "OnlineClassManagementSystem.Domain\\features\\Enrollment\\EnrollmentService.cs",
-              "ViewState": "AgIAAGwAAAAAAAAAAAAowFEAAAA6AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-06T16:59:14.843Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 53,
               "Title": "TblTeachPlan.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Database\\Models\\TblTeachPlan.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Database\\Models\\TblTeachPlan.cs",
@@ -441,7 +938,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 54,
               "Title": "TeachPlanController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\TeachPlanController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\TeachPlanController.cs",
@@ -449,11 +946,12 @@
               "RelativeToolTip": "OnlineClassManagementSystem.WebApi\\Controllers\\TeachPlanController.cs",
               "ViewState": "AgIAABQAAAAAAAAAAAAgwCcAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-04T08:28:16.023Z"
+              "WhenOpened": "2026-10-04T08:28:16.023Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 55,
               "Title": "TeachingTrackingController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\TeachingTrackingController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\TeachingTrackingController.cs",
@@ -461,7 +959,8 @@
               "RelativeToolTip": "OnlineClassManagementSystem.WebApi\\Controllers\\TeachingTrackingController.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAABcAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-04T08:29:10.178Z"
+              "WhenOpened": "2026-10-04T08:29:10.178Z",
+              "EditorCaption": ""
             }
           ]
         }

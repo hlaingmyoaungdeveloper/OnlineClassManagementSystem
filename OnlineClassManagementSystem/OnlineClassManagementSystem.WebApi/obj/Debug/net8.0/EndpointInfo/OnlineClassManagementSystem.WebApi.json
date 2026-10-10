@@ -181,14 +181,14 @@
         }
       }
     },
-    "/api/SubClass/{SubClassId}": {
+    "/api/SubClass/{id}": {
       "get": {
         "tags": [
           "SubClass"
         ],
         "parameters": [
           {
-            "name": "SubClassId",
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
@@ -203,29 +203,6 @@
           }
         }
       },
-      "delete": {
-        "tags": [
-          "SubClass"
-        ],
-        "parameters": [
-          {
-            "name": "SubClassId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/SubClass/{id}": {
       "patch": {
         "tags": [
           "SubClass"
@@ -260,6 +237,29 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubClass/{SubClassId}": {
+      "delete": {
+        "tags": [
+          "SubClass"
+        ],
+        "parameters": [
+          {
+            "name": "SubClassId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -918,11 +918,6 @@
           "studentLimit": {
             "type": "integer",
             "format": "int32"
-          },
-          "studentCount": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
           }
         },
         "additionalProperties": false

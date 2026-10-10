@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineClassManagementSystem.Domain.features.User;
-using OnlineClassManagementSystem.Domain.models.User;
+using OnlineClassManagementSystem.Shared.models.User;
 
 namespace OnlineClassManagementSystem.WebApi.Controllers;
 

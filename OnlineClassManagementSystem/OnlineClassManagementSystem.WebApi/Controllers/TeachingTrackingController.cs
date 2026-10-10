@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineClassManagementSystem.Domain.features.TeachingTracking;
-using OnlineClassManagementSystem.Domain.models.TeachingTracking;
+using OnlineClassManagementSystem.Shared.models.TeachingTracking;
 
 namespace OnlineClassManagementSystem.WebApi.Controllers
 {

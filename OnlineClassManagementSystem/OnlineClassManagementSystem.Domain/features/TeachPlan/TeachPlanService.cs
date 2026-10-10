@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineClassManagementSystem.Database.Models;
-using OnlineClassManagementSystem.Domain.models.TeachPlan;
+using OnlineClassManagementSystem.Shared.models.TeachPlan;
 using System;
 using System.Collections.Generic;
 using System.Linq;

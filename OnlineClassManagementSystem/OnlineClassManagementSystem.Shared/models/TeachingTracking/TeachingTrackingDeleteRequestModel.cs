@@ -1,6 +1,6 @@
 using System;
 
-namespace OnlineClassManagementSystem.Domain.models.TeachingTracking;
+namespace OnlineClassManagementSystem.Shared.models.TeachingTracking;
 
 public class TeachingTrackingDeleteRequestModel
 {

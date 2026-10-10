@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using OnlineClassManagementSystem.Domain.models.SubClass;
 using OnlineClassManagementSystem.Database.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using OnlineClassManagementSystem.Shared.models.SubClass;
 
 namespace OnlineClassManagementSystem.Domain.features.SubClass;
 
@@ -31,8 +31,7 @@ public class SubClassService
                      Place = x.Place,
                      OpenDate = x.OpenDate,
                      OpenTime = x.OpenTime,
-                     StudentLimit = x.StudentLimit,
-                     StudentCount = x.StudentCount
+                     StudentLimit = x.StudentLimit
                  }).ToListAsync();
 
             return new SubClassListResponseModel()

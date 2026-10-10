@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using OnlineClassManagementSystem.Domain.features.SubClass;
-using OnlineClassManagementSystem.Domain.models.SubClass;
+using OnlineClassManagementSystem.Shared.models.SubClass;
 namespace OnlineClassManagementSystem.WebApi.Controllers
 {
     [Route("api/[controller]")]
@@ -36,10 +36,11 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
             return BadRequest(result);
         }
 
-        [HttpGet("{SubClassId}")]
-        public async Task<IActionResult> GetSubClassAsync([FromRoute] SubClassEditRequestModel model)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSubClassAsync(int id)
         {
-            var result = await _service.GetSubClassAsync(model);
+            var request = new SubClassEditRequestModel { SubClassId = id };
+            var result = await _service.GetSubClassAsync(request);
             if (result.IsSuccess)
             {
                 return Ok(result);

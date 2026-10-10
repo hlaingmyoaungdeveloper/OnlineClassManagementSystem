@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineClassManagementSystem.Domain.models.Timetable;
+namespace OnlineClassManagementSystem.Shared.models.Timetable;
 
 public class TimetableDeleteRequestModel
 {

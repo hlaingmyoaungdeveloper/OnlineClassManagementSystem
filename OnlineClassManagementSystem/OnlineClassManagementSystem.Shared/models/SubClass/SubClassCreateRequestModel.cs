@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OnlineClassManagementSystem.Domain.models.SubClass;
+namespace OnlineClassManagementSystem.Shared.models.SubClass;
 
 public class SubClassCreateRequestModel
 {
@@ -18,11 +18,15 @@ public class SubClassCreateRequestModel
 
     public int StudentLimit { get; set; }
 
-    public int? StudentCount { get; set; }
 }
 
 public class SubClassCreateResponseModel
 {
     public bool IsSuccess { get; set; }
     public string Message { get; set; }
+
+    public static implicit operator bool(SubClassCreateResponseModel v)
+    {
+        throw new NotImplementedException();
+    }
 }

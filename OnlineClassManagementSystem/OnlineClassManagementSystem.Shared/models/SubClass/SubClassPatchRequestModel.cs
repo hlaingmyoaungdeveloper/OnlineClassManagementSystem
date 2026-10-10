@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OnlineClassManagementSystem.Domain.models.SubClass;
+namespace OnlineClassManagementSystem.Shared.models.SubClass;
 
 public class SubClassPatchRequestModel
 {

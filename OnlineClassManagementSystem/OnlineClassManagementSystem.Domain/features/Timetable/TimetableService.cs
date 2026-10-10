@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineClassManagementSystem.Database.Models;
-using OnlineClassManagementSystem.Domain.models.Timetable;
+using OnlineClassManagementSystem.Shared.models.Timetable;
 using System;
 using System.Collections.Generic;
 using System.Linq;

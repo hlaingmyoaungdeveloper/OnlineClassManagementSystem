@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineClassManagementSystem.Database.Models;
-using OnlineClassManagementSystem.Domain.models.TeachingTracking;
+using OnlineClassManagementSystem.Shared.models.TeachingTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;

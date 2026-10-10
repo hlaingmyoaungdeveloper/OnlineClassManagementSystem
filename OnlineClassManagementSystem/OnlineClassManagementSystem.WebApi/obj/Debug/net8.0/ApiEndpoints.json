@@ -19,7 +19,7 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.Enrollment.EnrollmentCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.Enrollment.EnrollmentCreateRequestModel",
         "IsRequired": true
       }
     ],
@@ -35,7 +35,7 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.Enrollment.EnrollmentUpdateStatusResquestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.Enrollment.EnrollmentUpdateStatusResquestModel",
         "IsRequired": true
       }
     ],
@@ -72,7 +72,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.Enrollment.EnrollmentPatchRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.Enrollment.EnrollmentPatchRequestModel",
         "IsRequired": true
       }
     ],
@@ -98,7 +98,23 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.SubClass.SubClassCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.SubClass.SubClassCreateRequestModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.SubClassController",
+    "Method": "GetSubClassAsync",
+    "RelativePath": "api/SubClass/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
         "IsRequired": true
       }
     ],
@@ -119,23 +135,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.SubClass.SubClassPatchRequestModel",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "OnlineClassManagementSystem.WebApi.Controllers.SubClassController",
-    "Method": "GetSubClassAsync",
-    "RelativePath": "api/SubClass/{SubClassId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "SubClassId",
-        "Type": "System.Int32",
+        "Type": "OnlineClassManagementSystem.Shared.models.SubClass.SubClassPatchRequestModel",
         "IsRequired": true
       }
     ],
@@ -177,7 +177,7 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.TeachingTracking.TeachingTrackingCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.TeachingTracking.TeachingTrackingCreateRequestModel",
         "IsRequired": true
       }
     ],
@@ -198,7 +198,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.TeachingTracking.TeachingTrackingPatchRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.TeachingTracking.TeachingTrackingPatchRequestModel",
         "IsRequired": true
       }
     ],
@@ -256,7 +256,7 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.TeachPlan.TeachPlanCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.TeachPlan.TeachPlanCreateRequestModel",
         "IsRequired": true
       }
     ],
@@ -277,7 +277,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.TeachPlan.TeachPlanPatchRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.TeachPlan.TeachPlanPatchRequestModel",
         "IsRequired": true
       }
     ],
@@ -335,7 +335,7 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.Timetable.TimetableCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.Timetable.TimetableCreateRequestModel",
         "IsRequired": true
       }
     ],
@@ -356,7 +356,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.Timetable.TimetablePatchRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.Timetable.TimetablePatchRequestModel",
         "IsRequired": true
       }
     ],
@@ -430,7 +430,7 @@
     "Parameters": [
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.User.UserCreateRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.User.UserCreateRequestModel",
         "IsRequired": true
       }
     ],
@@ -451,7 +451,7 @@
       },
       {
         "Name": "model",
-        "Type": "OnlineClassManagementSystem.Domain.models.User.UserPatchRequestModel",
+        "Type": "OnlineClassManagementSystem.Shared.models.User.UserPatchRequestModel",
         "IsRequired": true
       }
     ],

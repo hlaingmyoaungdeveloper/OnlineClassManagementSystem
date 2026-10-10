@@ -1,6 +1,6 @@
 using System;
 
-namespace OnlineClassManagementSystem.Domain.models.Timetable;
+namespace OnlineClassManagementSystem.Shared.models.Timetable;
 
 public class TimetablePatchRequestModel
 {

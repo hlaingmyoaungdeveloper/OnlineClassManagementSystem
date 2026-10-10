@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OnlineClassManagementSystem.Domain.models.TeachingTracking;
+namespace OnlineClassManagementSystem.Shared.models.TeachingTracking;
 
 public class TeachingTrackingListRequestModel
 {
