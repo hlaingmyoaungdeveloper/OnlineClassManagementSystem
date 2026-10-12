@@ -1,0 +1,652 @@
+@model OnlineClassManagementSystem.Shared.models.Timetable.TimetableListResponseModel
+
+@{
+    ViewData["Title"] = "Schedules - Timetable Management";
+    var timetables = Model?.TimetableList
+        ?? new List<OnlineClassManagementSystem.Shared.models.Timetable.TimetableModel>();
+    var classes = ViewBag.Classes as List<OnlineClassManagementSystem.Shared.models.SubClass.SubClassModel>
+        ?? new List<OnlineClassManagementSystem.Shared.models.SubClass.SubClassModel>();
+    var teachers = ViewBag.Teachers as List<OnlineClassManagementSystem.Shared.models.User.UserModel>
+        ?? new List<OnlineClassManagementSystem.Shared.models.User.UserModel>();
+
+    // Days mapping (Monday - Sunday)
+    var weekDays = new[]
+    {
+        new { Name = "Monday", Short = "MON", Offset = 0 },
+        new { Name = "Tuesday", Short = "TUE", Offset = 1 },
+        new { Name = "Wednesday", Short = "WED", Offset = 2 },
+        new { Name = "Thursday", Short = "THU", Offset = 3 },
+        new { Name = "Friday", Short = "FRI", Offset = 4 },
+        new { Name = "Saturday", Short = "SAT", Offset = 5 },
+        new { Name = "Sunday", Short = "SUN", Offset = 6 }
+    };
+
+    // Calculate current week reference dates
+    var today = DateTime.Today;
+    int currentDayOfWeek = (int)today.DayOfWeek;
+    // Sunday is 0 in C#, adjust so Monday is day 0
+    int diffToMonday = currentDayOfWeek == 0 ? -6 : 1 - currentDayOfWeek;
+    var mondayDate = today.AddDays(diffToMonday);
+    var sundayDate = mondayDate.AddDays(6);
+
+    string todayName = today.ToString("dddd");
+
+    // Grouping by Teacher
+    var teacherGroups = timetables
+        .GroupBy(t => new { t.TeacherId, TeacherName = string.IsNullOrWhiteSpace(t.TeacherName) ? $"Teacher #{t.TeacherId}" : t.TeacherName })
+        .OrderBy(g => g.Key.TeacherName)
+        .ToList();
+
+    // If teacher list is available from ViewBag, ensure even teachers without timetables can be viewed
+    var allTeacherIds = teachers.Select(t => t.UserId).ToHashSet();
+    var extraTeachers = teachers.Where(t => !teacherGroups.Any(g => g.Key.TeacherId == t.UserId)).ToList();
+
+    // Palette of avatar colors
+    var avatarColors = new[] { "bg-blue-500", "bg-purple-500", "bg-emerald-500", "bg-amber-500", "bg-indigo-500", "bg-rose-500", "bg-cyan-500" };
+}
+
+<div class="flex min-h-screen bg-slate-50 font-sans text-slate-800">
+
+    <!-- Left Sidebar -->
+    <aside class="hidden w-64 shrink-0 flex-col bg-slate-900 text-white md:flex">
+        <div class="border-b border-slate-800 px-6 py-6">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 font-bold text-white shadow-md">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight text-white">HubClass</h1>
+                    <p class="text-xs text-slate-400">Class Management</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 space-y-1.5 px-3 py-6 text-sm font-medium">
+            <p class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Main Menu</p>
+            <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
+                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                Dashboard
+            </a>
+
+            <a asp-controller="SubClass" asp-action="Index"
+               class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
+                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                Class Management
+            </a>
+
+            <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
+                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                Enrollment
+            </a>
+
+            <a asp-controller="Timetable" asp-action="Index"
+               class="flex items-center gap-3 rounded-lg bg-blue-600 px-3 py-2.5 text-white shadow-sm">
+                <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <span>Schedules</span>
+            </a>
+
+            <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
+                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                Test Plans
+            </a>
+
+            <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition hover:bg-slate-800 hover:text-white">
+                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                Reports
+            </a>
+        </nav>
+
+        <div class="border-t border-slate-800 p-4 text-xs text-slate-400">
+            <p class="font-medium text-slate-300">Online Class System</p>
+            <p class="mt-0.5">Schedules & Timetable Board</p>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex min-w-0 flex-1 flex-col overflow-x-hidden bg-white">
+
+        <!-- Top Header Navigation (Hubstaff style) -->
+        <header class="border-b border-slate-200 bg-white px-6 py-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                
+                <!-- Title & Quick Status -->
+                <div class="flex items-center gap-4">
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Schedules</h1>
+                    <div class="hidden items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 sm:flex">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        <span>@timetables.Count Total Shifts</span>
+                    </div>
+                </div>
+
+                <!-- Top Right Controls (Filters, User info, Action button) -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Events / Mode filter -->
+                    <div class="relative">
+                        <select id="modeFilter" onchange="applyLocalFilters()" class="h-9 rounded-lg border border-slate-300 bg-white px-3 pr-8 text-xs font-medium text-slate-700 outline-none hover:bg-slate-50 focus:border-blue-500">
+                            <option value="all">All events / modes</option>
+                            <option value="Online">Online</option>
+                            <option value="ClassRoom">ClassRoom</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                    </div>
+
+                    <!-- Member filter (Server GET filter) -->
+                    <form method="get" asp-controller="Timetable" asp-action="Index" id="filterForm" class="flex items-center gap-2">
+                        <select name="teacherId" onchange="this.form.submit()" class="h-9 rounded-lg border border-slate-300 bg-white px-3 pr-8 text-xs font-medium text-slate-700 outline-none hover:bg-slate-50 focus:border-blue-500">
+                            <option value="">All members</option>
+                            @foreach (var t in teachers)
+                            {
+                                <option value="@t.UserId" selected="@(ViewBag.SelectedTeacherId == t.UserId)">@t.FullName</option>
+                            }
+                        </select>
+
+                        <select name="classId" onchange="this.form.submit()" class="h-9 rounded-lg border border-slate-300 bg-white px-3 pr-8 text-xs font-medium text-slate-700 outline-none hover:bg-slate-50 focus:border-blue-500">
+                            <option value="">All classes</option>
+                            @foreach (var c in classes)
+                            {
+                                <option value="@c.SubClassId" selected="@(ViewBag.SelectedClassId == c.SubClassId)">@c.ClassName</option>
+                            }
+                        </select>
+
+                        @if (ViewBag.SelectedTeacherId != null || ViewBag.SelectedClassId != null)
+                        {
+                            <a asp-controller="Timetable" asp-action="Index" class="h-9 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200" title="Reset Filters">✕</a>
+                        }
+                    </form>
+
+                    <!-- Add Schedule Action Button -->
+                    <a asp-controller="Timetable" asp-action="Create"
+                       class="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-600 px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        <span>Add Schedule</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Second Control Row: Month/Week/Day tabs + Date range nav + View By selector -->
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-3">
+                
+                <!-- View Mode Tabs -->
+                <div class="flex items-center gap-1 rounded-lg bg-slate-100 p-1 text-xs font-semibold text-slate-600">
+                    <button type="button" onclick="switchView('board')" id="btnTabBoard" class="rounded-md bg-white px-3 py-1.5 text-slate-900 shadow-sm transition">
+                        Week Board
+                    </button>
+                    <button type="button" onclick="switchView('list')" id="btnTabList" class="rounded-md px-3 py-1.5 text-slate-600 hover:text-slate-900 transition">
+                        List View
+                    </button>
+                </div>
+
+                <!-- Date Navigation Bar -->
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center rounded-lg border border-slate-300 bg-white">
+                        <button type="button" class="px-2.5 py-1.5 text-slate-600 hover:bg-slate-50 border-r border-slate-200">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <button type="button" class="px-2.5 py-1.5 text-slate-600 hover:bg-slate-50">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
+                        <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span>@mondayDate.ToString("MMM dd, yyyy") - @sundayDate.ToString("MMM dd, yyyy")</span>
+                    </div>
+
+                    <span class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
+                        Today: @today.ToString("MMM dd")
+                    </span>
+                </div>
+
+                <!-- View by toggle -->
+                <div class="flex items-center gap-3">
+                    <label class="flex items-center gap-2 text-xs font-medium text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="toggleEmptyRows" onchange="toggleEmptyRows(this)" class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" checked />
+                        <span>Show empty members</span>
+                    </label>
+
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">View by:</span>
+                    <span class="text-xs font-bold text-slate-800">Members (Teachers)</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notification Alerts -->
+        <div class="px-6 pt-4">
+            @if (TempData["Success"] != null)
+            {
+                <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-semibold text-emerald-800 flex items-center justify-between">
+                    <span>✓ @TempData["Success"]</span>
+                    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800">✕</button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700 flex items-center justify-between">
+                    <span>⚠ @TempData["Error"]</span>
+                    <button type="button" onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800">✕</button>
+                </div>
+            }
+            @if (ViewBag.Error != null)
+            {
+                <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700 flex items-center justify-between">
+                    <span>⚠ @ViewBag.Error</span>
+                    <button type="button" onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800">✕</button>
+                </div>
+            }
+        </div>
+
+        <!-- VIEW 1: Weekly Schedules Matrix (Hubstaff-style Board View) -->
+        <div id="boardView" class="flex-1 overflow-x-auto p-6">
+            <div class="min-w-[1100px] rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                
+                <!-- Table Grid Header (Days of week) -->
+                <div class="grid grid-cols-[240px_repeat(7,1fr)] border-b border-slate-200 bg-slate-50 text-slate-700">
+                    
+                    <!-- Top Left Header: Members label -->
+                    <div class="flex items-center justify-between border-r border-slate-200 px-4 py-3.5">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Member</span>
+                        <span class="rounded bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                            @(teacherGroups.Count + extraTeachers.Count)
+                        </span>
+                    </div>
+
+                    <!-- 7 Day Columns -->
+                    @for (int i = 0; i < weekDays.Length; i++)
+                    {
+                        var day = weekDays[i];
+                        var colDate = mondayDate.AddDays(day.Offset);
+                        bool isToday = string.Equals(todayName, day.Name, StringComparison.OrdinalIgnoreCase);
+
+                        <div class="border-r border-slate-200 last:border-r-0 px-3 py-3 text-center @(isToday ? "bg-blue-50/70" : "")">
+                            <div class="flex items-baseline justify-center gap-1.5">
+                                <span class="text-xl font-extrabold @(isToday ? "text-blue-600" : "text-slate-800")">
+                                    @colDate.Day
+                                </span>
+                                <div class="text-left leading-tight">
+                                    <span class="block text-[10px] font-bold tracking-wider uppercase @(isToday ? "text-blue-600" : "text-slate-500")">
+                                        @day.Short
+                                    </span>
+                                    <span class="block text-[9px] font-semibold text-slate-400 uppercase">
+                                        @colDate.ToString("MMM")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Grid Rows (Teachers / Members) -->
+                <div class="divide-y divide-slate-200 bg-white">
+                    @if (teacherGroups.Count == 0 && extraTeachers.Count == 0)
+                    {
+                        <div class="py-16 text-center text-slate-400">
+                            <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <p class="mt-2 text-sm font-medium text-slate-600">No schedules recorded yet.</p>
+                            <a asp-controller="Timetable" asp-action="Create" class="mt-3 inline-block rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white">Create First Schedule</a>
+                        </div>
+                    }
+
+                    <!-- Render Teachers with schedules -->
+                    @for (int tIdx = 0; tIdx < teacherGroups.Count; tIdx++)
+                    {
+                        var group = teacherGroups[tIdx];
+                        var teacherTimetables = group.ToList();
+                        string colorClass = avatarColors[tIdx % avatarColors.Length];
+                        string initials = string.Join("", group.Key.TeacherName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
+
+                        <div class="grid grid-cols-[240px_repeat(7,1fr)] min-h-[110px] transition hover:bg-slate-50/60 member-row" data-has-items="true">
+                            
+                            <!-- Left Member Info Column -->
+                            <div class="flex items-center gap-3 border-r border-slate-200 bg-white/70 p-4">
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full @colorClass text-xs font-bold text-white shadow-sm">
+                                    @initials
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-xs font-bold text-slate-900" title="@group.Key.TeacherName">
+                                        @group.Key.TeacherName
+                                    </p>
+                                    <p class="text-[11px] text-slate-400">
+                                        @teacherTimetables.Count schedule@(teacherTimetables.Count > 1 ? "s" : "")
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- 7 Day Cells for this Member -->
+                            @foreach (var day in weekDays)
+                            {
+                                var dayItems = teacherTimetables
+                                    .Where(t => string.Equals(t.DayOfWeek, day.Name, StringComparison.OrdinalIgnoreCase))
+                                    .OrderBy(t => t.StartTime)
+                                    .ToList();
+
+                                bool isToday = string.Equals(todayName, day.Name, StringComparison.OrdinalIgnoreCase);
+
+                                <div class="relative border-r border-slate-200 last:border-r-0 p-2 @(isToday ? "bg-blue-50/30" : "")">
+                                    
+                                    @if (dayItems.Count > 0)
+                                    {
+                                        <div class="space-y-2">
+                                            @foreach (var item in dayItems)
+                                            {
+                                                bool isOnline = string.Equals(item.Mode, "Online", StringComparison.OrdinalIgnoreCase);
+                                                string cardBg = isOnline ? "bg-indigo-600 text-white" : "bg-blue-600 text-white";
+                                                string subColor = isOnline ? "text-indigo-100" : "text-blue-100";
+                                                string dotColor = isOnline ? "bg-emerald-400" : "bg-amber-300";
+
+                                                <div class="timetable-card-container relative">
+                                                    <!-- Clickable Schedule Card -->
+                                                    <div id="timetable-card-@item.Id"
+                                                         onclick="toggleCardAction(@item.Id, event)"
+                                                         class="timetable-card cursor-pointer rounded-lg p-2.5 shadow-sm transition hover:shadow-md hover:scale-[1.02] active:scale-95 @cardBg select-none"
+                                                         title="Click to view options">
+                                                        
+                                                        <!-- Top Row: Shift / Mode + Status Dot -->
+                                                        <div class="flex items-center justify-between text-[10px] font-semibold">
+                                                            <span class="flex items-center gap-1.5">
+                                                                <span class="h-2 w-2 rounded-full @dotColor animate-pulse"></span>
+                                                                <span class="tracking-wide uppercase">@item.Mode</span>
+                                                            </span>
+                                                            <span class="text-[10px] opacity-80">
+                                                                ⋮
+                                                            </span>
+                                                        </div>
+
+                                                        <!-- Time Range -->
+                                                        <div class="mt-1 font-mono text-xs font-bold leading-tight">
+                                                            @item.StartTime.ToString("hh:mm tt") - @item.EndTime.ToString("hh:mm tt")
+                                                        </div>
+
+                                                        <!-- Subject & Class Name -->
+                                                        <div class="mt-1 truncate text-[11px] font-semibold leading-tight @subColor">
+                                                            @(string.IsNullOrWhiteSpace(item.SubjectName) ? $"Subject #{item.SubjectId}" : item.SubjectName)
+                                                        </div>
+                                                        <div class="truncate text-[10px] opacity-85">
+                                                            @(string.IsNullOrWhiteSpace(item.ClassName) ? $"Class #{item.SubClassId}" : item.ClassName)
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- POPUP / ACTION DRAWER UNDER THE CARD (Visible on click) -->
+                                                    <div id="card-action-@item.Id"
+                                                         class="card-action-panel hidden absolute left-0 right-0 top-full mt-1.5 z-30 rounded-xl border border-slate-200 bg-white p-3 shadow-xl transition-all duration-150">
+                                                        
+                                                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                                            <span class="text-[11px] font-bold text-slate-700">Schedule Actions</span>
+                                                            <button type="button" onclick="closeCardAction(@item.Id, event)" class="rounded p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 text-xs">
+                                                                ✕
+                                                            </button>
+                                                        </div>
+
+                                                        <!-- Schedule Details inside action card -->
+                                                        <div class="mt-2 space-y-1 text-[11px] text-slate-600">
+                                                            <div class="flex justify-between">
+                                                                <span class="text-slate-400">Class:</span>
+                                                                <span class="font-semibold text-slate-800">@(string.IsNullOrWhiteSpace(item.ClassName) ? $"#{item.SubClassId}" : item.ClassName)</span>
+                                                            </div>
+                                                            <div class="flex justify-between">
+                                                                <span class="text-slate-400">Subject:</span>
+                                                                <span class="font-semibold text-slate-800">@(string.IsNullOrWhiteSpace(item.SubjectName) ? $"#{item.SubjectId}" : item.SubjectName)</span>
+                                                            </div>
+                                                            <div class="flex justify-between">
+                                                                <span class="text-slate-400">Teacher:</span>
+                                                                <span class="font-semibold text-slate-800">@(string.IsNullOrWhiteSpace(item.TeacherName) ? $"#{item.TeacherId}" : item.TeacherName)</span>
+                                                            </div>
+                                                            <div class="flex justify-between">
+                                                                <span class="text-slate-400">Time:</span>
+                                                                <span class="font-semibold text-slate-800">@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Action Buttons directly under the card -->
+                                                        <div class="mt-3 flex items-center gap-1.5 border-t border-slate-100 pt-2">
+                                                            <a asp-controller="Timetable" asp-action="Edit" asp-route-id="@item.Id"
+                                                               class="flex-1 rounded-lg bg-blue-600 px-2 py-1.5 text-center text-[11px] font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                                                                Edit
+                                                            </a>
+                                                            <form asp-controller="Timetable" asp-action="Delete" asp-route-id="@item.Id" method="post" class="flex-1" onsubmit="return confirm('Delete this schedule?');">
+                                                                @Html.AntiForgeryToken()
+                                                                <button type="submit" class="w-full rounded-lg border border-red-200 bg-red-50 px-2 py-1.5 text-center text-[11px] font-semibold text-red-600 transition hover:bg-red-100 hover:text-red-700">
+                                                                    Delete
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <!-- Empty day slot with subtle add affordance -->
+                                        <div class="flex h-full min-h-[70px] w-full items-center justify-center rounded-lg border border-dashed border-transparent transition hover:border-slate-300 hover:bg-slate-100/50 group">
+                                            <a asp-controller="Timetable" asp-action="Create" class="hidden text-[10px] font-semibold text-slate-400 group-hover:block hover:text-blue-600">
+                                                + Add
+                                            </a>
+                                        </div>
+                                    }
+
+                                </div>
+                            }
+
+                        </div>
+                    }
+
+                    <!-- Extra Teachers without scheduled shifts -->
+                    @for (int eIdx = 0; eIdx < extraTeachers.Count; eIdx++)
+                    {
+                        var teacher = extraTeachers[eIdx];
+                        string initials = string.Join("", teacher.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(s => s[0])).ToUpper();
+
+                        <div class="grid grid-cols-[240px_repeat(7,1fr)] min-h-[90px] transition hover:bg-slate-50/60 member-row empty-member-row" data-has-items="false">
+                            
+                            <!-- Left Member Info -->
+                            <div class="flex items-center gap-3 border-r border-slate-200 bg-white/70 p-4">
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-300 text-xs font-bold text-slate-700 shadow-sm">
+                                    @initials
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-xs font-bold text-slate-800" title="@teacher.FullName">
+                                        @teacher.FullName
+                                    </p>
+                                    <p class="text-[11px] text-slate-400">No shifts scheduled</p>
+                                </div>
+                            </div>
+
+                            <!-- 7 empty cells -->
+                            @for (int i = 0; i < 7; i++)
+                            {
+                                <div class="border-r border-slate-200 last:border-r-0 p-2">
+                                    <div class="flex h-full min-h-[60px] w-full items-center justify-center rounded-lg border border-dashed border-transparent transition hover:border-slate-300 hover:bg-slate-100/50 group">
+                                        <a asp-controller="Timetable" asp-action="Create" class="hidden text-[10px] font-semibold text-slate-400 group-hover:block hover:text-blue-600">
+                                            + Add
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- VIEW 2: Traditional List/Table View (Toggleable) -->
+        <div id="listView" class="hidden flex-1 p-6">
+            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div class="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">All Schedules</h3>
+                        <p class="text-xs text-slate-500">List of all scheduled classes and timing.</p>
+                    </div>
+                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        @timetables.Count records
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 uppercase tracking-wider text-slate-500">
+                            <tr>
+                                <th class="px-6 py-3.5 font-semibold">Day</th>
+                                <th class="px-6 py-3.5 font-semibold">Time</th>
+                                <th class="px-6 py-3.5 font-semibold">Class</th>
+                                <th class="px-6 py-3.5 font-semibold">Teacher</th>
+                                <th class="px-6 py-3.5 font-semibold">Subject</th>
+                                <th class="px-6 py-3.5 font-semibold">Mode</th>
+                                <th class="px-6 py-3.5 text-right font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @if (timetables.Count > 0)
+                            {
+                                foreach (var item in timetables)
+                                {
+                                    <tr class="transition hover:bg-slate-50/80">
+                                        <td class="px-6 py-3.5 font-bold text-slate-800">
+                                            <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                                                @item.DayOfWeek
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-3.5 font-mono text-slate-600">
+                                            @item.StartTime.ToString("hh:mm tt") - @item.EndTime.ToString("hh:mm tt")
+                                        </td>
+                                        <td class="px-6 py-3.5 font-semibold text-slate-900">
+                                            @(string.IsNullOrWhiteSpace(item.ClassName) ? $"Class #{item.SubClassId}" : item.ClassName)
+                                        </td>
+                                        <td class="px-6 py-3.5 text-slate-700">
+                                            @(string.IsNullOrWhiteSpace(item.TeacherName) ? $"Teacher #{item.TeacherId}" : item.TeacherName)
+                                        </td>
+                                        <td class="px-6 py-3.5 text-slate-700">
+                                            @(string.IsNullOrWhiteSpace(item.SubjectName) ? $"Subject #{item.SubjectId}" : item.SubjectName)
+                                        </td>
+                                        <td class="px-6 py-3.5">
+                                            <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-700">
+                                                @item.Mode
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-3.5 text-right space-x-2">
+                                            <a asp-controller="Timetable" asp-action="Edit" asp-route-id="@item.Id" class="font-semibold text-blue-600 hover:underline">Edit</a>
+                                            <form asp-controller="Timetable" asp-action="Delete" asp-route-id="@item.Id" method="post" class="inline" onsubmit="return confirm('Delete this schedule?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="font-semibold text-red-600 hover:underline">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                                        No timetable schedules found.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+    // Toggle Card Action Panel directly under the card when clicked
+    function toggleCardAction(id, event) {
+        event.stopPropagation();
+        const actionEl = document.getElementById('card-action-' + id);
+        const cardEl = document.getElementById('timetable-card-' + id);
+        if (!actionEl) return;
+
+        const isCurrentlyHidden = actionEl.classList.contains('hidden');
+
+        // Close all other open action panels
+        document.querySelectorAll('.card-action-panel').forEach(el => {
+            if (el.id !== 'card-action-' + id) {
+                el.classList.add('hidden');
+            }
+        });
+        document.querySelectorAll('.timetable-card').forEach(el => {
+            if (el.id !== 'timetable-card-' + id) {
+                el.classList.remove('ring-2', 'ring-blue-400', 'shadow-lg');
+            }
+        });
+
+        if (isCurrentlyHidden) {
+            actionEl.classList.remove('hidden');
+            cardEl.classList.add('ring-2', 'ring-blue-400', 'shadow-lg');
+        } else {
+            actionEl.classList.add('hidden');
+            cardEl.classList.remove('ring-2', 'ring-blue-400', 'shadow-lg');
+        }
+    }
+
+    function closeCardAction(id, event) {
+        if (event) event.stopPropagation();
+        const actionEl = document.getElementById('card-action-' + id);
+        const cardEl = document.getElementById('timetable-card-' + id);
+        if (actionEl) actionEl.classList.add('hidden');
+        if (cardEl) cardEl.classList.remove('ring-2', 'ring-blue-400', 'shadow-lg');
+    }
+
+    // Dismiss any open action drawer when clicking anywhere outside
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.timetable-card-container')) {
+            document.querySelectorAll('.card-action-panel').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.timetable-card').forEach(el => el.classList.remove('ring-2', 'ring-blue-400', 'shadow-lg'));
+        }
+    });
+
+    // Toggle Empty Rows
+    function toggleEmptyRows(checkbox) {
+        const emptyRows = document.querySelectorAll('.empty-member-row');
+        emptyRows.forEach(row => {
+            row.style.display = checkbox.checked ? '' : 'none';
+        });
+    }
+
+    // Switch between Week Board View and Table List View
+    function switchView(mode) {
+        const board = document.getElementById('boardView');
+        const list = document.getElementById('listView');
+        const btnBoard = document.getElementById('btnTabBoard');
+        const btnList = document.getElementById('btnTabList');
+
+        if (mode === 'board') {
+            board.classList.remove('hidden');
+            list.classList.add('hidden');
+            btnBoard.className = 'rounded-md bg-white px-3 py-1.5 text-slate-900 shadow-sm transition';
+            btnList.className = 'rounded-md px-3 py-1.5 text-slate-600 hover:text-slate-900 transition';
+        } else {
+            board.classList.add('hidden');
+            list.classList.remove('hidden');
+            btnList.className = 'rounded-md bg-white px-3 py-1.5 text-slate-900 shadow-sm transition';
+            btnBoard.className = 'rounded-md px-3 py-1.5 text-slate-600 hover:text-slate-900 transition';
+        }
+    }
+
+    // Filter by mode (Online, ClassRoom, Hybrid) locally on the board
+    function applyLocalFilters() {
+        const selectedMode = document.getElementById('modeFilter').value;
+        const containers = document.querySelectorAll('.timetable-card-container');
+
+        containers.forEach(container => {
+            if (selectedMode === 'all') {
+                container.style.display = '';
+            } else {
+                const card = container.querySelector('.timetable-card');
+                const text = card ? card.innerText : '';
+                if (text.toLowerCase().includes(selectedMode.toLowerCase())) {
+                    container.style.display = '';
+                } else {
+                    container.style.display = 'none';
+                }
+            }
+        });
+    }
+</script>

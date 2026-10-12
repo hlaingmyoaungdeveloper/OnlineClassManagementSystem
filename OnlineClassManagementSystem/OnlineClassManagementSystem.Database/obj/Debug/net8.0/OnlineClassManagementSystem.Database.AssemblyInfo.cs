@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnlineClassManagementSystem.Database")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+267a2bf6725bd9c18cafece38bb3ecab88bcf32a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+90147797cf96173073510bf23f35b25b42752b61")]
 [assembly: System.Reflection.AssemblyProductAttribute("OnlineClassManagementSystem.Database")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnlineClassManagementSystem.Database")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

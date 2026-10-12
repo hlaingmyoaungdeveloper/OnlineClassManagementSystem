@@ -21,7 +21,7 @@
                 </div>
             }
 
-            <form asp-controller="SubClass" asp-action="Edit" method="post" class="mt-6 space-y-5">
+            <form asp-controller="SubClass" asp-action="Edit" asp-route-id="@Model.SubClassId" method="post" class="mt-6 space-y-5">
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="text-sm text-red-600"></div>
 

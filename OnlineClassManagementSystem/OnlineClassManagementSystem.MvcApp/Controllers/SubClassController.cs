@@ -35,8 +35,7 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
             }
             catch (HttpRequestException)
             {
-                ViewBag.Error =
-                    "Cannot connect to Web API. Please check API URL.";
+                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
                 return View();
             }
         }
@@ -48,45 +47,46 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSubClass(SubClassCreateRequestModel model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(SubClassCreateRequestModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return View("CreateSubClass", model);
             }
 
             try
             {
-                bool success = await _classApiService.CreateSubClassAsync(model);
+                var result = await _classApiService.CreateSubClassAsync(model);
 
-                if (success)
+                if (result != null && result.IsSuccess)
                 {
-                    TempData["Success"] = "Class created successfully!";
+                    TempData["Success"] = result.Message ?? "Class created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
 
-                ViewBag.Error = "Failed to create class. Please check the submitted data.";
-                return View(model);
+                ViewBag.Error = result?.Message ?? "Failed to create class. Please check the submitted data.";
+                return View("CreateSubClass", model);
             }
             catch (HttpRequestException)
             {
                 ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-                return View(model);
+                return View("CreateSubClass", model);
             }
         }
 
-         [HttpGet]
-         public async Task<IActionResult> Edit(int id)
-         {
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
             var response = await _classApiService.GetSubClassAsync(id);
             if (response == null)
             {
-                ViewBag.Error = "SubClass not found.";
+                TempData["Error"] = "SubClass not found.";
                 return RedirectToAction(nameof(Index));
             }
             var requestModel = new SubClassEditRequestModel
             {
-                SubClassId = response.SubClassId,
+                SubClassId = response.SubClassId != 0 ? response.SubClassId : id,
                 ClassName = response.ClassName,
                 Place = response.Place,
                 OpenDate = response.OpenDate,
@@ -94,36 +94,42 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 StudentLimit = response.StudentLimit
             };
             return View("EditSubClass", requestModel);
-         }
+        }
 
-         [HttpPost]
-         public async Task<IActionResult> Edit(SubClassEditRequestModel model)
-         {
-             if (!ModelState.IsValid)
-             {
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int? id, SubClassEditRequestModel model)
+        {
+            if (model.SubClassId == 0 && id.HasValue && id.Value != 0)
+            {
+                model.SubClassId = id.Value;
+            }
+            if (!ModelState.IsValid)
+            {
                 return View("EditSubClass", model);
-             }
-             try
-             {
-                 bool success = await _classApiService.UpdateSubClassAsync(model);
-                 if (success)
-                 {
+            }
+            try
+            {
+                bool success = await _classApiService.UpdateSubClassAsync(model);
+                if (success)
+                {
                     TempData["Success"] = "Class updated successfully!";
                     return RedirectToAction(nameof(Index));
-                 }
-                 ViewBag.Error = "Failed to update class.";
-                 return View("EditSubClass", model);
-             }
-             catch (HttpRequestException)
-             {
-                 ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-                 return View("EditSubClass", model);
-             }
-         }
+                }
+                ViewBag.Error = "Failed to update class.";
+                return View("EditSubClass", model);
+            }
+            catch (HttpRequestException)
+            {
+                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
+                return View("EditSubClass", model);
+            }
+        }
 
-         [HttpPost]
-         public async Task<IActionResult> Delete(int id)
-         {
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
             try
             {
                 bool success = await _classApiService.DeleteSubClassAsync(id);
@@ -133,17 +139,14 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 }
                 else
                 {
-                    ViewBag.Error = "Failed to delete class.";
+                    TempData["Error"] = "Failed to delete class.";
                 }
             }
             catch (HttpRequestException)
             {
-                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
+                TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
             }
             return RedirectToAction(nameof(Index));
-         }
+        }
     }
-} 
-
-
- 
+}

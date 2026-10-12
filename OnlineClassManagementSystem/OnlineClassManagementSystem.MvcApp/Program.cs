@@ -8,6 +8,7 @@ builder.Services.AddHttpClient("ApiClient",
     client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"])
 );
 builder.Services.AddScoped<SubClassApiService>();
+builder.Services.AddScoped<TimetableApiService>();
 
 var app = builder.Build();
 
