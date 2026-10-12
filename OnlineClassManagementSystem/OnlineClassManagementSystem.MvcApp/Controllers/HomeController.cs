@@ -13,8 +13,21 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string? role = "admin")
         {
+            ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+            return View();
+        }
+
+        public IActionResult Enrollment(string? role = "admin")
+        {
+            ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+            return View();
+        }
+
+        public IActionResult Reports(string? role = "admin")
+        {
+            ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
             return View();
         }
 

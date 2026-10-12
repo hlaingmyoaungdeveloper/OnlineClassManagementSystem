@@ -1,8 +1,282 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Dashboard";
+    var queryRole = Context.Request.Query["role"].ToString();
+    var currentRole = !string.IsNullOrEmpty(queryRole) ? queryRole.ToLower() : (ViewBag.CurrentRole as string ?? "admin");
+    var isTeacher = currentRole == "teacher";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-6 md:p-8 space-y-8">
+
+    <!-- Header Greeting -->
+    <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+        <p class="mt-1 text-sm text-slate-500">
+            @(isTeacher ? "Welcome back, Teacher1" : "Welcome back, Admin!")
+        </p>
+    </div>
+
+    @if (!isTeacher)
+    {
+        <!-- ADMIN DASHBOARD -->
+        <!-- Stat Cards (4 columns) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Total Classes -->
+            <div class="flex items-center gap-4 rounded-xl border border-blue-100 bg-white p-5 shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Classes</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">12</h3>
+                </div>
+            </div>
+
+            <!-- Total Students -->
+            <div class="flex items-center gap-4 rounded-xl border border-emerald-100 bg-white p-5 shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Students</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">168</h3>
+                </div>
+            </div>
+
+            <!-- Total Teachers -->
+            <div class="flex items-center gap-4 rounded-xl border border-purple-100 bg-white p-5 shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Teachers</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">8</h3>
+                </div>
+            </div>
+
+            <!-- Total Enrollments -->
+            <div class="flex items-center gap-4 rounded-xl border border-amber-100 bg-white p-5 shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Enrollments</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">152</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trend Chart & Recent Activities Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left: Enrollment Trend Chart -->
+            <div class="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-bold text-slate-800">Enrollment Trend</h2>
+                    <span class="text-xs font-medium text-slate-400">Monthly Statistics</span>
+                </div>
+                <div class="relative h-72 w-full">
+                    <canvas id="enrollmentTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Right: Recent Activities -->
+            <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-xs flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 mb-5">Recent Activities</h2>
+                    <div class="space-y-5">
+                        <!-- Activity 1 -->
+                        <div class="flex items-start gap-3.5">
+                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-blue-500 shrink-0 ring-4 ring-blue-50"></span>
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">New enrollment: <span class="text-slate-600">Aung Aung (Class A)</span></p>
+                                <span class="text-xs text-slate-400">2 hours ago</span>
+                            </div>
+                        </div>
+
+                        <!-- Activity 2 -->
+                        <div class="flex items-start gap-3.5">
+                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-purple-500 shrink-0 ring-4 ring-purple-50"></span>
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">Test plan updated: <span class="text-slate-600">(Math - Class B)</span></p>
+                                <span class="text-xs text-slate-400">3 hours ago</span>
+                            </div>
+                        </div>
+
+                        <!-- Activity 3 -->
+                        <div class="flex items-start gap-3.5">
+                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0 ring-4 ring-emerald-50"></span>
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">Teacher added: <span class="text-slate-600">Daw Khin</span></p>
+                                <span class="text-xs text-slate-400">1 day ago</span>
+                            </div>
+                        </div>
+
+                        <!-- Activity 4 -->
+                        <div class="flex items-start gap-3.5">
+                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-amber-500 shrink-0 ring-4 ring-amber-50"></span>
+                            <div>
+                                <p class="text-sm font-medium text-slate-800">New class created: <span class="text-slate-600">Class C</span></p>
+                                <span class="text-xs text-slate-400">1 day ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 mt-6">
+                    <a asp-controller="SubClass" asp-action="Index" class="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                        View All Classes &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- TEACHER DASHBOARD -->
+        <!-- Stat Cards (3 columns) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <!-- My Classes -->
+            <div class="flex items-center gap-4 rounded-xl border border-blue-100 bg-white p-5 shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">My Classes</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">3</h3>
+                </div>
+            </div>
+
+            <!-- Total Students -->
+            <div class="flex items-center gap-4 rounded-xl border border-emerald-100 bg-white p-5 shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Students</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">68</h3>
+                </div>
+            </div>
+
+            <!-- Pending Tracking -->
+            <div class="flex items-center gap-4 rounded-xl border border-amber-100 bg-white p-5 shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Pending Tracking</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">5</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Classes Card -->
+        <div class="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+                <h2 class="text-base font-bold text-slate-800">Upcoming Classes</h2>
+                <a asp-controller="Timetable" asp-action="Index" asp-route-role="teacher" class="text-xs font-semibold text-teal-600 hover:text-teal-700">View All</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50/80 text-xs font-semibold uppercase text-slate-500">
+                        <tr>
+                            <th class="px-6 py-3.5">Time</th>
+                            <th class="px-6 py-3.5">Class</th>
+                            <th class="px-6 py-3.5">Subject</th>
+                            <th class="px-6 py-3.5">Room</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="px-6 py-4 font-medium text-slate-800">08:00 - 09:00</td>
+                            <td class="px-6 py-4 text-slate-700 font-semibold">Class A</td>
+                            <td class="px-6 py-4 text-blue-600 font-medium">Mathematics</td>
+                            <td class="px-6 py-4 text-slate-500">Room 101</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="px-6 py-4 font-medium text-slate-800">10:00 - 11:00</td>
+                            <td class="px-6 py-4 text-slate-700 font-semibold">Class B</td>
+                            <td class="px-6 py-4 text-blue-600 font-medium">Physics</td>
+                            <td class="px-6 py-4 text-slate-500">Room 102</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="px-6 py-4 font-medium text-slate-800">01:00 - 02:00</td>
+                            <td class="px-6 py-4 text-slate-700 font-semibold">Class C</td>
+                            <td class="px-6 py-4 text-blue-600 font-medium">Chemistry</td>
+                            <td class="px-6 py-4 text-slate-500">Room 103</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/50 transition">
+                            <td class="px-6 py-4 font-medium text-slate-800">03:00 - 04:00</td>
+                            <td class="px-6 py-4 text-slate-700 font-semibold">Class D</td>
+                            <td class="px-6 py-4 text-blue-600 font-medium">Biology</td>
+                            <td class="px-6 py-4 text-slate-500">Room 104</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
 </div>
+
+@section Scripts {
+    @if (!isTeacher)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const ctx = document.getElementById('enrollmentTrendChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                            datasets: [{
+                                label: 'Enrollments',
+                                data: [15, 25, 45, 30, 60, 48, 55, 75, 62, 85, 78, 92],
+                                borderColor: '#3B82F6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#3B82F6',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#F1F5F9' },
+                                    ticks: { color: '#94A3B8', font: { size: 11 } }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#94A3B8', font: { size: 11 } }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        </script>
+    }
+}

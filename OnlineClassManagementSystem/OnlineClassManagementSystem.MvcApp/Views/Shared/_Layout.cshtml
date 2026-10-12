@@ -4,34 +4,256 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ClassTrack Management System</title>
 
-    <title>@ViewData["Title"] - Online Class Management System</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS Browser CDN: suitable for development -->
-<script src="https://cdn.jsdelivr.net/npm/@@tailwindcss/browser@4"></script>
+    <!-- Tailwind CSS Browser CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@@tailwindcss/browser@4"></script>
+
+    <!-- Chart.js for Dashboards and Reports -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <!-- Custom CSS -->
-    <link rel="stylesheet"
-          href="~/css/site.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
-    <link rel="stylesheet"
-          href="~/OnlineClassManagementSystem.MvcApp.styles.css"
-          asp-append-version="true" />
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .sidebar-dark {
+            background-color: #0B1528;
+        }
+        .sidebar-nav-active-admin {
+            background-color: #2563EB !important;
+            color: #ffffff !important;
+        }
+        .sidebar-nav-active-teacher {
+            background-color: #0D9488 !important;
+            color: #ffffff !important;
+        }
+    </style>
 </head>
 
-<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased font-sans">
 
-    <!-- Main Page Content -->
-    <main role="main" class="min-h-screen">
-        @RenderBody()
-    </main>
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+        var queryRole = Context.Request.Query["role"].ToString();
+        var currentRole = !string.IsNullOrEmpty(queryRole) ? queryRole.ToLower() : (ViewBag.CurrentRole as string ?? "admin");
+        var isTeacher = currentRole == "teacher";
+        var activeMenu = ViewBag.ActiveMenu as string ?? "";
+    }
 
-    <!-- Optional Footer -->
-    <footer class="border-t border-slate-200 bg-white px-6 py-4">
-        <div class="mx-auto max-w-7xl text-center text-sm text-slate-500">
-            &copy; @DateTime.Now.Year - Online Class Management System
+    <div class="flex min-h-screen">
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 shrink-0 flex-col sidebar-dark text-white transition-transform duration-200 lg:static lg:translate-x-0 -translate-x-full lg:flex flex">
+            <!-- Brand Logo -->
+            <div class="border-b border-slate-800/80 px-6 py-5 flex items-center justify-between">
+                <a href="@Url.Action("Index", "Home", new { role = currentRole })" class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl @(isTeacher ? "bg-teal-600" : "bg-blue-600") text-white shadow-md font-bold">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-base font-bold tracking-tight text-white leading-tight">ClassTrack</h1>
+                        <p class="text-[11px] font-medium text-slate-400">@(isTeacher ? "Teacher Panel" : "Admin Panel")</p>
+                    </div>
+                </a>
+                <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="flex-1 space-y-1 px-3 py-5 text-sm font-medium overflow-y-auto">
+                @if (!isTeacher)
+                {
+                    <!-- Admin Navigation -->
+                    var isDashboard = (currentController == "Home" && currentAction == "Index") || activeMenu == "Dashboard";
+                    var isClass = currentController == "SubClass" || activeMenu == "Class";
+                    var isEnrollment = (currentController == "Home" && currentAction == "Enrollment") || activeMenu == "Enrollment";
+                    var isTimetable = currentController == "Timetable" || activeMenu == "Timetable";
+                    var isTeachPlan = currentController == "TeachPlan" || activeMenu == "TeachPlan";
+                    var isTracking = currentController == "TeachingTracking" || activeMenu == "Tracking";
+                    var isReports = (currentController == "Home" && currentAction == "Reports") || activeMenu == "Reports";
+
+                    <a asp-controller="Home" asp-action="Index" asp-route-role="admin"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isDashboard ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a asp-controller="SubClass" asp-action="Index" asp-route-role="admin"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isClass ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <span>Class Management</span>
+                    </a>
+
+                    <a asp-controller="Home" asp-action="Enrollment" asp-route-role="admin"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isEnrollment ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <span>Enrollment Management</span>
+                    </a>
+
+                    <a asp-controller="Timetable" asp-action="Index" asp-route-role="admin"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isTimetable ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span>Timetable Management</span>
+                    </a>
+
+                    <a asp-controller="TeachPlan" asp-action="Index" asp-route-role="admin"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isTeachPlan ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                        <span>Test Plan</span>
+                    </a>
+
+                    <a asp-controller="TeachingTracking" asp-action="Index" asp-route-role="admin"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isTracking ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Test Tracking</span>
+                    </a>
+
+                    <a asp-controller="Home" asp-action="Reports" asp-route-role="admin"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isReports ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                        <span>Reports</span>
+                    </a>
+                }
+                else
+                {
+                    <!-- Teacher Navigation -->
+                    var isDashboard = (currentController == "Home" && currentAction == "Index") || activeMenu == "Dashboard";
+                    var isTimetable = currentController == "Timetable" || activeMenu == "Timetable";
+                    var isTeachPlan = currentController == "TeachPlan" || activeMenu == "TeachPlan";
+                    var isTracking = currentController == "TeachingTracking" || activeMenu == "Tracking";
+                    var isReports = (currentController == "Home" && currentAction == "Reports") || activeMenu == "Reports";
+
+                    <a asp-controller="Home" asp-action="Index" asp-route-role="teacher"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isDashboard ? "sidebar-nav-active-teacher" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a asp-controller="Timetable" asp-action="Index" asp-route-role="teacher"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isTimetable ? "sidebar-nav-active-teacher" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span>My Timetable</span>
+                    </a>
+
+                    <a asp-controller="TeachPlan" asp-action="Index" asp-route-role="teacher"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isTeachPlan ? "sidebar-nav-active-teacher" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                        <span>Test Plan</span>
+                    </a>
+
+                    <a asp-controller="TeachingTracking" asp-action="Index" asp-route-role="teacher"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isTracking ? "sidebar-nav-active-teacher" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>Test Tracking</span>
+                    </a>
+
+                    <a asp-controller="Home" asp-action="Reports" asp-route-role="teacher"
+                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isReports ? "sidebar-nav-active-teacher" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                        <span>Reports</span>
+                    </a>
+                }
+            </nav>
+
+            <!-- Bottom Panel Info -->
+            <div class="border-t border-slate-800/80 p-4">
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                    <span>Role: <strong class="text-white capitalize">@currentRole</strong></span>
+                    <a href="@Url.Action(currentAction, currentController, new { role = isTeacher ? "admin" : "teacher" })" 
+                       class="text-xs @(isTeacher ? "text-teal-400 hover:text-teal-300" : "text-blue-400 hover:text-blue-300") underline">
+                        Switch to @(isTeacher ? "Admin" : "Teacher")
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="flex min-w-0 flex-1 flex-col">
+
+            <!-- Top Header -->
+            <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 md:px-8">
+                <!-- Mobile Sidebar Toggle & Page Title -->
+                <div class="flex items-center gap-3">
+                    <button id="openSidebarBtn" class="lg:hidden text-slate-600 hover:text-slate-900 p-1.5 rounded-lg border border-slate-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </button>
+                    <div>
+                        <span class="text-xs font-medium text-slate-400 hidden sm:inline-block">ClassTrack / @(isTeacher ? "Teacher View" : "Admin View")</span>
+                    </div>
+                </div>
+
+                <!-- Right Header Actions -->
+                <div class="flex items-center gap-4">
+                    <!-- Quick Role Switch Pill -->
+                    <div class="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-1 text-xs font-medium">
+                        <a href="@Url.Action(currentAction, currentController, new { role = "admin" })"
+                           class="rounded-md px-2.5 py-1 transition @(!isTeacher ? "bg-blue-600 text-white shadow-xs font-semibold" : "text-slate-600 hover:text-slate-900")">
+                            Admin UI
+                        </a>
+                        <a href="@Url.Action(currentAction, currentController, new { role = "teacher" })"
+                           class="rounded-md px-2.5 py-1 transition @(isTeacher ? "bg-teal-600 text-white shadow-xs font-semibold" : "text-slate-600 hover:text-slate-900")">
+                            Teacher UI
+                        </a>
+                    </div>
+
+                    <!-- Notification Bell -->
+                    <button class="relative rounded-full p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition" title="Notifications">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+                    </button>
+
+                    <!-- User Profile Avatar & Name -->
+                    <div class="flex items-center gap-2.5 pl-2 border-l border-slate-200">
+                        <div class="h-8 w-8 rounded-full overflow-hidden ring-1 ring-slate-200 flex items-center justify-center @(isTeacher ? "bg-teal-100 text-teal-800" : "bg-blue-100 text-blue-800") font-semibold text-xs">
+                            @(isTeacher ? "T" : "A")
+                        </div>
+                        <span class="text-sm font-semibold text-slate-700">@(isTeacher ? "Teacher1" : "Admin")</span>
+                        <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Page Content -->
+            <main role="main" class="flex-1 bg-[#F8FAFC]">
+                @RenderBody()
+            </main>
         </div>
-    </footer>
+
+    </div>
+
+    <!-- Mobile sidebar overlay and toggler script -->
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('openSidebarBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+
+        if (openBtn && sidebar) {
+            openBtn.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+        }
+        if (closeBtn && sidebar) {
+            closeBtn.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+            });
+        }
+    </script>
 
     <!-- JavaScript -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-+bUdzX9O0/6n+U0VwZVdO9yqB6e3hC/5YBk2VZ+zR0U=" crossorigin="anonymous"></script>

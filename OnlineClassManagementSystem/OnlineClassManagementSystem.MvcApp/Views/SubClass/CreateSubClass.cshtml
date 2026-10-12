@@ -1,130 +1,87 @@
 @model OnlineClassManagementSystem.Shared.models.SubClass.SubClassCreateRequestModel
 @{
-    ViewData["Title"] = "Create Class";
+    var queryRole = Context.Request.Query["role"].ToString();
+    var currentRole = !string.IsNullOrEmpty(queryRole) ? queryRole.ToLower() : (ViewBag.CurrentRole as string ?? "admin");
+    ViewData["Title"] = "Add Class";
 }
 
-<div class="min-h-screen bg-slate-50 px-4 py-10">
-    <div class="mx-auto max-w-2xl">
+<div class="p-6 md:p-8 space-y-6 max-w-4xl">
 
-        <a asp-controller="SubClass"
-           asp-action="Index"
-           class="text-sm font-medium text-blue-600 hover:text-blue-800">
-            ← Back to Classes
+    <!-- Back Button -->
+    <div>
+        <a asp-controller="SubClass" asp-action="Index" asp-route-role="@currentRole"
+           class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Back
         </a>
-
-        <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-
-            <h1 class="text-2xl font-bold text-slate-900">
-                Create New Class
-            </h1>
-
-            <p class="mt-2 text-sm text-slate-500">
-                Enter the details for your new class.
-            </p>
-
-            @if (ViewBag.Error != null)
-            {
-                <div class="mt-5 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-                    @ViewBag.Error
-                </div>
-            }
-
-            <form asp-controller="SubClass"
-                  asp-action="Create"
-                  method="post"
-                  class="mt-6 space-y-5">
-
-                @Html.AntiForgeryToken()
-
-                <div asp-validation-summary="ModelOnly"
-                     class="text-sm text-red-600"></div>
-
-                <div>
-                    <label asp-for="ClassName"
-                           class="mb-2 block text-sm font-semibold text-slate-700">
-                        Class Name
-                    </label>
-
-                    <input asp-for="ClassName"
-                           required
-                           class="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                           placeholder="Enter class name" />
-
-                    <span asp-validation-for="ClassName"
-                          class="text-sm text-red-600"></span>
-                </div>
-
-                <div>
-                    <label asp-for="Place"
-                           class="mb-2 block text-sm font-semibold text-slate-700">
-                        Place
-                    </label>
-
-                    <input asp-for="Place"
-                           required
-                           class="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                           placeholder="Enter class location" />
-                </div>
-
-                <div class="grid gap-5 sm:grid-cols-2">
-                    <div>
-                        <label asp-for="OpenDate"
-                               class="mb-2 block text-sm font-semibold text-slate-700">
-                            Open Date
-                        </label>
-
-                        <input asp-for="OpenDate"
-                               type="date"
-                               required
-                               class="w-full rounded-lg border border-slate-300 px-3 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
-                    </div>
-
-                    <div>
-                        <label asp-for="OpenTime"
-                               class="mb-2 block text-sm font-semibold text-slate-700">
-                            Open Time
-                        </label>
-
-                        <input asp-for="OpenTime"
-                               type="text"
-                               required
-                               class="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                               placeholder="e.g. 09:00 AM" />
-                    </div>
-                </div>
-
-                <div>
-                    <label asp-for="StudentLimit"
-                           class="mb-2 block text-sm font-semibold text-slate-700">
-                        Student Limit
-                    </label>
-
-                    <input asp-for="StudentLimit"
-                           type="number"
-                           min="1"
-                           required
-                           class="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                           placeholder="Enter maximum students" />
-                </div>
-
-                <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
-                    <a asp-controller="SubClass"
-                       asp-action="Index"
-                       class="rounded-lg border border-slate-300 px-5 py-3 text-center font-medium text-slate-700 hover:bg-slate-50">
-                        Cancel
-                    </a>
-
-                    <button type="submit"
-                            class="rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700">
-                        Create Class
-                    </button>
-                </div>
-
-            </form>
-        </div>
     </div>
-</div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+    <!-- Main Card -->
+    <div class="rounded-xl border border-slate-200 bg-white p-6 md:p-8 shadow-xs">
+        <h1 class="text-xl font-bold tracking-tight text-slate-900 mb-6">Add Class</h1>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="mb-6 rounded-lg bg-red-50 p-3 text-xs text-red-700">
+                @ViewBag.Error
+            </div>
+        }
+
+        <form asp-controller="SubClass" asp-action="Create" asp-route-role="@currentRole" method="post" class="space-y-5">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-xs text-red-600"></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label asp-for="ClassName" class="block text-xs font-semibold text-slate-700 mb-1.5">Class Name <span class="text-rose-500">*</span></label>
+                    <input asp-for="ClassName" required placeholder="e.g. Class A"
+                           class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                    <span asp-validation-for="ClassName" class="text-[11px] text-red-600"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Place" class="block text-xs font-semibold text-slate-700 mb-1.5">Room / Place <span class="text-rose-500">*</span></label>
+                    <input asp-for="Place" required placeholder="e.g. Room 101"
+                           class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                    <span asp-validation-for="Place" class="text-[11px] text-red-600"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div>
+                    <label asp-for="StudentLimit" class="block text-xs font-semibold text-slate-700 mb-1.5">Student Limit <span class="text-rose-500">*</span></label>
+                    <input asp-for="StudentLimit" type="number" min="1" max="100" value="30" required
+                           class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                    <span asp-validation-for="StudentLimit" class="text-[11px] text-red-600"></span>
+                </div>
+
+                <div>
+                    <label asp-for="OpenDate" class="block text-xs font-semibold text-slate-700 mb-1.5">Open Date <span class="text-rose-500">*</span></label>
+                    <input asp-for="OpenDate" type="date" required
+                           class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                    <span asp-validation-for="OpenDate" class="text-[11px] text-red-600"></span>
+                </div>
+
+                <div>
+                    <label asp-for="OpenTime" class="block text-xs font-semibold text-slate-700 mb-1.5">Open Time <span class="text-rose-500">*</span></label>
+                    <input asp-for="OpenTime" type="time" required
+                           class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                    <span asp-validation-for="OpenTime" class="text-[11px] text-red-600"></span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <a asp-controller="SubClass" asp-action="Index" asp-route-role="@currentRole"
+                   class="rounded-lg border border-slate-200 bg-white px-5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="rounded-lg bg-blue-600 hover:bg-blue-700 px-6 py-2 text-xs font-semibold text-white shadow-xs transition">
+                    Save Class
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>

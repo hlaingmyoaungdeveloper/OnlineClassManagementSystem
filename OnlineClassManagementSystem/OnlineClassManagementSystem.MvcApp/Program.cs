@@ -9,6 +9,8 @@ builder.Services.AddHttpClient("ApiClient",
 );
 builder.Services.AddScoped<SubClassApiService>();
 builder.Services.AddScoped<TimetableApiService>();
+builder.Services.AddScoped<TeachPlanApiService>();
+builder.Services.AddScoped<TeachingTrackingApiService>();
 
 var app = builder.Build();
 
