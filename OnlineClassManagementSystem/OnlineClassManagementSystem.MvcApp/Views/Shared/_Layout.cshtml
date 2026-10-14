@@ -78,11 +78,10 @@
                     <!-- Admin Navigation -->
                     var isDashboard = (currentController == "Home" && currentAction == "Index") || activeMenu == "Dashboard";
                     var isClass = currentController == "SubClass" || activeMenu == "Class";
-                    var isEnrollment = (currentController == "Home" && currentAction == "Enrollment") || activeMenu == "Enrollment";
+                    var isEnrollment = currentController == "Enrollment" || activeMenu == "Enrollment";
                     var isTimetable = currentController == "Timetable" || activeMenu == "Timetable";
                     var isTeachPlan = currentController == "TeachPlan" || activeMenu == "TeachPlan";
                     var isTracking = currentController == "TeachingTracking" || activeMenu == "Tracking";
-                    var isReports = (currentController == "Home" && currentAction == "Reports") || activeMenu == "Reports";
 
                     <a asp-controller="Home" asp-action="Index" asp-route-role="admin"
                        class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isDashboard ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
@@ -96,7 +95,7 @@
                         <span>Class Management</span>
                     </a>
 
-                    <a asp-controller="Home" asp-action="Enrollment" asp-route-role="admin"
+                    <a asp-controller="Enrollment" asp-action="Index" asp-route-role="admin"
                        class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isEnrollment ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                         <span>Enrollment Management</span>
@@ -119,12 +118,6 @@
                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <span>Test Tracking</span>
                     </a>
-
-                    <a asp-controller="Home" asp-action="Reports" asp-route-role="admin"
-                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isReports ? "sidebar-nav-active-admin" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
-                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                        <span>Reports</span>
-                    </a>
                 }
                 else
                 {
@@ -133,7 +126,6 @@
                     var isTimetable = currentController == "Timetable" || activeMenu == "Timetable";
                     var isTeachPlan = currentController == "TeachPlan" || activeMenu == "TeachPlan";
                     var isTracking = currentController == "TeachingTracking" || activeMenu == "Tracking";
-                    var isReports = (currentController == "Home" && currentAction == "Reports") || activeMenu == "Reports";
 
                     <a asp-controller="Home" asp-action="Index" asp-route-role="teacher"
                        class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isDashboard ? "sidebar-nav-active-teacher" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
@@ -157,12 +149,6 @@
                        class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isTracking ? "sidebar-nav-active-teacher" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <span>Test Tracking</span>
-                    </a>
-
-                    <a asp-controller="Home" asp-action="Reports" asp-route-role="teacher"
-                       class="flex items-center gap-3 rounded-lg px-3.5 py-2.5 transition @(isReports ? "sidebar-nav-active-teacher" : "text-slate-300 hover:bg-slate-800/70 hover:text-white")">
-                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                        <span>Reports</span>
                     </a>
                 }
             </nav>

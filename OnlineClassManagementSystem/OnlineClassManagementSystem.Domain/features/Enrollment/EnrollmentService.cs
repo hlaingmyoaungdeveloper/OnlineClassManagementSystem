@@ -153,7 +153,11 @@ public class EnrollmentService
                 };
             }
 
-            if ((subClass.StudentCount ?? 0) >= subClass.StudentLimit)
+            int currentEnrollments = await _db.TblEnrollments
+                .CountAsync(x => !x.IsDelete && x.ClassId == model.ClassId);
+
+            int currentCount = Math.Max(subClass.StudentCount ?? 0, currentEnrollments);
+            if (currentCount >= subClass.StudentLimit)
             {
                 return new EnrollmentCreateResponseModel
                 {
@@ -169,11 +173,13 @@ public class EnrollmentService
                 EnrollDate = model.EnrollDate ?? DateTime.Now,
                 CreatedDateTime = DateTime.Now,
                 ModifiedDateTime = DateTime.Now,
-                IsDelete = false
+                IsDelete = false,
+                Status = "pending"
             };
 
             _db.TblEnrollments.Add(enrollment);
-            subClass.StudentCount = (subClass.StudentCount ?? 0) + 1;
+            subClass.StudentCount = currentCount + 1;
+            subClass.ModifiedDateTime = DateTime.Now;
 
             int result = await _db.SaveChangesAsync();
 
@@ -353,6 +359,16 @@ public class EnrollmentService
                     IsSuccess = false,
                     Message = "Cannot change the status of an already confirmed enrollment."
                 };
+            }
+
+            if (newStatus == "canceled")
+            {
+                var subClass = await _db.TblSubClasses.FirstOrDefaultAsync(x => !x.IsDelete && x.SubClassId == enrollment.ClassId);
+                if (subClass != null && (subClass.StudentCount ?? 0) > 0)
+                {
+                    subClass.StudentCount--;
+                    subClass.ModifiedDateTime = DateTime.Now;
+                }
             }
 
             enrollment.Status = newStatus;

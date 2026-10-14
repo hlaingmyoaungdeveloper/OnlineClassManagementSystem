@@ -23,8 +23,16 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/Home/Enrollment.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxFbnJvbGxtZW50LmNzaHRtbA==
+[C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/Enrollment/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW5yb2xsbWVudFxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/Enrollment/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW5yb2xsbWVudFxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/Enrollment/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW5yb2xsbWVudFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/Home/Index.cshtml]
@@ -33,10 +41,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/Home/Reports.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxSZXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/Shared/Error.cshtml]
@@ -53,6 +57,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/SubClass/EditSubClass.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViQ2xhc3NcRWRpdFN1YkNsYXNzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/SubClass/EnrollSubClass.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3ViQ2xhc3NcRW5yb2xsU3ViQ2xhc3MuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/USER/Documents/Project/OnlineClassManagementSystem/OnlineClassManagementSystem.MvcApp/Views/SubClass/Index.cshtml]

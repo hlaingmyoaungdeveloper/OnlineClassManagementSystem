@@ -1,0 +1,233 @@
+@model OnlineClassManagementSystem.Shared.models.Enrollment.EnrollmentListResponseModel
+
+@{
+    ViewData["Title"] = "Enrollment Management";
+    var queryRole = Context.Request.Query["role"].ToString();
+    var currentRole = !string.IsNullOrEmpty(queryRole) ? queryRole.ToLower() : (ViewBag.CurrentRole as string ?? "admin");
+
+    var enrollments = Model?.EnrollmentList ?? new List<OnlineClassManagementSystem.Shared.models.Enrollment.EnrollmentModel>();
+    var classes = ViewBag.Classes as List<OnlineClassManagementSystem.Shared.models.SubClass.SubClassModel> ?? new();
+
+    var totalCount = enrollments.Count;
+    var confirmedCount = enrollments.Count(e => string.Equals(e.Status, "confirm", StringComparison.OrdinalIgnoreCase) || string.Equals(e.Status, "active", StringComparison.OrdinalIgnoreCase));
+    var pendingCount = enrollments.Count(e => string.Equals(e.Status, "pending", StringComparison.OrdinalIgnoreCase));
+    var canceledCount = enrollments.Count(e => string.Equals(e.Status, "canceled", StringComparison.OrdinalIgnoreCase) || string.Equals(e.Status, "cancelled", StringComparison.OrdinalIgnoreCase));
+}
+
+<div class="p-6 md:p-8 space-y-6">
+
+    <!-- Header Section with Title and Add Button -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Enrollment Management</h1>
+            <p class="text-xs text-slate-500 mt-1">Manage and track student class enrollments and approval statuses.</p>
+        </div>
+        <div>
+            <a asp-action="Create" asp-route-role="@currentRole"
+               class="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                New Enrollment
+            </a>
+        </div>
+    </div>
+
+    <!-- Metric Overview Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total Enrollments</span>
+            <p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">@totalCount</p>
+        </div>
+        <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Confirmed</span>
+            <p class="mt-2 text-2xl font-bold tracking-tight text-emerald-600">@confirmedCount</p>
+        </div>
+        <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Pending</span>
+            <p class="mt-2 text-2xl font-bold tracking-tight text-amber-600">@pendingCount</p>
+        </div>
+        <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Canceled</span>
+            <p class="mt-2 text-2xl font-bold tracking-tight text-rose-600">@canceledCount</p>
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-medium text-emerald-800 flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+    @if (TempData["Error"] != null || ViewBag.Error != null)
+    {
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-medium text-amber-800 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span>@(TempData["Error"] ?? ViewBag.Error)</span>
+        </div>
+    }
+
+    <!-- Filters Row -->
+    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+        <form method="get" asp-action="Index" class="flex flex-wrap items-center justify-between gap-4">
+            <input type="hidden" name="role" value="@currentRole" />
+
+            <div class="flex flex-wrap items-center gap-3 flex-1">
+                <!-- Class Dropdown -->
+                <div class="w-44">
+                    <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Class</label>
+                    <select name="classId" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500">
+                        <option value="">All Classes</option>
+                        @foreach (var c in classes)
+                        {
+                            <option value="@c.SubClassId" selected="@(ViewBag.SelectedClassId == c.SubClassId ? "selected" : null)">@c.ClassName</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Status Dropdown -->
+                <div class="w-36">
+                    <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Status</label>
+                    <select name="status" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500">
+                        <option value="all" selected="@(ViewBag.SelectedStatus == "all" ? "selected" : null)">All Status</option>
+                        <option value="confirm" selected="@(ViewBag.SelectedStatus == "confirm" ? "selected" : null)">Confirm</option>
+                        <option value="pending" selected="@(ViewBag.SelectedStatus == "pending" ? "selected" : null)">Pending</option>
+                        <option value="canceled" selected="@(ViewBag.SelectedStatus == "canceled" ? "selected" : null)">Canceled</option>
+                    </select>
+                </div>
+
+                <!-- Search Input -->
+                <div class="flex-1 min-w-[200px] max-w-sm">
+                    <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Search</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </span>
+                        <input type="text" name="search" value="@ViewBag.SearchQuery" placeholder="Search student or class..."
+                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                    </div>
+                </div>
+
+                <div class="self-end">
+                    <button type="submit" class="rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition">
+                        Filter
+                    </button>
+                    @if (ViewBag.SelectedClassId != null || ViewBag.SelectedStatus != "all" || !string.IsNullOrEmpty(ViewBag.SearchQuery))
+                    {
+                        <a asp-action="Index" asp-route-role="@currentRole" class="ml-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 transition">
+                            Reset
+                        </a>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Card -->
+    <div class="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50/80 text-xs font-semibold uppercase text-slate-500 border-b border-slate-200/80">
+                    <tr>
+                        <th class="px-6 py-3.5">ID</th>
+                        <th class="px-6 py-3.5">Student Name</th>
+                        <th class="px-6 py-3.5">Class</th>
+                        <th class="px-6 py-3.5">Enrollment Date</th>
+                        <th class="px-6 py-3.5">Status</th>
+                        <th class="px-6 py-3.5 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @if (enrollments.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                                <div class="flex flex-col items-center justify-center gap-2">
+                                    <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                    <span>No enrollment records found.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in enrollments)
+                        {
+                            var codeId = "EN00" + item.EnrollmentId;
+                            var st = (item.Status ?? "pending").ToLower();
+
+                            <tr class="hover:bg-slate-50/60 transition">
+                                <td class="px-6 py-4 font-semibold text-slate-800">@codeId</td>
+                                <td class="px-6 py-4 text-slate-800 font-medium">@(item.StudentName ?? ("Student #" + item.StudentId))</td>
+                                <td class="px-6 py-4 text-slate-600">@(item.ClassName ?? ("Class #" + item.ClassId))</td>
+                                <td class="px-6 py-4 text-slate-500">@(item.EnrollDate?.ToString("dd-MM-yyyy") ?? "-")</td>
+                                <td class="px-6 py-4">
+                                    @if (st == "confirm" || st == "active")
+                                    {
+                                        <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 border border-emerald-100">Confirmed</span>
+                                    }
+                                    else if (st == "pending")
+                                    {
+                                        <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-600 border border-amber-100">Pending</span>
+                                    }
+                                    else if (st == "canceled" || st == "cancelled")
+                                    {
+                                        <span class="inline-flex items-center rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-600 border border-rose-100">Canceled</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 capitalize">@item.Status</span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <div class="inline-flex items-center justify-center gap-2">
+                                        <!-- Status actions when pending -->
+                                        @if (st == "pending")
+                                        {
+                                            <form asp-action="UpdateStatus" asp-route-role="@currentRole" method="post" class="inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="enrollmentId" value="@item.EnrollmentId" />
+                                                <input type="hidden" name="status" value="confirm" />
+                                                <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-emerald-600 hover:bg-emerald-700 px-2.5 py-1 text-xs font-medium text-white shadow-2xs transition" title="Confirm Enrollment">
+                                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                    Confirm
+                                                </button>
+                                            </form>
+
+                                            <form asp-action="UpdateStatus" asp-route-role="@currentRole" method="post" class="inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="enrollmentId" value="@item.EnrollmentId" />
+                                                <input type="hidden" name="status" value="canceled" />
+                                                <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-2.5 py-1 text-xs font-medium transition" title="Cancel Enrollment" onclick="return confirm('Cancel this enrollment?');">
+                                                    Cancel
+                                                </button>
+                                            </form>
+                                        }
+
+                                        <!-- Edit Class/Student/Date -->
+                                        <a asp-action="Edit" asp-route-id="@item.EnrollmentId" asp-route-role="@currentRole"
+                                           class="h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-blue-600 flex items-center justify-center transition"
+                                           title="Edit Enrollment Details">
+                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table Pagination Footer -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200/80 px-6 py-3.5 bg-slate-50/50 text-xs text-slate-500">
+            <span>Showing @enrollments.Count enrollments</span>
+            <div class="flex items-center gap-1">
+                <button class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-100">&lt;</button>
+                <button class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center">1</button>
+                <button class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-100">&gt;</button>
+            </div>
+        </div>
+    </div>
+
+</div>

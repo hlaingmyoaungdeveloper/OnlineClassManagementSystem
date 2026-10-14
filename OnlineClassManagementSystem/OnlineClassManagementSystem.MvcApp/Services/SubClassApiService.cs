@@ -1,4 +1,6 @@
 using OnlineClassManagementSystem.Shared.models.SubClass;
+using OnlineClassManagementSystem.Shared.models.Enrollment;
+using OnlineClassManagementSystem.Shared.models.User;
 
 namespace OnlineClassManagementSystem.MvcApp.Services;
 
@@ -11,14 +13,14 @@ public class SubClassApiService
         _httpClient = factory.CreateClient("ApiClient");
     }
 
-    public async Task<SubClassListResponseModel> GetAllAsync(SubClassListRequestModel requestModel)
+    public async Task<SubClassListResponseModel?> GetAllAsync(SubClassListRequestModel requestModel)
     {
         return await _httpClient
           .GetFromJsonAsync<SubClassListResponseModel>(
               "api/SubClass");
     }
 
-    public async Task<SubClassCreateResponseModel> CreateSubClassAsync(SubClassCreateRequestModel requestModel)
+    public async Task<SubClassCreateResponseModel?> CreateSubClassAsync(SubClassCreateRequestModel requestModel)
     {
         var response = await _httpClient
             .PostAsJsonAsync("api/SubClass",
@@ -30,8 +32,9 @@ public class SubClassApiService
 
         return result;
     }
+
     // GET: SubClass details by id
-    public async Task<SubClassEditResponseModel> GetSubClassAsync(int id)
+    public async Task<SubClassEditResponseModel?> GetSubClassAsync(int id)
     {
         return await _httpClient.GetFromJsonAsync<SubClassEditResponseModel>($"api/SubClass/{id}");
     }
@@ -56,6 +59,57 @@ public class SubClassApiService
     {
         var response = await _httpClient.DeleteAsync($"api/SubClass/{id}");
         return response.IsSuccessStatusCode;
+    }
+
+    // GET: Load Users/Students
+    public async Task<UserListResponseModel?> GetUsersAsync()
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<UserListResponseModel>("api/User");
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    // POST: Create User/Student
+    public async Task<UserCreateResponseModel?> CreateUserAsync(UserCreateRequestModel requestModel)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/User", requestModel);
+            var result = await response.Content.ReadFromJsonAsync<UserCreateResponseModel>();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return new UserCreateResponseModel
+            {
+                IsSuccess = false,
+                Message = ex.Message
+            };
+        }
+    }
+
+    // POST: Enroll Student
+    public async Task<EnrollmentCreateResponseModel?> EnrollStudentAsync(EnrollmentCreateRequestModel requestModel)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/Enrollment", requestModel);
+            var result = await response.Content.ReadFromJsonAsync<EnrollmentCreateResponseModel>();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return new EnrollmentCreateResponseModel
+            {
+                IsSuccess = false,
+                Message = ex.Message
+            };
+        }
     }
 }
 

@@ -140,7 +140,8 @@ public class UserService
         return new UserCreateResponseModel
         {
             IsSuccess = result > 0,
-            Message = result > 0 ? "User created successfully (default password assigned)" : "Failed to create user"
+            Message = result > 0 ? "User created successfully (default password assigned)" : "Failed to create user",
+            UserId = user.UserId
         };
     }
 

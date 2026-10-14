@@ -31,7 +31,8 @@ public class SubClassService
                      Place = x.Place,
                      OpenDate = x.OpenDate,
                      OpenTime = x.OpenTime,
-                     StudentLimit = x.StudentLimit
+                     StudentLimit = x.StudentLimit,
+                     StudentCount = (int)x.StudentCount
                  }).ToListAsync();
 
             return new SubClassListResponseModel()
@@ -68,6 +69,9 @@ public class SubClassService
                 };
             }
 
+            int activeEnrollments = await _db.TblEnrollments.CountAsync(x => !x.IsDelete && x.ClassId == subClass.SubClassId);
+            int studentCount = activeEnrollments > (subClass.StudentCount ?? 0) ? activeEnrollments : (subClass.StudentCount ?? 0);
+
             return new SubClassEditResponseModel()
             {
                 IsSuccess = true,
@@ -77,7 +81,7 @@ public class SubClassService
                 OpenDate = subClass.OpenDate,
                 OpenTime = subClass.OpenTime,
                 StudentLimit = subClass.StudentLimit,
-                StudentCount = subClass.StudentCount
+                StudentCount = studentCount
             };
         }
         catch (Exception ex)
@@ -240,7 +244,7 @@ public class SubClassService
                         Message = "Student limit cannot be less than current student count."
                     };
                 }
-                subClass.StudentLimit = (int)model.StudentLimit;
+                subClass.StudentLimit = model.StudentLimit.Value;
             }
 
             int result = await _db.SaveChangesAsync();

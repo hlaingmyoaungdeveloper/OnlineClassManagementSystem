@@ -95,7 +95,7 @@
                                 <td class="px-6 py-4 text-slate-800 font-medium">@(track.ClassName ?? ("Class #" + track.SubClassId))</td>
                                 <td class="px-6 py-4 text-slate-700">@(track.TeacherName ?? ("Teacher #" + track.TeacherId))</td>
                                 <td class="px-6 py-4 text-slate-700">@(track.TopicTaught ?? "-")</td>
-                                <td class="px-6 py-4 text-slate-500">@track.DateTaught.ToString("yyyy-MM-dd")</td>
+                                <td class="px-6 py-4 text-slate-500">@track.DateTaught.ToString("dd-MM-yyyy")</td>
                                 <td class="px-6 py-4 text-slate-500">
                                     @track.StartTime.ToString("HH:mm") - @track.EndTime.ToString("HH:mm")
                                 </td>

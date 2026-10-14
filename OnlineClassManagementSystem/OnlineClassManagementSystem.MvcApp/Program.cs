@@ -5,12 +5,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient("ApiClient", 
-    client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"])
+    client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7048/")
 );
 builder.Services.AddScoped<SubClassApiService>();
 builder.Services.AddScoped<TimetableApiService>();
 builder.Services.AddScoped<TeachPlanApiService>();
 builder.Services.AddScoped<TeachingTrackingApiService>();
+builder.Services.AddScoped<EnrollmentApiService>();
+builder.Services.AddScoped<UserApiService>();
 
 var app = builder.Build();
 

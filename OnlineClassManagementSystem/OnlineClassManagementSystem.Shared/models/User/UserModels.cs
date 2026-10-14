@@ -51,6 +51,7 @@ namespace OnlineClassManagementSystem.Shared.models.User
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; } = null!;
+        public int? UserId { get; set; }
     }
 
     public class UserPatchRequestModel

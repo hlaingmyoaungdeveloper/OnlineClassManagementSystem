@@ -1,19 +1,37 @@
+@model OnlineClassManagementSystem.MvcApp.Models.DashboardViewModel
+
 @{
     ViewData["Title"] = "Dashboard";
     var queryRole = Context.Request.Query["role"].ToString();
     var currentRole = !string.IsNullOrEmpty(queryRole) ? queryRole.ToLower() : (ViewBag.CurrentRole as string ?? "admin");
-    var isTeacher = currentRole == "teacher";
+    var isTeacher = Model.IsTeacher;
 }
 
 <div class="p-6 md:p-8 space-y-8">
 
     <!-- Header Greeting -->
-    <div>
-        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
-        <p class="mt-1 text-sm text-slate-500">
-            @(isTeacher ? "Welcome back, Teacher1" : "Welcome back, Admin!")
-        </p>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
+            <p class="mt-1 text-sm text-slate-500">
+                @(isTeacher ? $"Welcome back, {Model.TeacherName}!" : "Welcome back, Admin!")
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs">
+                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                API Connected
+            </span>
+        </div>
     </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-medium text-amber-800 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span>@ViewBag.Error</span>
+        </div>
+    }
 
     @if (!isTeacher)
     {
@@ -21,17 +39,17 @@
         <!-- Stat Cards (4 columns) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <!-- Total Classes -->
-            <div class="flex items-center gap-4 rounded-xl border border-blue-100 bg-white p-5 shadow-xs">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <a asp-controller="SubClass" asp-action="Index" asp-route-role="admin" class="group flex items-center gap-4 rounded-xl border border-blue-100 bg-white p-5 shadow-xs hover:border-blue-300 hover:shadow-md transition">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Classes</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">12</h3>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TotalClasses</h3>
                 </div>
-            </div>
+            </a>
 
             <!-- Total Students -->
             <div class="flex items-center gap-4 rounded-xl border border-emerald-100 bg-white p-5 shadow-xs">
@@ -42,7 +60,7 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Students</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">168</h3>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TotalStudents</h3>
                 </div>
             </div>
 
@@ -55,22 +73,22 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Teachers</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">8</h3>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TotalTeachers</h3>
                 </div>
             </div>
 
             <!-- Total Enrollments -->
-            <div class="flex items-center gap-4 rounded-xl border border-amber-100 bg-white p-5 shadow-xs">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <a asp-controller="Enrollment" asp-action="Index" asp-route-role="admin" class="group flex items-center gap-4 rounded-xl border border-amber-100 bg-white p-5 shadow-xs hover:border-amber-300 hover:shadow-md transition">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Enrollments</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">152</h3>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TotalEnrollments</h3>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Trend Chart & Recent Activities Grid -->
@@ -78,8 +96,13 @@
             <!-- Left: Enrollment Trend Chart -->
             <div class="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-base font-bold text-slate-800">Enrollment Trend</h2>
-                    <span class="text-xs font-medium text-slate-400">Monthly Statistics</span>
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">Enrollment Trend (@DateTime.Now.Year)</h2>
+                        <p class="text-xs text-slate-400">Monthly student enrollments from API</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600">
+                        @Model.TotalEnrollments Total
+                    </span>
                 </div>
                 <div class="relative h-72 w-full">
                     <canvas id="enrollmentTrendChart"></canvas>
@@ -89,44 +112,38 @@
             <!-- Right: Recent Activities -->
             <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-xs flex flex-col justify-between">
                 <div>
-                    <h2 class="text-base font-bold text-slate-800 mb-5">Recent Activities</h2>
-                    <div class="space-y-5">
-                        <!-- Activity 1 -->
-                        <div class="flex items-start gap-3.5">
-                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-blue-500 shrink-0 ring-4 ring-blue-50"></span>
-                            <div>
-                                <p class="text-sm font-medium text-slate-800">New enrollment: <span class="text-slate-600">Aung Aung (Class A)</span></p>
-                                <span class="text-xs text-slate-400">2 hours ago</span>
-                            </div>
-                        </div>
-
-                        <!-- Activity 2 -->
-                        <div class="flex items-start gap-3.5">
-                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-purple-500 shrink-0 ring-4 ring-purple-50"></span>
-                            <div>
-                                <p class="text-sm font-medium text-slate-800">Test plan updated: <span class="text-slate-600">(Math - Class B)</span></p>
-                                <span class="text-xs text-slate-400">3 hours ago</span>
-                            </div>
-                        </div>
-
-                        <!-- Activity 3 -->
-                        <div class="flex items-start gap-3.5">
-                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0 ring-4 ring-emerald-50"></span>
-                            <div>
-                                <p class="text-sm font-medium text-slate-800">Teacher added: <span class="text-slate-600">Daw Khin</span></p>
-                                <span class="text-xs text-slate-400">1 day ago</span>
-                            </div>
-                        </div>
-
-                        <!-- Activity 4 -->
-                        <div class="flex items-start gap-3.5">
-                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-amber-500 shrink-0 ring-4 ring-amber-50"></span>
-                            <div>
-                                <p class="text-sm font-medium text-slate-800">New class created: <span class="text-slate-600">Class C</span></p>
-                                <span class="text-xs text-slate-400">1 day ago</span>
-                            </div>
-                        </div>
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-base font-bold text-slate-800">Recent Activities</h2>
+                        <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Live Feed</span>
                     </div>
+
+                    @if (Model.RecentActivities.Count == 0)
+                    {
+                        <div class="py-12 text-center text-slate-400">
+                            <svg class="mx-auto h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <p class="mt-2 text-xs">No recent activity recorded yet.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="space-y-4">
+                            @foreach (var act in Model.RecentActivities)
+                            {
+                                var dotColor = act.Type == "enrollment" ? "bg-blue-500 ring-blue-50"
+                                    : act.Type == "tracking" ? "bg-emerald-500 ring-emerald-50"
+                                    : "bg-purple-500 ring-purple-50";
+
+                                <div class="flex items-start gap-3.5">
+                                    <span class="mt-1.5 h-2.5 w-2.5 rounded-full @dotColor shrink-0 ring-4"></span>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-xs font-semibold text-slate-800 truncate">@act.Title</p>
+                                        <p class="text-[11px] text-slate-500 truncate">@act.Description</p>
+                                        <span class="text-[10px] text-slate-400">@act.TimeAgo</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
 
                 <div class="pt-4 border-t border-slate-100 mt-6">
@@ -143,15 +160,15 @@
         <!-- Stat Cards (3 columns) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <!-- My Classes -->
-            <div class="flex items-center gap-4 rounded-xl border border-blue-100 bg-white p-5 shadow-xs">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+            <div class="flex items-center gap-4 rounded-xl border border-teal-100 bg-white p-5 shadow-xs">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">My Classes</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">3</h3>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.MyClassesCount</h3>
                 </div>
             </div>
 
@@ -163,21 +180,21 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Students</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">68</h3>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Class Students</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TeacherStudentCount</h3>
                 </div>
             </div>
 
-            <!-- Pending Tracking -->
+            <!-- Teaching Tracking Records -->
             <div class="flex items-center gap-4 rounded-xl border border-amber-100 bg-white p-5 shadow-xs">
                 <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
                 <div>
-                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Pending Tracking</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">5</h3>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Teaching Records</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.PendingTrackingCount</h3>
                 </div>
             </div>
         </div>
@@ -185,44 +202,49 @@
         <!-- Upcoming Classes Card -->
         <div class="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
             <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-                <h2 class="text-base font-bold text-slate-800">Upcoming Classes</h2>
-                <a asp-controller="Timetable" asp-action="Index" asp-route-role="teacher" class="text-xs font-semibold text-teal-600 hover:text-teal-700">View All</a>
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">Schedule & Timetable</h2>
+                    <p class="text-xs text-slate-400">Class timings assigned from API</p>
+                </div>
+                <a asp-controller="Timetable" asp-action="Index" asp-route-role="teacher" class="text-xs font-semibold text-teal-600 hover:text-teal-700">View Full Timetable</a>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600">
                     <thead class="bg-slate-50/80 text-xs font-semibold uppercase text-slate-500">
                         <tr>
+                            <th class="px-6 py-3.5">Day</th>
                             <th class="px-6 py-3.5">Time</th>
                             <th class="px-6 py-3.5">Class</th>
                             <th class="px-6 py-3.5">Subject</th>
-                            <th class="px-6 py-3.5">Room</th>
+                            <th class="px-6 py-3.5">Mode</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        <tr class="hover:bg-slate-50/50 transition">
-                            <td class="px-6 py-4 font-medium text-slate-800">08:00 - 09:00</td>
-                            <td class="px-6 py-4 text-slate-700 font-semibold">Class A</td>
-                            <td class="px-6 py-4 text-blue-600 font-medium">Mathematics</td>
-                            <td class="px-6 py-4 text-slate-500">Room 101</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50/50 transition">
-                            <td class="px-6 py-4 font-medium text-slate-800">10:00 - 11:00</td>
-                            <td class="px-6 py-4 text-slate-700 font-semibold">Class B</td>
-                            <td class="px-6 py-4 text-blue-600 font-medium">Physics</td>
-                            <td class="px-6 py-4 text-slate-500">Room 102</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50/50 transition">
-                            <td class="px-6 py-4 font-medium text-slate-800">01:00 - 02:00</td>
-                            <td class="px-6 py-4 text-slate-700 font-semibold">Class C</td>
-                            <td class="px-6 py-4 text-blue-600 font-medium">Chemistry</td>
-                            <td class="px-6 py-4 text-slate-500">Room 103</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50/50 transition">
-                            <td class="px-6 py-4 font-medium text-slate-800">03:00 - 04:00</td>
-                            <td class="px-6 py-4 text-slate-700 font-semibold">Class D</td>
-                            <td class="px-6 py-4 text-blue-600 font-medium">Biology</td>
-                            <td class="px-6 py-4 text-slate-500">Room 104</td>
-                        </tr>
+                        @if (Model.UpcomingClasses.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-400 text-xs">
+                                    No scheduled classes found.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var sch in Model.UpcomingClasses)
+                            {
+                                <tr class="hover:bg-slate-50/50 transition">
+                                    <td class="px-6 py-4 font-semibold text-slate-800">@sch.DayOfWeek</td>
+                                    <td class="px-6 py-4 font-medium text-slate-700">@sch.StartTime.ToString("HH:mm") - @sch.EndTime.ToString("HH:mm")</td>
+                                    <td class="px-6 py-4 text-slate-800 font-semibold">@(sch.ClassName ?? ("Class #" + sch.SubClassId))</td>
+                                    <td class="px-6 py-4 text-teal-600 font-medium">@(sch.SubjectName ?? "Subject")</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                                            @(sch.Mode ?? "ClassRoom")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        }
                     </tbody>
                 </table>
             </div>
@@ -237,6 +259,8 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const ctx = document.getElementById('enrollmentTrendChart');
+                const monthlyData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyEnrollments));
+
                 if (ctx) {
                     new Chart(ctx, {
                         type: 'line',
@@ -244,10 +268,10 @@
                             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                             datasets: [{
                                 label: 'Enrollments',
-                                data: [15, 25, 45, 30, 60, 48, 55, 75, 62, 85, 78, 92],
+                                data: monthlyData,
                                 borderColor: '#3B82F6',
                                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                tension: 0.4,
+                                tension: 0.35,
                                 fill: true,
                                 pointBackgroundColor: '#3B82F6',
                                 pointBorderColor: '#ffffff',
@@ -260,13 +284,25 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: { display: false }
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return ' ' + context.parsed.y + ' enrolled';
+                                        }
+                                    }
+                                }
                             },
                             scales: {
                                 y: {
                                     beginAtZero: true,
-                                    grid: { color: '#F1F5F9' },
-                                    ticks: { color: '#94A3B8', font: { size: 11 } }
+                                    ticks: {
+                                        stepSize: 1,
+                                        precision: 0,
+                                        color: '#94A3B8',
+                                        font: { size: 11 }
+                                    },
+                                    grid: { color: '#F1F5F9' }
                                 },
                                 x: {
                                     grid: { display: false },
