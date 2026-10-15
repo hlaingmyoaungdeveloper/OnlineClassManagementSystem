@@ -9,61 +9,93 @@
     var timetables = Model?.TimetableList ?? new List<OnlineClassManagementSystem.Shared.models.Timetable.TimetableModel>();
     var classes = ViewBag.Classes as List<OnlineClassManagementSystem.Shared.models.SubClass.SubClassModel> ?? new();
     var teachers = ViewBag.Teachers as List<OnlineClassManagementSystem.Shared.models.User.UserModel> ?? new();
+    var teachPlans = ViewBag.TeachPlans as List<OnlineClassManagementSystem.Shared.models.TeachPlan.TeachPlanModel> ?? new();
 
     var today = DateTime.Today;
-    int diff = (7 + (today.DayOfWeek - DayOfWeek.Sunday)) % 7;
-    var startOfWeek = today.AddDays(-1 * diff);
-    var days = Enumerable.Range(0, 7).Select(i => {
-        var d = startOfWeek.AddDays(i);
-        return new {
-            Name = d.ToString("ddd"),
-            DayNum = d.ToString("dd"),
-            DayOfWeek = d.DayOfWeek.ToString(),
-            ColIndex = i
-        };
-    }).ToArray();
+    int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+    var monday = today.AddDays(-1 * diff);
 
-    var timeSlots = new (string Label, int Hour)[]
+    var days = new[]
     {
-        ("8:00 AM", 8),
-        ("9:00 AM", 9),
-        ("10:00 AM", 10),
-        ("11:00 AM", 11),
-        ("1:00 PM", 13),
-        ("2:00 PM", 14),
-        ("3:00 PM", 15),
-        ("4:00 PM", 16)
+        new { FullName = "Monday", ShortName = "Mon", Date = monday, IsToday = monday.Date == today },
+        new { FullName = "Tuesday", ShortName = "Tue", Date = monday.AddDays(1), IsToday = monday.AddDays(1).Date == today },
+        new { FullName = "Wednesday", ShortName = "Wed", Date = monday.AddDays(2), IsToday = monday.AddDays(2).Date == today },
+        new { FullName = "Thursday", ShortName = "Thu", Date = monday.AddDays(3), IsToday = monday.AddDays(3).Date == today },
+        new { FullName = "Friday", ShortName = "Fri", Date = monday.AddDays(4), IsToday = monday.AddDays(4).Date == today },
+        new { FullName = "Saturday", ShortName = "Sat", Date = monday.AddDays(5), IsToday = monday.AddDays(5).Date == today },
+        new { FullName = "Sunday", ShortName = "Sun", Date = monday.AddDays(6), IsToday = monday.AddDays(6).Date == today },
     };
+
+    var timeSlots = new[]
+    {
+        new { Label = "08:00 AM", Hour = 8, DefaultStart = "08:00", DefaultEnd = "09:30" },
+        new { Label = "09:00 AM", Hour = 9, DefaultStart = "09:00", DefaultEnd = "10:30" },
+        new { Label = "10:00 AM", Hour = 10, DefaultStart = "10:00", DefaultEnd = "11:30" },
+        new { Label = "11:00 AM", Hour = 11, DefaultStart = "11:00", DefaultEnd = "12:30" },
+        new { Label = "12:00 PM", Hour = 12, DefaultStart = "12:00", DefaultEnd = "13:00" },
+        new { Label = "01:00 PM", Hour = 13, DefaultStart = "13:00", DefaultEnd = "14:30" },
+        new { Label = "02:00 PM", Hour = 14, DefaultStart = "14:00", DefaultEnd = "15:30" },
+        new { Label = "03:00 PM", Hour = 15, DefaultStart = "15:00", DefaultEnd = "16:30" },
+        new { Label = "04:00 PM", Hour = 16, DefaultStart = "16:00", DefaultEnd = "17:30" },
+        new { Label = "05:00 PM", Hour = 17, DefaultStart = "17:00", DefaultEnd = "18:30" }
+    };
+
+    var totalScheduled = timetables.Count;
 }
 
-<div class="p-6 md:p-8 space-y-6">
+<div class="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
 
     <!-- Header Section -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900">@(isTeacher ? "My Timetable" : "Timetable Management")</h1>
-        </div>
-        @if (!isTeacher)
-        {
-            <div>
-                <a asp-action="Create" asp-route-role="@currentRole"
-                   class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Add Schedule
-                </a>
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">@(isTeacher ? "My Timetable" : "Timetable Management")</h1>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                    @totalScheduled @(totalScheduled == 1 ? "class" : "classes")
+                </span>
             </div>
-        }
+            <p class="text-xs text-slate-500 mt-1">Weekly schedule grid. Click any card to <strong>inspect & edit</strong> in the popup pad, or click any empty slot to add a class.</p>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+            <button type="button" onclick="openNewSchedulePad('Monday', '09:00', '10:30')"
+               class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Add Schedule
+            </button>
+        </div>
     </div>
 
-    <!-- Filters Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-        <form method="get" asp-action="Index" class="flex flex-wrap items-center gap-4 flex-1">
+    <!-- Alert Notifications -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-800 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span>@TempData["Success"]</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-900 text-xs font-bold">✕</button>
+        </div>
+    }
+    @if (TempData["Error"] != null || ViewBag.Error != null)
+    {
+        <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-800 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>@(TempData["Error"] ?? ViewBag.Error)</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 hover:text-rose-900 text-xs font-bold">✕</button>
+        </div>
+    }
+
+    <!-- Clean Filters & Date Row -->
+    <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
+        <form method="get" asp-action="Index" class="flex flex-wrap items-center gap-3">
             <input type="hidden" name="role" value="@currentRole" />
 
             <!-- Class Filter -->
-            <div class="w-48">
-                <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Class</label>
-                <select name="classId" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500">
+            <div class="w-44 sm:w-48">
+                <select name="classId" onchange="this.form.submit()" class="w-full rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition">
                     <option value="">All Classes</option>
                     @foreach (var c in classes)
                     {
@@ -74,10 +106,9 @@
 
             @if (!isTeacher)
             {
-                <!-- Admin Filter: Teacher -->
-                <div class="w-48">
-                    <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Teacher</label>
-                    <select name="teacherId" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500">
+                <!-- Teacher Filter -->
+                <div class="w-44 sm:w-48">
+                    <select name="teacherId" onchange="this.form.submit()" class="w-full rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition">
                         <option value="">All Teachers</option>
                         @foreach (var t in teachers)
                         {
@@ -87,42 +118,54 @@
                 </div>
             }
 
-            <div class="self-end">
-                <button type="submit" class="rounded-lg @(isTeacher ? "bg-teal-600 hover:bg-teal-700" : "bg-blue-600 hover:bg-blue-700") px-5 py-2 text-xs font-semibold text-white shadow-xs transition">
-                    Apply Filter
-                </button>
-            </div>
+            @if (ViewBag.SelectedClassId != null || ViewBag.SelectedTeacherId != null)
+            {
+                <a asp-action="Index" asp-route-role="@currentRole" class="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1">
+                    Clear Filters
+                </a>
+            }
         </form>
+
+        <!-- Week Info & Legend -->
+        <div class="flex items-center gap-4 text-xs text-slate-600">
+            <!-- Mode Indicators -->
+            <div class="hidden sm:flex items-center gap-3 text-[11px] font-medium text-slate-500">
+                <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-blue-500"></span> ClassRoom</span>
+                <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Online</span>
+                <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-purple-500"></span> Hybrid</span>
+            </div>
+
+            <!-- Date Range Badge -->
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-medium text-xs">
+                <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>@monday.ToString("MMM d") – @monday.AddDays(6).ToString("MMM d, yyyy")</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Date Navigation Row -->
-    <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <span class="text-sm font-semibold text-slate-800">@startOfWeek.ToString("MMM d") - @startOfWeek.AddDays(6).ToString("MMM d, yyyy")</span>
-        </div>
-
-        <div>
-            <span class="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs">
-                Current Week
-            </span>
-        </div>
-    </div>
-
-    <!-- Weekly Timetable Grid -->
+    <!-- Clean Timetable Grid -->
     <div class="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[760px] border-collapse text-xs">
-                <!-- Day Headers -->
+            <table class="w-full min-w-[900px] border-collapse text-xs">
+                <!-- Column Headers (Days) -->
                 <thead>
-                    <tr class="border-b border-slate-200 bg-slate-50/50">
-                        <th class="w-24 px-3 py-3 text-center font-medium text-slate-400 border-r border-slate-200">
+                    <tr class="border-b border-slate-200 bg-slate-50/70 text-slate-700">
+                        <th class="w-24 px-3 py-3 text-center border-r border-slate-200 font-semibold text-slate-500 text-[11px]">
                             Time
                         </th>
+
+                        <!-- 7 Days -->
                         @foreach (var day in days)
                         {
-                            <th class="px-3 py-3 text-center border-r border-slate-200 last:border-r-0">
-                                <span class="block text-slate-500 font-medium text-[11px]">@day.Name</span>
-                                <span class="block text-slate-800 font-bold text-sm">@day.DayNum</span>
+                            <th class="px-3 py-3 text-center border-r border-slate-200 last:border-r-0 @(day.IsToday ? "bg-blue-50/40" : "")">
+                                <div class="flex flex-col items-center justify-center">
+                                    <span class="text-[11px] font-medium @(day.IsToday ? "text-blue-600 font-bold" : "text-slate-500")">@day.ShortName</span>
+                                    <span class="text-sm font-bold @(day.IsToday ? "text-blue-700" : "text-slate-900")">@day.Date.ToString("dd")</span>
+                                    @if (day.IsToday)
+                                    {
+                                        <span class="mt-0.5 text-[9px] font-bold text-blue-600 uppercase tracking-wider">Today</span>
+                                    }
+                                </div>
                             </th>
                         }
                     </tr>
@@ -132,36 +175,120 @@
                 <tbody class="divide-y divide-slate-100">
                     @foreach (var slot in timeSlots)
                     {
-                        <tr class="h-20 hover:bg-slate-50/30 transition">
-                            <!-- Time Label -->
-                            <td class="w-24 px-3 py-2 text-center text-[11px] font-semibold text-slate-400 border-r border-slate-200 align-middle">
-                                @slot.Label
+                        <tr class="min-h-[100px]">
+                            <!-- Time Slot Label -->
+                            <td class="w-24 px-3 py-3 text-center border-r border-slate-200 bg-slate-50/30 align-middle">
+                                <span class="block text-xs font-semibold text-slate-700">@slot.Label</span>
                             </td>
 
-                            <!-- 7 Days Columns -->
+                            <!-- 7 Day Boxes -->
                             @for (int d = 0; d < 7; d++)
                             {
-                                var dayInfo = days[d];
+                                var day = days[d];
                                 var matched = timetables.Where(t =>
-                                    (string.Equals(t.DayOfWeek, dayInfo.DayOfWeek, StringComparison.OrdinalIgnoreCase) ||
-                                     string.Equals(t.DayOfWeek, dayInfo.Name, StringComparison.OrdinalIgnoreCase)) &&
+                                    (string.Equals(t.DayOfWeek, day.FullName, StringComparison.OrdinalIgnoreCase) ||
+                                     string.Equals(t.DayOfWeek, day.ShortName, StringComparison.OrdinalIgnoreCase)) &&
                                     t.StartTime.Hour == slot.Hour).ToList();
 
-                                <td class="p-1.5 border-r border-slate-200 last:border-r-0 align-top relative">
+                                <td class="p-2 border-r border-slate-200 last:border-r-0 align-top relative group transition hover:bg-slate-50/70 cursor-pointer"
+                                    onclick="onBoxClick(event, '@day.FullName', '@slot.DefaultStart', '@slot.DefaultEnd')">
+
                                     @if (matched.Any())
                                     {
-                                        foreach (var item in matched)
-                                        {
-                                            <div class="w-full rounded-lg bg-blue-50 border border-blue-200 p-2 text-center shadow-xs flex flex-col justify-center mb-1 last:mb-0">
-                                                <span class="font-bold text-blue-700 text-xs leading-tight">@(item.SubjectName ?? "Subject")</span>
-                                                <span class="text-[10px] text-blue-600 font-medium">@(item.ClassName ?? ("Class #" + item.SubClassId))</span>
-                                                @if (!string.IsNullOrEmpty(item.TeacherName))
+                                        <!-- Class Cards Container -->
+                                        <div class="space-y-2">
+                                            @foreach (var item in matched)
+                                            {
+                                                var cardStyle = item.Mode switch
                                                 {
-                                                    <span class="text-[9px] text-slate-500 font-normal truncate mt-0.5">@item.TeacherName</span>
-                                                }
-                                                <span class="text-[9px] text-slate-400">@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</span>
-                                            </div>
-                                        }
+                                                    "Online" => "bg-emerald-50/80 border-emerald-200 border-l-emerald-600 text-emerald-950 hover:border-emerald-400 hover:ring-1 hover:ring-emerald-400/40",
+                                                    "Hybrid" => "bg-purple-50/80 border-purple-200 border-l-purple-600 text-purple-950 hover:border-purple-400 hover:ring-1 hover:ring-purple-400/40",
+                                                    _ => "bg-blue-50/80 border-blue-200 border-l-blue-600 text-blue-950 hover:border-blue-400 hover:ring-1 hover:ring-blue-400/40"
+                                                };
+
+                                                var badgeStyle = item.Mode switch
+                                                {
+                                                    "Online" => "bg-emerald-100 text-emerald-800",
+                                                    "Hybrid" => "bg-purple-100 text-purple-800",
+                                                    _ => "bg-blue-100 text-blue-800"
+                                                };
+
+                                                <!-- TIMETABLE CARD (Click to Inspect in PopPad) -->
+                                                <div class="timetable-card w-full rounded-lg border border-l-4 @cardStyle p-2.5 shadow-2xs hover:shadow-sm transition cursor-pointer select-none group/card"
+                                                     onclick="event.stopPropagation(); openInspectPad(@item.Id, @item.SubClassId, @item.TeacherId, @item.SubjectId, '@item.DayOfWeek', '@item.StartTime.ToString("HH:mm")', '@item.EndTime.ToString("HH:mm")', '@item.Mode', '@(item.SubjectName?.Replace("'", "\\'"))', '@(item.ClassName?.Replace("'", "\\'"))', '@(item.TeacherName?.Replace("'", "\\'"))')"
+                                                     title="Click to inspect and edit timetable in popup pad">
+
+                                                    <!-- Top Line: Subject & Quick Inspect / Delete -->
+                                                    <div class="flex items-start justify-between gap-1 mb-1.5">
+                                                        <span class="font-bold text-xs truncate leading-snug flex-1" title="@(item.SubjectName ?? "Subject")">
+                                                            @(item.SubjectName ?? "Subject")
+                                                        </span>
+
+                                                        <div class="flex items-center gap-1 shrink-0">
+                                                            <!-- Inspect / Edit Icon Badge -->
+                                                            <span class="p-0.5 rounded text-slate-400 group-hover/card:text-blue-600 group-hover/card:bg-white/80 transition" title="Inspect & Edit in PopPad">
+                                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                            </span>
+
+                                                            <!-- Direct Delete Button -->
+                                                            <button type="button"
+                                                                    onclick="event.stopPropagation(); openDeleteModal(@item.Id, '@(item.SubjectName?.Replace("'", "\\'"))', '@(item.ClassName?.Replace("'", "\\'"))', '@item.DayOfWeek', '@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")')"
+                                                                    class="p-0.5 rounded text-slate-400 hover:text-rose-700 hover:bg-rose-100 transition"
+                                                                    title="Delete schedule">
+                                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Class & Teacher Details -->
+                                                    <div class="space-y-1 text-[11px] text-slate-600">
+                                                        <div class="flex items-center gap-1.5 font-medium text-slate-800">
+                                                            <svg class="h-3 w-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                                            <span class="truncate">@(item.ClassName ?? ("Class #" + item.SubClassId))</span>
+                                                        </div>
+
+                                                        @if (!string.IsNullOrEmpty(item.TeacherName))
+                                                        {
+                                                            <div class="flex items-center gap-1.5 text-slate-500">
+                                                                <svg class="h-3 w-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                                                <span class="truncate">@item.TeacherName</span>
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                    <!-- Bottom Line: Time & Mode Badge -->
+                                                    <div class="mt-2 pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[10px]">
+                                                        <span class="font-mono text-slate-500 font-semibold">
+                                                            @item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")
+                                                        </span>
+                                                        <span class="px-1.5 py-0.5 rounded font-medium @badgeStyle">
+                                                            @(string.IsNullOrEmpty(item.Mode) ? "ClassRoom" : item.Mode)
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <!-- Subtle Add Another Button on Box Hover -->
+                                        <div class="mt-1.5 hidden group-hover:flex justify-center">
+                                            <button type="button"
+                                                    onclick="openNewSchedulePad('@day.FullName', '@slot.DefaultStart', '@slot.DefaultEnd')"
+                                                    class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 bg-white border border-blue-200 px-2 py-0.5 rounded shadow-2xs">
+                                                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                Add Another
+                                            </button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <!-- Empty Box (Click to Add) -->
+                                        <div class="h-16 flex items-center justify-center rounded-lg border border-transparent group-hover:border-blue-200 group-hover:bg-blue-50/30 transition">
+                                            <span class="hidden group-hover:inline-flex items-center gap-1 text-xs font-semibold text-blue-600">
+                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                Add
+                                            </span>
+                                        </div>
                                     }
                                 </td>
                             }
@@ -173,3 +300,397 @@
     </div>
 
 </div>
+
+<!-- ========================================================================= -->
+<!-- POPUP PAD: INSPECT & EDIT TIMETABLE POPPAD (Unified Form & Inspection)    -->
+<!-- ========================================================================= -->
+<div id="inspectPopPad" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all my-8 overflow-hidden transform">
+
+        <!-- PopPad Header Bar (Color Coded Accent) -->
+        <div id="popPadHeaderBar" class="h-2 bg-blue-600 transition-colors"></div>
+
+        <div class="p-6 space-y-5">
+            <!-- Header Section with Badge, Title, and Action Buttons -->
+            <div class="flex items-start justify-between pb-3 border-b border-slate-100">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="popPadModeBadge" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800">
+                            ClassRoom
+                        </span>
+                        <span id="popPadIdBadge" class="font-mono text-xs font-semibold text-slate-400">#0</span>
+                    </div>
+                    <h2 class="text-xl font-bold tracking-tight text-slate-900" id="popPadTitle">Inspect Timetable</h2>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <!-- Quick Delete Action from PopPad -->
+                    <button type="button" id="popPadDeleteBtn"
+                            onclick="triggerPopPadDelete()"
+                            class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                            title="Delete this schedule">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+
+                    <!-- Close Button -->
+                    <button type="button" onclick="closeInspectPopPad()" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inspect Overview Summary Card -->
+            <div id="popPadInspectCard" class="rounded-xl bg-slate-50 border border-slate-200/80 p-3.5 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div>
+                    <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Class</span>
+                    <span class="font-semibold text-slate-800 truncate block" id="inspectClassName">Class 1</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Teacher</span>
+                    <span class="font-semibold text-slate-800 truncate block" id="inspectTeacherName">Teacher</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Day & Time</span>
+                    <span class="font-semibold text-slate-800 truncate block font-mono" id="inspectTimeRange">Mon • 09:00</span>
+                </div>
+            </div>
+
+            <!-- PopPad Form (Inspect & Edit Form with All Inputs) -->
+            <form id="popPadForm" method="post" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="popPadFormId" />
+
+                <!-- 1. Class & Teacher Inputs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Class <span class="text-rose-500">*</span></label>
+                        <select name="SubClassId" id="popPadSubClassId" required class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                            <option value="">-- Select Class --</option>
+                            @foreach (var c in classes)
+                            {
+                                <option value="@c.SubClassId">@c.ClassName (ID: @c.SubClassId)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Teacher / Instructor <span class="text-rose-500">*</span></label>
+                        <select name="TeacherId" id="popPadTeacherId" required class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                            <option value="">-- Select Teacher --</option>
+                            @foreach (var t in teachers)
+                            {
+                                <option value="@t.UserId">@t.FullName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 2. Subject Input -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Subject Curriculum <span class="text-rose-500">*</span></label>
+                    @if (teachPlans != null && teachPlans.Count > 0)
+                    {
+                        <select name="SubjectId" id="popPadSubjectId" required class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                            <option value="">-- Select Subject / Plan --</option>
+                            @foreach (var p in teachPlans)
+                            {
+                                <option value="@p.SubjectId">@p.SubjectName (@p.Topic)</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <input name="SubjectId" id="popPadSubjectId" type="number" min="1" required placeholder="Enter Subject ID (e.g. 1)"
+                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition" />
+                    }
+                </div>
+
+                <!-- 3. Day of Week & Learning Mode Inputs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Day of Week <span class="text-rose-500">*</span></label>
+                        <select name="DayOfWeek" id="popPadDayOfWeek" required class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Delivery Mode <span class="text-rose-500">*</span></label>
+                        <select name="Mode" id="popPadMode" required onchange="updatePopPadModeColor(this.value)" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
+                            <option value="ClassRoom">ClassRoom (In-Person)</option>
+                            <option value="Online">Online</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 4. Start & End Time Inputs -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Start Time <span class="text-rose-500">*</span></label>
+                        <input type="time" name="StartTime" id="popPadStartTime" required
+                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-mono" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">End Time <span class="text-rose-500">*</span></label>
+                        <input type="time" name="EndTime" id="popPadEndTime" required
+                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-mono" />
+                    </div>
+                </div>
+
+                <!-- PopPad Actions Footer -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <div>
+                        <button type="button" id="popPadFooterDeleteBtn" onclick="triggerPopPadDelete()"
+                                class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-2 rounded-lg transition cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Delete
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeInspectPopPad()"
+                                class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit" id="popPadSubmitBtn"
+                                class="rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer flex items-center gap-1.5">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span id="popPadSubmitText">Save Changes</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- MODAL: DELETE CONFIRMATION MODAL                        -->
+<!-- ======================================================== -->
+<div id="deleteScheduleModal" class="fixed inset-0 z-60 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl transition-all my-8">
+
+        <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+            <div class="h-10 w-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Delete Schedule?</h3>
+                <p class="text-xs text-slate-500">This will remove this class from the timetable.</p>
+            </div>
+        </div>
+
+        <!-- Schedule info preview -->
+        <div class="my-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs space-y-1">
+            <div class="font-bold text-slate-900" id="deleteSubjectName">Subject</div>
+            <div class="text-slate-600" id="deleteClassName">Class</div>
+            <div class="text-slate-500 font-mono text-[11px]" id="deleteTimeRange">Monday • 09:00 - 10:30</div>
+        </div>
+
+        <form id="deleteScheduleForm" asp-controller="Timetable" asp-action="Delete" asp-route-role="@currentRole" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="deleteScheduleId" />
+
+            <div class="flex items-center justify-end gap-2.5 pt-2">
+                <button type="button" onclick="closeDeleteModal()"
+                        class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="rounded-lg bg-rose-600 hover:bg-rose-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer">
+                    Delete Schedule
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Track current timetable item for pop pad
+        let currentActiveItem = null;
+
+        // PopPad Elements
+        const inspectPopPad = document.getElementById('inspectPopPad');
+        const popPadHeaderBar = document.getElementById('popPadHeaderBar');
+        const popPadTitle = document.getElementById('popPadTitle');
+        const popPadModeBadge = document.getElementById('popPadModeBadge');
+        const popPadIdBadge = document.getElementById('popPadIdBadge');
+        const popPadInspectCard = document.getElementById('popPadInspectCard');
+        const inspectClassName = document.getElementById('inspectClassName');
+        const inspectTeacherName = document.getElementById('inspectTeacherName');
+        const inspectTimeRange = document.getElementById('inspectTimeRange');
+
+        const popPadForm = document.getElementById('popPadForm');
+        const popPadFormId = document.getElementById('popPadFormId');
+        const popPadSubClassId = document.getElementById('popPadSubClassId');
+        const popPadTeacherId = document.getElementById('popPadTeacherId');
+        const popPadSubjectId = document.getElementById('popPadSubjectId');
+        const popPadDayOfWeek = document.getElementById('popPadDayOfWeek');
+        const popPadMode = document.getElementById('popPadMode');
+        const popPadStartTime = document.getElementById('popPadStartTime');
+        const popPadEndTime = document.getElementById('popPadEndTime');
+
+        const popPadDeleteBtn = document.getElementById('popPadDeleteBtn');
+        const popPadFooterDeleteBtn = document.getElementById('popPadFooterDeleteBtn');
+        const popPadSubmitBtn = document.getElementById('popPadSubmitBtn');
+        const popPadSubmitText = document.getElementById('popPadSubmitText');
+
+        // Delete Modal Elements
+        const deleteModal = document.getElementById('deleteScheduleModal');
+        const deleteForm = document.getElementById('deleteScheduleForm');
+        const deleteId = document.getElementById('deleteScheduleId');
+        const deleteSubject = document.getElementById('deleteSubjectName');
+        const deleteClass = document.getElementById('deleteClassName');
+        const deleteTime = document.getElementById('deleteTimeRange');
+
+        // Update accent color on mode change
+        function updatePopPadModeColor(mode) {
+            if (popPadHeaderBar && popPadModeBadge) {
+                if (mode === 'Online') {
+                    popPadHeaderBar.className = 'h-2 bg-emerald-600 transition-colors';
+                    popPadModeBadge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800';
+                    popPadModeBadge.innerText = 'Online';
+                } else if (mode === 'Hybrid') {
+                    popPadHeaderBar.className = 'h-2 bg-purple-600 transition-colors';
+                    popPadModeBadge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800';
+                    popPadModeBadge.innerText = 'Hybrid';
+                } else {
+                    popPadHeaderBar.className = 'h-2 bg-blue-600 transition-colors';
+                    popPadModeBadge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800';
+                    popPadModeBadge.innerText = 'ClassRoom';
+                }
+            }
+        }
+
+        // 1. OPEN INSPECT & EDIT POPPAD FOR EXISTING SCHEDULE
+        function openInspectPad(id, subClassId, teacherId, subjectId, dayOfWeek, startTime, endTime, mode, subjectName, className, teacherName) {
+            currentActiveItem = { id, subjectName, className, dayOfWeek, startTime, endTime };
+
+            // Title & Badges
+            popPadTitle.innerText = `Inspect: ${subjectName || 'Schedule'}`;
+            popPadIdBadge.innerText = `#${id}`;
+            updatePopPadModeColor(mode || 'ClassRoom');
+
+            // Inspect Overview Box
+            popPadInspectCard.classList.remove('hidden');
+            inspectClassName.innerText = className || `Class #${subClassId}`;
+            inspectTeacherName.innerText = teacherName || 'Teacher';
+            inspectTimeRange.innerText = `${dayOfWeek} • ${startTime} - ${endTime}`;
+
+            // Populate all inputs in the edit form
+            popPadFormId.value = id;
+            popPadSubClassId.value = subClassId;
+            popPadTeacherId.value = teacherId;
+            popPadSubjectId.value = subjectId;
+            popPadDayOfWeek.value = dayOfWeek;
+            popPadMode.value = mode || 'ClassRoom';
+            popPadStartTime.value = startTime;
+            popPadEndTime.value = endTime;
+
+            // Form action targets Edit
+            popPadForm.action = `@Url.Action("Edit", "Timetable")/${id}?role=@currentRole`;
+            popPadSubmitText.innerText = 'Save Changes';
+            popPadSubmitBtn.className = 'rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer flex items-center gap-1.5';
+
+            // Show delete buttons in inspect mode
+            popPadDeleteBtn.classList.remove('hidden');
+            popPadFooterDeleteBtn.classList.remove('hidden');
+
+            inspectPopPad.classList.remove('hidden');
+        }
+
+        // 2. OPEN POPPAD IN "NEW SCHEDULE" MODE (For Box Clicks or Header Add)
+        function openNewSchedulePad(day, startTime, endTime) {
+            currentActiveItem = null;
+
+            popPadTitle.innerText = 'Schedule New Class';
+            popPadIdBadge.innerText = 'New';
+            updatePopPadModeColor('ClassRoom');
+
+            // Hide inspect overview box in create mode
+            popPadInspectCard.classList.add('hidden');
+
+            // Reset inputs & prefill box values
+            popPadFormId.value = '';
+            popPadSubClassId.value = '';
+            popPadTeacherId.value = '';
+            popPadSubjectId.value = '';
+            popPadDayOfWeek.value = day || 'Monday';
+            popPadMode.value = 'ClassRoom';
+            popPadStartTime.value = startTime || '09:00';
+            popPadEndTime.value = endTime || '10:30';
+
+            // Form action targets Create
+            popPadForm.action = `@Url.Action("Create", "Timetable")?role=@currentRole`;
+            popPadSubmitText.innerText = 'Schedule Class';
+            popPadSubmitBtn.className = 'rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer flex items-center gap-1.5';
+
+            // Hide delete buttons in create mode
+            popPadDeleteBtn.classList.add('hidden');
+            popPadFooterDeleteBtn.classList.add('hidden');
+
+            inspectPopPad.classList.remove('hidden');
+        }
+
+        function closeInspectPopPad() {
+            inspectPopPad.classList.add('hidden');
+        }
+
+        inspectPopPad.addEventListener('click', (e) => {
+            if (e.target === inspectPopPad) closeInspectPopPad();
+        });
+
+        // Click anywhere in empty box to schedule
+        function onBoxClick(event, day, startTime, endTime) {
+            if (event.target.closest('.timetable-card') || event.target.closest('button')) {
+                return;
+            }
+            openNewSchedulePad(day, startTime, endTime);
+        }
+
+        // 3. DELETE ACTIONS
+        function triggerPopPadDelete() {
+            if (!currentActiveItem) return;
+            closeInspectPopPad();
+            openDeleteModal(currentActiveItem.id, currentActiveItem.subjectName, currentActiveItem.className, currentActiveItem.dayOfWeek, `${currentActiveItem.startTime} - ${currentActiveItem.endTime}`);
+        }
+
+        function openDeleteModal(id, subjectName, className, dayOfWeek, timeRange) {
+            if (deleteId) deleteId.value = id;
+            if (deleteSubject) deleteSubject.innerText = subjectName || 'Subject';
+            if (deleteClass) deleteClass.innerText = className || 'Class';
+            if (deleteTime) deleteTime.innerText = `${dayOfWeek} • ${timeRange}`;
+
+            if (deleteForm) {
+                deleteForm.action = `@Url.Action("Delete", "Timetable")/${id}?role=@currentRole`;
+            }
+
+            deleteModal.classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            deleteModal.classList.add('hidden');
+        }
+
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) closeDeleteModal();
+        });
+
+        // Close on Escape Key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (!inspectPopPad.classList.contains('hidden')) closeInspectPopPad();
+                if (!deleteModal.classList.contains('hidden')) closeDeleteModal();
+            }
+        });
+    </script>
+}

@@ -13,8 +13,14 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
             _timetableApiService = timetableApiService;
         }
 
-        public async Task<IActionResult> Index(int? classId, int? teacherId)
+        public async Task<IActionResult> Index(int? classId, int? teacherId, string? role)
         {
+            ViewBag.ActiveMenu = "Timetable";
+            if (!string.IsNullOrEmpty(role))
+            {
+                ViewBag.CurrentRole = role.ToLower();
+            }
+
             try
             {
                 TimetableListResponseModel? response;
@@ -49,6 +55,7 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 if (response == null)
                 {
                     ViewBag.Error = "API returned an empty response.";
+                    await PopulateDropdowns();
                     return View();
                 }
 
@@ -57,39 +64,54 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                     ViewBag.Error = response.Message;
                 }
 
-                // Populate filter options
-                var classes = await _timetableApiService.GetSubClassesAsync();
-                ViewBag.Classes = classes?.SubClassList;
-
-                var users = await _timetableApiService.GetUsersAsync();
-                ViewBag.Teachers = users?.Users?.Where(u => u.Role == "Teacher" || u.Role == "Admin").ToList() ?? users?.Users;
+                // Populate filter and creation options
+                await PopulateDropdowns();
 
                 return View(response);
             }
             catch (HttpRequestException)
             {
                 ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
+                await PopulateDropdowns();
                 return View();
             }
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(string? day, string? startTime, string? endTime, int? classId, int? teacherId, string? role)
         {
+            ViewBag.ActiveMenu = "Timetable";
+            if (!string.IsNullOrEmpty(role))
+            {
+                ViewBag.CurrentRole = role.ToLower();
+            }
+
             await PopulateDropdowns();
+
+            TimeOnly start = TimeOnly.TryParse(startTime, out var s) ? s : new TimeOnly(9, 0);
+            TimeOnly end = TimeOnly.TryParse(endTime, out var e) ? e : new TimeOnly(10, 30);
+            string dayOfWeek = !string.IsNullOrEmpty(day) ? day : "Monday";
+
             return View("CreateTimetable", new TimetableCreateRequestModel
             {
-                StartTime = new TimeOnly(9, 0),
-                EndTime = new TimeOnly(10, 30),
+                SubClassId = classId ?? 0,
+                TeacherId = teacherId ?? 0,
+                StartTime = start,
+                EndTime = end,
                 Mode = "ClassRoom",
-                DayOfWeek = "Monday"
+                DayOfWeek = dayOfWeek
             });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(TimetableCreateRequestModel model)
+        public async Task<IActionResult> Create(TimetableCreateRequestModel model, string? role)
         {
+            if (!string.IsNullOrEmpty(role))
+            {
+                ViewBag.CurrentRole = role.ToLower();
+            }
+
             if (!ModelState.IsValid)
             {
                 await PopulateDropdowns();
@@ -103,7 +125,7 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 if (result != null && result.IsSuccess)
                 {
                     TempData["Success"] = result.Message ?? "Timetable created successfully!";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index), new { role });
                 }
 
                 ViewBag.Error = result?.Message ?? "Failed to create timetable.";
@@ -119,8 +141,14 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string? role)
         {
+            ViewBag.ActiveMenu = "Timetable";
+            if (!string.IsNullOrEmpty(role))
+            {
+                ViewBag.CurrentRole = role.ToLower();
+            }
+
             try
             {
                 var all = await _timetableApiService.GetAllAsync();
@@ -129,7 +157,7 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 if (item == null)
                 {
                     TempData["Error"] = "Timetable schedule not found.";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index), new { role });
                 }
 
                 var patchModel = new TimetablePatchRequestModel
@@ -150,14 +178,19 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
             catch (HttpRequestException)
             {
                 TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { role });
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, TimetablePatchRequestModel model)
+        public async Task<IActionResult> Edit(int id, TimetablePatchRequestModel model, string? role)
         {
+            if (!string.IsNullOrEmpty(role))
+            {
+                ViewBag.CurrentRole = role.ToLower();
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.TimetableId = id;
@@ -171,7 +204,7 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 if (result != null && result.IsSuccess)
                 {
                     TempData["Success"] = result.Message ?? "Timetable updated successfully!";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index), new { role });
                 }
 
                 ViewBag.TimetableId = id;
@@ -190,7 +223,7 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string? role)
         {
             try
             {
@@ -208,7 +241,7 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
             {
                 TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { role });
         }
 
         private async Task PopulateDropdowns()
