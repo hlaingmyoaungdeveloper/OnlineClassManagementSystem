@@ -21,9 +21,56 @@ public class SubClassService
     {
         try
         {
-            List<SubClassModel> subClasses = await _db.TblSubClasses
+            var allActive = _db.TblSubClasses
                  .AsNoTracking()
-                 .Where(x => !x.IsDelete)
+                 .Where(x => !x.IsDelete);
+
+            var totalClasses = await allActive.CountAsync();
+            var totalEnrolled = await allActive.SumAsync(x => (int)(x.StudentCount ?? 0));
+            var totalCapacity = await allActive.SumAsync(x => x.StudentLimit);
+            var availableSeats = Math.Max(0, totalCapacity - totalEnrolled);
+
+            var query = allActive;
+
+            if (!string.IsNullOrWhiteSpace(model.Search))
+            {
+                var search = model.Search.Trim().ToLower();
+                query = query.Where(x => x.ClassName.ToLower().Contains(search) || x.Place.ToLower().Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Status) && !model.Status.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                if (model.Status.Equals("available", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(x => (x.StudentCount ?? 0) < x.StudentLimit);
+                }
+                else if (model.Status.Equals("full", StringComparison.OrdinalIgnoreCase))
+                {
+                    query = query.Where(x => (x.StudentCount ?? 0) >= x.StudentLimit);
+                }
+            }
+
+            var totalCount = await query.CountAsync();
+
+            bool isPaged = model.PageNo.HasValue || model.PageSize.HasValue;
+            int pageNo = model.PageNo ?? 1;
+            int pageSize = model.PageSize ?? 10;
+            if (pageNo < 1) pageNo = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            if (isPaged)
+            {
+                query = query
+                    .OrderByDescending(x => x.SubClassId)
+                    .Skip((pageNo - 1) * pageSize)
+                    .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.SubClassId);
+            }
+
+            List<SubClassModel> subClasses = await query
                  .Select(x => new SubClassModel
                  {
                      SubClassId = x.SubClassId,
@@ -32,14 +79,21 @@ public class SubClassService
                      OpenDate = x.OpenDate,
                      OpenTime = x.OpenTime,
                      StudentLimit = x.StudentLimit,
-                     StudentCount = (int)x.StudentCount
+                     StudentCount = (int)(x.StudentCount ?? 0)
                  }).ToListAsync();
 
             return new SubClassListResponseModel()
             {
                 IsSuccess = true,
                 Message = "SubClasses Fetched Successfully",
-                SubClassList = subClasses
+                SubClassList = subClasses,
+                TotalCount = totalCount,
+                PageNo = isPaged ? pageNo : 1,
+                PageSize = isPaged ? pageSize : (totalCount > 0 ? totalCount : 10),
+                TotalClasses = totalClasses,
+                TotalEnrolled = totalEnrolled,
+                TotalCapacity = totalCapacity,
+                AvailableSeats = availableSeats
             };
         }
         catch (Exception ex)
@@ -47,7 +101,8 @@ public class SubClassService
             return new SubClassListResponseModel
             {
                 IsSuccess = false,
-                Message = ex.Message
+                Message = ex.Message,
+                SubClassList = new List<SubClassModel>()
             };
         }
     }

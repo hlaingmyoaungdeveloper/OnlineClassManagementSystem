@@ -12,11 +12,18 @@ public class UserApiService
     }
 
     // GET: All Users
-    public async Task<UserListResponseModel?> GetUsersAsync()
+    public async Task<UserListResponseModel?> GetUsersAsync(UserListRequestModel? requestModel = null)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<UserListResponseModel>("api/User");
+            var query = new List<string>();
+            if (requestModel?.PageNo.HasValue == true) query.Add($"pageNo={requestModel.PageNo.Value}");
+            if (requestModel?.PageSize.HasValue == true) query.Add($"pageSize={requestModel.PageSize.Value}");
+            if (!string.IsNullOrWhiteSpace(requestModel?.Search)) query.Add($"search={Uri.EscapeDataString(requestModel.Search.Trim())}");
+            if (!string.IsNullOrWhiteSpace(requestModel?.Role)) query.Add($"role={Uri.EscapeDataString(requestModel.Role.Trim())}");
+
+            var url = query.Count > 0 ? $"api/User?{string.Join("&", query)}" : "api/User";
+            return await _httpClient.GetFromJsonAsync<UserListResponseModel>(url);
         }
         catch (HttpRequestException)
         {

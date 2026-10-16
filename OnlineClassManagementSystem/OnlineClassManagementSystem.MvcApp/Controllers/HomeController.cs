@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using OnlineClassManagementSystem.MvcApp.Models;
-using OnlineClassManagementSystem.MvcApp.Services;
-using OnlineClassManagementSystem.Shared.models.SubClass;
-using OnlineClassManagementSystem.Shared.models.Timetable;
-using OnlineClassManagementSystem.Shared.models.TeachingTracking;
 using OnlineClassManagementSystem.Shared.models.Enrollment;
+using OnlineClassManagementSystem.Shared.models.SubClass;
+using OnlineClassManagementSystem.Shared.models.TeachingTracking;
+using OnlineClassManagementSystem.Shared.models.Timetable;
 using OnlineClassManagementSystem.Shared.models.User;
 using System.Diagnostics;
 
@@ -12,33 +12,17 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly SubClassApiService _subClassApiService;
-    private readonly TimetableApiService _timetableApiService;
-    private readonly TeachPlanApiService _teachPlanApiService;
-    private readonly TeachingTrackingApiService _teachingTrackingApiService;
-    private readonly EnrollmentApiService _enrollmentApiService;
-    private readonly UserApiService _userApiService;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(
-        SubClassApiService subClassApiService,
-        TimetableApiService timetableApiService,
-        TeachPlanApiService teachPlanApiService,
-        TeachingTrackingApiService teachingTrackingApiService,
-        EnrollmentApiService enrollmentApiService,
-        UserApiService userApiService,
-        ILogger<HomeController> logger)
+    public HomeController(IHttpClientFactory httpClientFactory, ILogger<HomeController> logger)
     {
-        _subClassApiService = subClassApiService;
-        _timetableApiService = timetableApiService;
-        _teachPlanApiService = teachPlanApiService;
-        _teachingTrackingApiService = teachingTrackingApiService;
-        _enrollmentApiService = enrollmentApiService;
-        _userApiService = userApiService;
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
-    public async Task<IActionResult> Index(string? role = "admin")
+    [ActionName("Index")]
+    public async Task<IActionResult> IndexAsync(string? role = "admin")
     {
         var currentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
         ViewBag.CurrentRole = currentRole;
@@ -48,19 +32,28 @@ public class HomeController : Controller
 
         try
         {
-            var classesTask = _subClassApiService.GetAllAsync(new SubClassListRequestModel());
-            var enrollmentsTask = _enrollmentApiService.GetAllAsync();
-            var usersTask = _userApiService.GetUsersAsync();
-            var timetablesTask = _timetableApiService.GetAllAsync();
-            var trackingsTask = _teachingTrackingApiService.GetAllAsync();
+            _logger.LogInformation("Dashboard Index => Fetching dashboard data");
+            var client = _httpClientFactory.CreateClient("WebAPI");
+
+            var classesTask = client.GetAsync("api/SubClass");
+            var enrollmentsTask = client.GetAsync("api/Enrollment");
+            var usersTask = client.GetAsync("api/User");
+            var timetablesTask = client.GetAsync("api/Timetables");
+            var trackingsTask = client.GetAsync("api/TeachingTracking");
 
             await Task.WhenAll(classesTask, enrollmentsTask, usersTask, timetablesTask, trackingsTask);
 
-            var classes = (await classesTask)?.SubClassList ?? new List<SubClassModel>();
-            var enrollments = (await enrollmentsTask)?.EnrollmentList ?? new List<EnrollmentModel>();
-            var users = (await usersTask)?.Users ?? new List<UserModel>();
-            var timetables = (await timetablesTask)?.TimetableList ?? new List<TimetableModel>();
-            var trackings = (await trackingsTask)?.TeachingTrackingList ?? new List<TeachingTrackingModel>();
+            var classesJson = await (await classesTask).Content.ReadAsStringAsync();
+            var enrollmentsJson = await (await enrollmentsTask).Content.ReadAsStringAsync();
+            var usersJson = await (await usersTask).Content.ReadAsStringAsync();
+            var timetablesJson = await (await timetablesTask).Content.ReadAsStringAsync();
+            var trackingsJson = await (await trackingsTask).Content.ReadAsStringAsync();
+
+            var classes = JsonConvert.DeserializeObject<SubClassListResponseModel>(classesJson)?.SubClassList ?? new List<SubClassModel>();
+            var enrollments = JsonConvert.DeserializeObject<EnrollmentListResponseModel>(enrollmentsJson)?.EnrollmentList ?? new List<EnrollmentModel>();
+            var users = JsonConvert.DeserializeObject<UserListResponseModel>(usersJson)?.Users ?? new List<UserModel>();
+            var timetables = JsonConvert.DeserializeObject<TimetableListResponseModel>(timetablesJson)?.TimetableList ?? new List<TimetableModel>();
+            var trackings = JsonConvert.DeserializeObject<TeachingTrackingListResponseModel>(trackingsJson)?.TeachingTrackingList ?? new List<TeachingTrackingModel>();
 
             // Admin metrics
             viewModel.TotalClasses = classes.Count;
@@ -157,6 +150,8 @@ public class HomeController : Controller
             viewModel.PendingTrackingCount = trackings.Count(t =>
                 currentTeacher == null || t.TeacherId == currentTeacher.UserId ||
                 string.Equals(t.TeacherName, currentTeacher.FullName, StringComparison.OrdinalIgnoreCase));
+
+            _logger.LogInformation("Dashboard Index => Dashboard data loaded successfully");
         }
         catch (HttpRequestException ex)
         {

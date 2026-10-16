@@ -21,12 +21,41 @@ public class TimetableService
     {
         try
         {
-            List<TimetableModel> timetables = await _db.TblTimeTables
+            var query = _db.TblTimeTables
                 .AsNoTracking()
                 .Include(x => x.Class)
                 .Include(x => x.Teacher)
                 .Include(x => x.Subject)
-                .Where(x => !x.IsDelete)
+                .Where(x => !x.IsDelete);
+
+            if (!string.IsNullOrWhiteSpace(model.Search))
+            {
+                var search = model.Search.Trim().ToLower();
+                query = query.Where(x =>
+                    (x.Class.ClassName != null && x.Class.ClassName.ToLower().Contains(search)) ||
+                    (x.Teacher.FullName != null && x.Teacher.FullName.ToLower().Contains(search)) ||
+                    (x.Subject.SubjectName != null && x.Subject.SubjectName.ToLower().Contains(search)) ||
+                    (x.DayOfWeek != null && x.DayOfWeek.ToLower().Contains(search)) ||
+                    (x.Mode != null && x.Mode.ToLower().Contains(search)));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            bool isPaged = model.PageNo.HasValue || model.PageSize.HasValue;
+            int pageNo = model.PageNo ?? 1;
+            int pageSize = model.PageSize ?? 10;
+            if (pageNo < 1) pageNo = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            if (isPaged)
+            {
+                query = query
+                    .OrderBy(x => x.Id)
+                    .Skip((pageNo - 1) * pageSize)
+                    .Take(pageSize);
+            }
+
+            List<TimetableModel> timetables = await query
                 .Select(x => new TimetableModel
                 {
                     Id = x.Id,
@@ -47,7 +76,10 @@ public class TimetableService
             {
                 IsSuccess = true,
                 Message = "All timetables fetched successfully",
-                TimetableList = timetables
+                TimetableList = timetables,
+                TotalCount = totalCount,
+                PageNo = isPaged ? pageNo : 1,
+                PageSize = isPaged ? pageSize : (totalCount > 0 ? totalCount : 10)
             };
         }
         catch (Exception ex)
@@ -55,7 +87,8 @@ public class TimetableService
             return new TimetableListResponseModel
             {
                 IsSuccess = false,
-                Message = ex.Message
+                Message = ex.Message,
+                TimetableList = new List<TimetableModel>()
             };
         }
     }

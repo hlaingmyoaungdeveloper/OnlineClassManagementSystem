@@ -7,10 +7,20 @@
     var queryRole = Context.Request.Query["role"].ToString();
     var currentRole = !string.IsNullOrEmpty(queryRole) ? queryRole.ToLower() : (ViewBag.CurrentRole as string ?? "admin");
 
-    var totalClasses = classes.Count;
-    var totalEnrolled = classes.Sum(c => c.StudentCount ?? 0);
-    var totalCapacity = classes.Sum(c => c.StudentLimit);
-    var availableSeats = Math.Max(0, totalCapacity - totalEnrolled);
+    var totalClasses = Model?.TotalClasses > 0 ? Model.TotalClasses : (Model?.TotalCount ?? classes.Count);
+    var totalEnrolled = Model?.TotalEnrolled ?? classes.Sum(c => c.StudentCount ?? 0);
+    var totalCapacity = Model?.TotalCapacity ?? classes.Sum(c => c.StudentLimit);
+    var availableSeats = Model != null && Model.TotalCapacity > 0 ? Model.AvailableSeats : Math.Max(0, totalCapacity - totalEnrolled);
+
+    var pageNo = Model?.PageNo ?? (ViewBag.PageNo as int? ?? 1);
+    var pageSize = Model?.PageSize ?? (ViewBag.PageSize as int? ?? 10);
+    var totalCount = Model?.TotalCount ?? classes.Count;
+    var totalPages = Model?.TotalPages ?? (pageSize > 0 ? (int)Math.Ceiling((double)totalCount / pageSize) : 1);
+    if (totalPages < 1) totalPages = 1;
+    var hasPrevious = Model?.HasPreviousPage ?? (pageNo > 1);
+    var hasNext = Model?.HasNextPage ?? (pageNo < totalPages);
+    var searchVal = ViewBag.Search as string ?? "";
+    var statusVal = ViewBag.Status as string ?? "all";
 }
 
 <div class="p-6 md:p-8 space-y-6">
@@ -90,25 +100,39 @@
     }
 
     <!-- Controls Row: Search, Availability Filter, and View Mode Toggle -->
-    <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
+    <form method="get" asp-action="Index" class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs">
+        <input type="hidden" name="role" value="@currentRole" />
+        <input type="hidden" name="pageNo" value="1" />
+        <input type="hidden" name="pageSize" value="@pageSize" />
+
         <div class="flex flex-wrap items-center gap-3 flex-1">
             <!-- Search Input -->
             <div class="relative flex-1 min-w-[220px] max-w-md">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </span>
-                <input type="text" id="classSearchInput" placeholder="Search by class name or place..."
+                <input type="text" name="search" id="classSearchInput" value="@searchVal" placeholder="Search by class name or place..."
                        class="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition" />
             </div>
 
             <!-- Status Filter Dropdown -->
             <div class="w-40">
-                <select id="statusFilter" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition">
-                    <option value="all">All Status</option>
-                    <option value="available">Available Seats</option>
-                    <option value="full">Class Full</option>
+                <select name="status" id="statusFilter" onchange="this.form.submit()" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition">
+                    <option value="all" selected="@(statusVal == "all" ? "selected" : null)">All Status</option>
+                    <option value="available" selected="@(statusVal == "available" ? "selected" : null)">Available Seats</option>
+                    <option value="full" selected="@(statusVal == "full" ? "selected" : null)">Class Full</option>
                 </select>
             </div>
+
+            <button type="submit" class="rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition">
+                Search
+            </button>
+            @if (!string.IsNullOrEmpty(searchVal) || statusVal != "all")
+            {
+                <a asp-action="Index" asp-route-role="@currentRole" class="rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 transition">
+                    Reset
+                </a>
+            }
         </div>
 
         <!-- View Mode Switcher: Table View & Card View -->
@@ -124,7 +148,7 @@
                 <span>Cards</span>
             </button>
         </div>
-    </div>
+    </form>
 
     <!-- Empty Filter Results Banner (Hidden by default) -->
     <div id="noMatchBanner" class="hidden rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-400">
@@ -171,12 +195,12 @@
                             var limit = item.StudentLimit;
                             var percent = limit > 0 ? Math.Min(100, (int)Math.Round((double)currentCount / limit * 100)) : 0;
                             var isFull = currentCount >= limit;
-                            var statusVal = isFull ? "full" : "available";
+                            var rowStatus = isFull ? "full" : "available";
 
                             <tr class="class-row hover:bg-slate-50/60 transition"
                                 data-class-name="@item.ClassName.ToLower()"
                                 data-place="@((item.Place ?? "").ToLower())"
-                                data-status="@statusVal"
+                                data-status="@rowStatus"
                                 data-class-id="@item.SubClassId">
                                 <td class="px-6 py-4 font-semibold text-slate-800">
                                     <span class="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">@rowNo</span>
@@ -280,13 +304,89 @@
             </table>
         </div>
 
+        @{
+            var startItem = totalCount > 0 ? (pageNo - 1) * pageSize + 1 : 0;
+            var endItem = Math.Min(pageNo * pageSize, totalCount);
+            int startPage = Math.Max(1, pageNo - 2);
+            int endPage = Math.Min(totalPages, pageNo + 2);
+        }
+
         <!-- Table Pagination Footer -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200/80 px-6 py-3.5 bg-slate-50/50 text-xs text-slate-500">
-            <span id="tableShowingCount">Showing @classes.Count classes</span>
+            <div class="flex items-center gap-3">
+                <span>Showing @(totalCount > 0 ? $"{startItem} - {endItem} of {totalCount}" : "0") classes</span>
+                <div class="flex items-center gap-1.5 pl-3 border-l border-slate-200">
+                    <span>Per page:</span>
+                    <select onchange="location.href='@Url.Action("Index", new { role = currentRole, search = searchVal, status = statusVal, pageNo = 1 })&pageSize=' + this.value"
+                            class="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-blue-500">
+                        <option value="5" selected="@(pageSize == 5 ? "selected" : null)">5</option>
+                        <option value="10" selected="@(pageSize == 10 ? "selected" : null)">10</option>
+                        <option value="20" selected="@(pageSize == 20 ? "selected" : null)">20</option>
+                        <option value="50" selected="@(pageSize == 50 ? "selected" : null)">50</option>
+                    </select>
+                </div>
+            </div>
             <div class="flex items-center gap-1">
-                <button class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-100">&lt;</button>
-                <button class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center">1</button>
-                <button class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-100">&gt;</button>
+                @if (hasPrevious)
+                {
+                    <a asp-action="Index" asp-route-pageNo="@(pageNo - 1)" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
+                        &lsaquo; Prev
+                    </a>
+                }
+                else
+                {
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        &lsaquo; Prev
+                    </span>
+                }
+
+                @if (startPage > 1)
+                {
+                    <a asp-action="Index" asp-route-pageNo="1" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">1</a>
+                    @if (startPage > 2)
+                    {
+                        <span class="px-1 text-slate-400">...</span>
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    if (i == pageNo)
+                    {
+                        <span class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center shadow-xs">@i</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" asp-route-pageNo="@i" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                           class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@i</a>
+                    }
+                }
+
+                @if (endPage < totalPages)
+                {
+                    @if (endPage < totalPages - 1)
+                    {
+                        <span class="px-1 text-slate-400">...</span>
+                    }
+                    <a asp-action="Index" asp-route-pageNo="@totalPages" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@totalPages</a>
+                }
+
+                @if (hasNext)
+                {
+                    <a asp-action="Index" asp-route-pageNo="@(pageNo + 1)" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
+                        Next &rsaquo;
+                    </a>
+                }
+                else
+                {
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        Next &rsaquo;
+                    </span>
+                }
             </div>
         </div>
     </div>
@@ -309,12 +409,12 @@
                     var limit = item.StudentLimit;
                     var percent = limit > 0 ? Math.Min(100, (int)Math.Round((double)currentCount / limit * 100)) : 0;
                     var isFull = currentCount >= limit;
-                    var statusVal = isFull ? "full" : "available";
+                    var cardStatus = isFull ? "full" : "available";
 
                     <div class="class-card group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs hover:shadow-md hover:border-slate-300 transition duration-200 flex flex-col justify-between"
                          data-class-name="@item.ClassName.ToLower()"
                          data-place="@((item.Place ?? "").ToLower())"
-                         data-status="@statusVal"
+                         data-status="@cardStatus"
                          data-class-id="@item.SubClassId">
 
                         <div>
@@ -407,6 +507,85 @@
                     </div>
                 }
             }
+        </div>
+
+        <!-- Card View Pagination Footer -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-2xs text-xs text-slate-500 mt-5">
+            <div class="flex items-center gap-3">
+                <span>Showing @(totalCount > 0 ? $"{startItem} - {endItem} of {totalCount}" : "0") classes</span>
+                <div class="flex items-center gap-1.5 pl-3 border-l border-slate-200">
+                    <span>Per page:</span>
+                    <select onchange="location.href='@Url.Action("Index", new { role = currentRole, search = searchVal, status = statusVal, pageNo = 1 })&pageSize=' + this.value"
+                            class="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-blue-500">
+                        <option value="5" selected="@(pageSize == 5 ? "selected" : null)">5</option>
+                        <option value="10" selected="@(pageSize == 10 ? "selected" : null)">10</option>
+                        <option value="20" selected="@(pageSize == 20 ? "selected" : null)">20</option>
+                        <option value="50" selected="@(pageSize == 50 ? "selected" : null)">50</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center gap-1">
+                @if (hasPrevious)
+                {
+                    <a asp-action="Index" asp-route-pageNo="@(pageNo - 1)" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
+                        &lsaquo; Prev
+                    </a>
+                }
+                else
+                {
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        &lsaquo; Prev
+                    </span>
+                }
+
+                @if (startPage > 1)
+                {
+                    <a asp-action="Index" asp-route-pageNo="1" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">1</a>
+                    @if (startPage > 2)
+                    {
+                        <span class="px-1 text-slate-400">...</span>
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    if (i == pageNo)
+                    {
+                        <span class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center shadow-xs">@i</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" asp-route-pageNo="@i" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                           class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@i</a>
+                    }
+                }
+
+                @if (endPage < totalPages)
+                {
+                    @if (endPage < totalPages - 1)
+                    {
+                        <span class="px-1 text-slate-400">...</span>
+                    }
+                    <a asp-action="Index" asp-route-pageNo="@totalPages" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@totalPages</a>
+                }
+
+                @if (hasNext)
+                {
+                    <a asp-action="Index" asp-route-pageNo="@(pageNo + 1)" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-status="@statusVal" asp-route-role="@currentRole"
+                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
+                        Next &rsaquo;
+                    </a>
+                }
+                else
+                {
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        Next &rsaquo;
+                    </span>
+                }
+            </div>
         </div>
     </div>
 
@@ -660,65 +839,6 @@
             setViewMode('table');
         }
 
-        // Live Search & Filter Logic
-        const searchInput = document.getElementById('classSearchInput');
-        const statusFilter = document.getElementById('statusFilter');
-        const tableRows = document.querySelectorAll('.class-row');
-        const cards = document.querySelectorAll('.class-card');
-        const noMatchBanner = document.getElementById('noMatchBanner');
-        const tableShowingCount = document.getElementById('tableShowingCount');
-
-        function filterClasses() {
-            const query = (searchInput.value || '').trim().toLowerCase();
-            const status = statusFilter.value;
-            let visibleCount = 0;
-
-            // Filter Table Rows
-            tableRows.forEach(row => {
-                const name = row.getAttribute('data-class-name') || '';
-                const place = row.getAttribute('data-place') || '';
-                const rowStatus = row.getAttribute('data-status') || '';
-
-                const matchesQuery = query === '' || name.includes(query) || place.includes(query);
-                const matchesStatus = status === 'all' || rowStatus === status;
-
-                if (matchesQuery && matchesStatus) {
-                    row.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    row.classList.add('hidden');
-                }
-            });
-
-            // Filter Cards
-            cards.forEach(card => {
-                const name = card.getAttribute('data-class-name') || '';
-                const place = card.getAttribute('data-place') || '';
-                const cardStatus = card.getAttribute('data-status') || '';
-
-                const matchesQuery = query === '' || name.includes(query) || place.includes(query);
-                const matchesStatus = status === 'all' || cardStatus === status;
-
-                if (matchesQuery && matchesStatus) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-
-            if (tableShowingCount) {
-                tableShowingCount.innerText = `Showing ${visibleCount} classes`;
-            }
-
-            if (visibleCount === 0 && (tableRows.length > 0 || cards.length > 0)) {
-                noMatchBanner.classList.remove('hidden');
-            } else {
-                noMatchBanner.classList.add('hidden');
-            }
-        }
-
-        if (searchInput) searchInput.addEventListener('input', filterClasses);
-        if (statusFilter) statusFilter.addEventListener('change', filterClasses);
 
         // Enroll Modal Logic
         const enrollModal = document.getElementById('enrollModal');

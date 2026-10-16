@@ -7,6 +7,14 @@
     ViewData["Title"] = isTeacher ? "My Test Tracking" : "Test Tracking";
 
     var trackings = Model?.TeachingTrackingList ?? new List<OnlineClassManagementSystem.Shared.models.TeachingTracking.TeachingTrackingModel>();
+    var pageNo = Model?.PageNo ?? (int)(ViewBag.PageNo ?? 1);
+    var pageSize = Model?.PageSize ?? (int)(ViewBag.PageSize ?? 10);
+    var totalCount = Model?.TotalCount ?? trackings.Count;
+    var totalPages = Model?.TotalPages ?? (int)Math.Ceiling((double)totalCount / pageSize);
+    if (totalPages < 1) totalPages = 1;
+    var hasPrevious = Model?.HasPreviousPage ?? (pageNo > 1);
+    var hasNext = Model?.HasNextPage ?? (pageNo < totalPages);
+    var searchVal = ViewBag.SearchQuery as string ?? "";
 }
 
 <div class="p-6 md:p-8 space-y-6">
@@ -41,18 +49,33 @@
 
     <!-- Search / Filter Row -->
     <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-        <div class="flex flex-wrap items-center gap-4 flex-1">
+        <form method="get" asp-action="Index" class="flex flex-wrap items-center gap-3 flex-1">
+            <input type="hidden" name="role" value="@currentRole" />
+            <input type="hidden" name="pageNo" value="1" />
+            <input type="hidden" name="pageSize" value="@pageSize" />
+
             <div class="flex-1 min-w-[200px] max-w-sm">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </span>
-                    <input type="text" placeholder="Search test tracking..." class="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                    <input type="text" name="search" value="@searchVal" placeholder="Search test tracking..." class="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-blue-500" />
                 </div>
             </div>
-        </div>
+
+            <button type="submit" class="rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 text-xs font-semibold transition">
+                Search
+            </button>
+
+            @if (!string.IsNullOrEmpty(searchVal))
+            {
+                <a asp-action="Index" asp-route-role="@currentRole" class="text-xs text-rose-600 hover:underline">
+                    Clear
+                </a>
+            }
+        </form>
         <div class="text-xs text-slate-500">
-            Total: <span class="font-semibold text-slate-700">@trackings.Count</span> records
+            Total: <span class="font-semibold text-slate-700">@totalCount</span> records
         </div>
     </div>
 
@@ -120,13 +143,90 @@
             </table>
         </div>
 
+        @{
+            var startItem = totalCount > 0 ? (pageNo - 1) * pageSize + 1 : 0;
+            var endItem = Math.Min(pageNo * pageSize, totalCount);
+            int startPage = Math.Max(1, pageNo - 2);
+            int endPage = Math.Min(totalPages, pageNo + 2);
+        }
+
         <!-- Pagination Footer -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200/80 px-6 py-3.5 bg-slate-50/50 text-xs text-slate-500">
-            <span>Showing @(trackings.Count > 0 ? "1-" + trackings.Count : "0") of @trackings.Count</span>
+            <div class="flex items-center gap-3">
+                <span>Showing @(totalCount > 0 ? $"{startItem} - {endItem} of {totalCount}" : "0") records</span>
+                <div class="flex items-center gap-1.5 pl-3 border-l border-slate-200">
+                    <span>Per page:</span>
+                    <select onchange="location.href='@Url.Action("Index", new { role = currentRole, search = searchVal, pageNo = 1 })&pageSize=' + this.value"
+                            class="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-blue-500">
+                        <option value="5" selected="@(pageSize == 5 ? "selected" : null)">5</option>
+                        <option value="10" selected="@(pageSize == 10 ? "selected" : null)">10</option>
+                        <option value="20" selected="@(pageSize == 20 ? "selected" : null)">20</option>
+                        <option value="50" selected="@(pageSize == 50 ? "selected" : null)">50</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="flex items-center gap-1">
-                <button class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-100">&lt;</button>
-                <button class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center">1</button>
-                <button class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:bg-slate-100">&gt;</button>
+                @if (hasPrevious)
+                {
+                    <a asp-action="Index" asp-route-pageNo="@(pageNo - 1)" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
+                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
+                        &lsaquo; Prev
+                    </a>
+                }
+                else
+                {
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        &lsaquo; Prev
+                    </span>
+                }
+
+                @if (startPage > 1)
+                {
+                    <a asp-action="Index" asp-route-pageNo="1" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
+                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">1</a>
+                    @if (startPage > 2)
+                    {
+                        <span class="px-1 text-slate-400">...</span>
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    if (i == pageNo)
+                    {
+                        <span class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center shadow-xs">@i</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" asp-route-pageNo="@i" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
+                           class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@i</a>
+                    }
+                }
+
+                @if (endPage < totalPages)
+                {
+                    @if (endPage < totalPages - 1)
+                    {
+                        <span class="px-1 text-slate-400">...</span>
+                    }
+                    <a asp-action="Index" asp-route-pageNo="@totalPages" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
+                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@totalPages</a>
+                }
+
+                @if (hasNext)
+                {
+                    <a asp-action="Index" asp-route-pageNo="@(pageNo + 1)" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
+                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
+                        Next &rsaquo;
+                    </a>
+                }
+                else
+                {
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        Next &rsaquo;
+                    </span>
+                }
             </div>
         </div>
     </div>

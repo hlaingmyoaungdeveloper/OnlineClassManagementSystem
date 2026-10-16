@@ -4,8 +4,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient("WebAPI", 
+    client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7103/")
+);
 builder.Services.AddHttpClient("ApiClient", 
-    client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7048/")
+    client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7103/")
 );
 builder.Services.AddScoped<SubClassApiService>();
 builder.Services.AddScoped<TimetableApiService>();

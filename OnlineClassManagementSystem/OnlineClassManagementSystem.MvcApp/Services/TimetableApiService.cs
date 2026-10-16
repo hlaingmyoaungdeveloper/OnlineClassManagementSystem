@@ -15,9 +15,15 @@ public class TimetableApiService
     }
 
     // GET: All Timetables
-    public async Task<TimetableListResponseModel?> GetAllAsync()
+    public async Task<TimetableListResponseModel?> GetAllAsync(TimetableListResquestModel? requestModel = null)
     {
-        return await _httpClient.GetFromJsonAsync<TimetableListResponseModel>("api/Timetables");
+        var query = new List<string>();
+        if (requestModel?.PageNo.HasValue == true) query.Add($"pageNo={requestModel.PageNo.Value}");
+        if (requestModel?.PageSize.HasValue == true) query.Add($"pageSize={requestModel.PageSize.Value}");
+        if (!string.IsNullOrWhiteSpace(requestModel?.Search)) query.Add($"search={Uri.EscapeDataString(requestModel.Search.Trim())}");
+
+        var url = query.Count > 0 ? $"api/Timetables?{string.Join("&", query)}" : "api/Timetables";
+        return await _httpClient.GetFromJsonAsync<TimetableListResponseModel>(url);
     }
 
     // GET: Timetables by SubClassId

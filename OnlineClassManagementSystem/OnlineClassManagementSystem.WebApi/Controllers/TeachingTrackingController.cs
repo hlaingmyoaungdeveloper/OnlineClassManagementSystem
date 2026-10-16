@@ -16,9 +16,9 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTeachingTrackingsAsync()
+        public async Task<IActionResult> GetTeachingTrackingsAsync([FromQuery] TeachingTrackingListRequestModel? model)
         {
-            var result = await _service.GetTeachingTrackingsAsync(new TeachingTrackingListRequestModel());
+            var result = await _service.GetTeachingTrackingsAsync(model ?? new TeachingTrackingListRequestModel());
             if (result.IsSuccess)
             {
                 return Ok(result);

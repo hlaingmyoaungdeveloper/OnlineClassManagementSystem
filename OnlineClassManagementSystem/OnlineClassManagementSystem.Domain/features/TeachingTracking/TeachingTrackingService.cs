@@ -26,6 +26,58 @@ public class TeachingTrackingService
                 .Include(x => x.TeachPlan)
                 .Where(x => !x.IsDelete);
 
+            if (model.SubClassId.HasValue && model.SubClassId.Value > 0)
+            {
+                query = query.Where(x => x.SubClassId == model.SubClassId.Value);
+            }
+
+            if (model.TeacherId.HasValue && model.TeacherId.Value > 0)
+            {
+                query = query.Where(x => x.TeacherId == model.TeacherId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Search))
+            {
+                var search = model.Search.Trim().ToLower();
+
+                var matchingSubClassIds = await _db.TblSubClasses
+                    .Where(c => c.ClassName.ToLower().Contains(search))
+                    .Select(c => c.SubClassId)
+                    .ToListAsync();
+
+                var matchingTeacherIds = await _db.TblUsers
+                    .Where(u => u.FullName.ToLower().Contains(search))
+                    .Select(u => u.UserId)
+                    .ToListAsync();
+
+                query = query.Where(x =>
+                    (x.Remarks != null && x.Remarks.ToLower().Contains(search)) ||
+                    (x.TeachPlan.Topic != null && x.TeachPlan.Topic.ToLower().Contains(search)) ||
+                    x.TrackingId.ToString().Contains(search) ||
+                    matchingSubClassIds.Contains(x.SubClassId) ||
+                    matchingTeacherIds.Contains(x.TeacherId));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            bool isPaged = model.PageNo.HasValue || model.PageSize.HasValue;
+            int pageNo = model.PageNo ?? 1;
+            int pageSize = model.PageSize ?? 10;
+            if (pageNo < 1) pageNo = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            if (isPaged)
+            {
+                query = query
+                    .OrderByDescending(x => x.TrackingId)
+                    .Skip((pageNo - 1) * pageSize)
+                    .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.TrackingId);
+            }
+
             var trackings = await query.ToListAsync();
             var subClassIds = trackings.Select(x => x.SubClassId).Distinct().ToList();
             var teacherIds = trackings.Select(x => x.TeacherId).Distinct().ToList();
@@ -44,7 +96,7 @@ public class TeachingTrackingService
                 {
                     TrackId = x.TrackingId,
                     TeachPlanId = x.TeachPlanId,
-                    TopicTaught = x.TeachPlan.Topic,
+                    TopicTaught = x.TeachPlan?.Topic,
                     SubClassId = x.SubClassId,
                     ClassName = classNames.GetValueOrDefault(x.SubClassId),
                     TeacherId = x.TeacherId,
@@ -60,7 +112,10 @@ public class TeachingTrackingService
             {
                 IsSuccess = true,
                 Message = "Teaching tracking records fetched successfully",
-                TeachingTrackingList = trackingList
+                TeachingTrackingList = trackingList,
+                TotalCount = totalCount,
+                PageNo = isPaged ? pageNo : 1,
+                PageSize = isPaged ? pageSize : (totalCount > 0 ? totalCount : 10)
             };
         }
         catch (Exception ex)

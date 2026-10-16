@@ -16,9 +16,9 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTeachPlansAsync()
+        public async Task<IActionResult> GetTeachPlansAsync([FromQuery] TeachPlanListRequestModel? model)
         {
-            var result = await _service.GetTeachPlansAsync(new TeachPlanListRequestModel());
+            var result = await _service.GetTeachPlansAsync(model ?? new TeachPlanListRequestModel());
             if (result.IsSuccess)
             {
                 return Ok(result);

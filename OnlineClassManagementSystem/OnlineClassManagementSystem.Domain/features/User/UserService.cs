@@ -18,13 +18,53 @@ public class UserService
     }
 
     // Get all users
-    public async Task<UserListResponseModel> GetUsersAsync()
+    public async Task<UserListResponseModel> GetUsersAsync(UserListRequestModel? model = null)
     {
         try
         {
-            var users = await _db.TblUsers
+            var query = _db.TblUsers
                 .AsNoTracking()
-                .Where(u => !u.IsDelete)
+                .Where(u => !u.IsDelete);
+
+            if (model != null)
+            {
+                if (!string.IsNullOrWhiteSpace(model.Role))
+                {
+                    var role = model.Role.Trim().ToLower();
+                    query = query.Where(u => u.Role.ToLower() == role);
+                }
+
+                if (!string.IsNullOrWhiteSpace(model.Search))
+                {
+                    var search = model.Search.Trim().ToLower();
+                    query = query.Where(u =>
+                        u.FullName.ToLower().Contains(search) ||
+                        u.Email.ToLower().Contains(search) ||
+                        (u.TelegramUsername != null && u.TelegramUsername.ToLower().Contains(search)));
+                }
+            }
+
+            var totalCount = await query.CountAsync();
+
+            bool isPaged = model != null && (model.PageNo.HasValue || model.PageSize.HasValue);
+            int pageNo = model?.PageNo ?? 1;
+            int pageSize = model?.PageSize ?? 10;
+            if (pageNo < 1) pageNo = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            if (isPaged)
+            {
+                query = query
+                    .OrderByDescending(u => u.UserId)
+                    .Skip((pageNo - 1) * pageSize)
+                    .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderByDescending(u => u.UserId);
+            }
+
+            var users = await query
                 .Select(u => new UserModel
                 {
                     UserId = u.UserId,
@@ -41,7 +81,10 @@ public class UserService
             {
                 IsSuccess = true,
                 Message = "Users fetched successfully",
-                Users = users
+                Users = users,
+                TotalCount = totalCount,
+                PageNo = isPaged ? pageNo : 1,
+                PageSize = isPaged ? pageSize : (totalCount > 0 ? totalCount : 10)
             };
         }
         catch (Exception ex)

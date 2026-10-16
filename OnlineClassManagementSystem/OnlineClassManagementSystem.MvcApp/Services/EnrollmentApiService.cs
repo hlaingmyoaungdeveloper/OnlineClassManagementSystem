@@ -14,11 +14,19 @@ public class EnrollmentApiService
     }
 
     // GET: All Enrollments
-    public async Task<EnrollmentListResponseModel?> GetAllAsync()
+    public async Task<EnrollmentListResponseModel?> GetAllAsync(EnrollmentListRequestModel? requestModel = null)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<EnrollmentListResponseModel>("api/Enrollment");
+            var query = new List<string>();
+            if (requestModel?.PageNo.HasValue == true) query.Add($"pageNo={requestModel.PageNo.Value}");
+            if (requestModel?.PageSize.HasValue == true) query.Add($"pageSize={requestModel.PageSize.Value}");
+            if (!string.IsNullOrWhiteSpace(requestModel?.Search)) query.Add($"search={Uri.EscapeDataString(requestModel.Search.Trim())}");
+            if (!string.IsNullOrWhiteSpace(requestModel?.Status) && requestModel.Status.ToLower() != "all") query.Add($"status={Uri.EscapeDataString(requestModel.Status.Trim())}");
+            if (requestModel?.ClassId.HasValue == true) query.Add($"classId={requestModel.ClassId.Value}");
+
+            var url = query.Count > 0 ? $"api/Enrollment?{string.Join("&", query)}" : "api/Enrollment";
+            return await _httpClient.GetFromJsonAsync<EnrollmentListResponseModel>(url);
         }
         catch (HttpRequestException)
         {

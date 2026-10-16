@@ -1,19 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
-using OnlineClassManagementSystem.MvcApp.Services;
+using Newtonsoft.Json;
+using OnlineClassManagementSystem.Shared.models.SubClass;
+using OnlineClassManagementSystem.Shared.models.TeachPlan;
 using OnlineClassManagementSystem.Shared.models.Timetable;
+using OnlineClassManagementSystem.Shared.models.User;
+using System.Text;
 
 namespace OnlineClassManagementSystem.MvcApp.Controllers
 {
     public class TimetableController : Controller
     {
-        private readonly TimetableApiService _timetableApiService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<TimetableController> _logger;
 
-        public TimetableController(TimetableApiService timetableApiService)
+        public TimetableController(IHttpClientFactory httpClientFactory, ILogger<TimetableController> logger)
         {
-            _timetableApiService = timetableApiService;
+            _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
-        public async Task<IActionResult> Index(int? classId, int? teacherId, string? role)
+        [ActionName("Index")]
+        public async Task<IActionResult> TimetableListAsync(int? classId, int? teacherId, string? role)
         {
             ViewBag.ActiveMenu = "Timetable";
             if (!string.IsNullOrEmpty(role))
@@ -23,11 +30,16 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
 
             try
             {
+                _logger.LogInformation("Timetable List Async => Fetching timetables");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
                 TimetableListResponseModel? response;
 
                 if (classId.HasValue && classId.Value > 0)
                 {
-                    var classResult = await _timetableApiService.GetByClassAsync(classId.Value);
+                    var httpResponse = await client.GetAsync($"api/Timetables/club/{classId.Value}");
+                    var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                    var classResult = JsonConvert.DeserializeObject<TimetableListByClassResponseModel>(jsonString);
                     response = new TimetableListResponseModel
                     {
                         IsSuccess = classResult?.IsSuccess ?? false,
@@ -38,7 +50,9 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 }
                 else if (teacherId.HasValue && teacherId.Value > 0)
                 {
-                    var teacherResult = await _timetableApiService.GetByTeacherAsync(teacherId.Value);
+                    var httpResponse = await client.GetAsync($"api/Timetables/teacher/{teacherId.Value}");
+                    var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                    var teacherResult = JsonConvert.DeserializeObject<TimetableListByTeacherResponseModel>(jsonString);
                     response = new TimetableListResponseModel
                     {
                         IsSuccess = teacherResult?.IsSuccess ?? false,
@@ -49,115 +63,161 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 }
                 else
                 {
-                    response = await _timetableApiService.GetAllAsync();
+                    var httpResponse = await client.GetAsync("api/Timetables");
+                    var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                    response = JsonConvert.DeserializeObject<TimetableListResponseModel>(jsonString);
                 }
 
-                if (response == null)
+                if (response != null && response.IsSuccess && response.TimetableList != null)
                 {
-                    ViewBag.Error = "API returned an empty response.";
-                    await PopulateDropdowns();
-                    return View();
+                    _logger.LogInformation("Timetable List Async => Timetables fetched successfully");
+                    ViewData["Timetables"] = response.TimetableList;
                 }
-
-                if (!response.IsSuccess && (response.TimetableList == null || response.TimetableList.Count == 0))
+                else
                 {
-                    ViewBag.Error = response.Message;
+                    _logger.LogWarning($"Timetable List Async => Failed to fetch timetables: {response?.Message}");
+                    TempData["Message"] = response?.Message;
+                    TempData["isSuccess"] = false;
+                    ViewBag.Error = response?.Message;
                 }
 
-                // Populate filter and creation options
-                await PopulateDropdowns();
-
-                return View(response);
+                await PopulateDropdowns(client);
+                return View("Index", response ?? new TimetableListResponseModel { TimetableList = new() });
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-                await PopulateDropdowns();
-                return View();
+                _logger.LogError(ex, "TimetableListAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Create(string? day, string? startTime, string? endTime, int? classId, int? teacherId, string? role)
+        [ActionName("Create")]
+        public async Task<IActionResult> TimetableCreateAsync(string? day, string? startTime, string? endTime, int? classId, int? teacherId, string? role)
         {
-            ViewBag.ActiveMenu = "Timetable";
-            if (!string.IsNullOrEmpty(role))
+            try
             {
-                ViewBag.CurrentRole = role.ToLower();
+                ViewBag.ActiveMenu = "Timetable";
+                if (!string.IsNullOrEmpty(role))
+                {
+                    ViewBag.CurrentRole = role.ToLower();
+                }
+
+                var client = _httpClientFactory.CreateClient("WebAPI");
+                await PopulateDropdowns(client);
+
+                TimeOnly start = TimeOnly.TryParse(startTime, out var s) ? s : new TimeOnly(9, 0);
+                TimeOnly end = TimeOnly.TryParse(endTime, out var e) ? e : new TimeOnly(10, 30);
+                string dayOfWeek = !string.IsNullOrEmpty(day) ? day : "Monday";
+
+                return View("CreateTimetable", new TimetableCreateRequestModel
+                {
+                    SubClassId = classId ?? 0,
+                    TeacherId = teacherId ?? 0,
+                    StartTime = start,
+                    EndTime = end,
+                    Mode = "ClassRoom",
+                    DayOfWeek = dayOfWeek
+                });
             }
-
-            await PopulateDropdowns();
-
-            TimeOnly start = TimeOnly.TryParse(startTime, out var s) ? s : new TimeOnly(9, 0);
-            TimeOnly end = TimeOnly.TryParse(endTime, out var e) ? e : new TimeOnly(10, 30);
-            string dayOfWeek = !string.IsNullOrEmpty(day) ? day : "Monday";
-
-            return View("CreateTimetable", new TimetableCreateRequestModel
+            catch (Exception ex)
             {
-                SubClassId = classId ?? 0,
-                TeacherId = teacherId ?? 0,
-                StartTime = start,
-                EndTime = end,
-                Mode = "ClassRoom",
-                DayOfWeek = dayOfWeek
-            });
+                _logger.LogError(ex, "TimetableCreateAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(TimetableCreateRequestModel model, string? role)
+        [ActionName("Save")]
+        public async Task<IActionResult> TimetableSaveAsync(TimetableCreateRequestModel model, string? role)
         {
-            if (!string.IsNullOrEmpty(role))
-            {
-                ViewBag.CurrentRole = role.ToLower();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await PopulateDropdowns();
-                return View("CreateTimetable", model);
-            }
-
             try
             {
-                var result = await _timetableApiService.CreateTimetableAsync(model);
+                _logger.LogInformation("Timetable Save Async => Creating timetable");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                if (!string.IsNullOrEmpty(role))
+                {
+                    ViewBag.CurrentRole = role.ToLower();
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    await PopulateDropdowns(client);
+                    return View("CreateTimetable", model);
+                }
+
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var httpResponse = await client.PostAsync("api/Timetables", content);
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<TimetableCreateResponseModel>(jsonString)
+                    ?? new TimetableCreateResponseModel { IsSuccess = false, Message = "Unknown error" };
 
                 if (result != null && result.IsSuccess)
                 {
+                    _logger.LogInformation("Timetable Save Async => Timetable created successfully");
+                    TempData["Message"] = result.Message ?? "Timetable created successfully!";
+                    TempData["isSuccess"] = true;
                     TempData["Success"] = result.Message ?? "Timetable created successfully!";
-                    return RedirectToAction(nameof(Index), new { role });
+                }
+                else
+                {
+                    _logger.LogWarning($"Timetable Save Async => Failed to create timetable: {result?.Message}");
+                    TempData["Message"] = result?.Message;
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message;
+                    ViewBag.Error = result?.Message ?? "Failed to create timetable.";
                 }
 
-                ViewBag.Error = result?.Message ?? "Failed to create timetable.";
-                await PopulateDropdowns();
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                if (result != null && result.IsSuccess)
+                {
+                    return RedirectToAction("Index", new { role });
+                }
+
+                await PopulateDropdowns(client);
                 return View("CreateTimetable", model);
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-                await PopulateDropdowns();
-                return View("CreateTimetable", model);
+                _logger.LogError(ex, "TimetableSaveAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id, string? role)
-        {
-            ViewBag.ActiveMenu = "Timetable";
-            if (!string.IsNullOrEmpty(role))
-            {
-                ViewBag.CurrentRole = role.ToLower();
-            }
+        [HttpPost]
+        [ActionName("Create")]
+        public Task<IActionResult> TimetableCreatePostAsync(TimetableCreateRequestModel model, string? role)
+            => TimetableSaveAsync(model, role);
 
+        [ActionName("Edit")]
+        public async Task<IActionResult> TimetableEditAsync(int id, string? role)
+        {
             try
             {
-                var all = await _timetableApiService.GetAllAsync();
+                _logger.LogInformation($"Timetable Edit Async => Fetching timetable {id}");
+                ViewBag.ActiveMenu = "Timetable";
+                if (!string.IsNullOrEmpty(role))
+                {
+                    ViewBag.CurrentRole = role.ToLower();
+                }
+
+                var client = _httpClientFactory.CreateClient("WebAPI");
+                var httpResponse = await client.GetAsync("api/Timetables");
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var all = JsonConvert.DeserializeObject<TimetableListResponseModel>(jsonString);
                 var item = all?.TimetableList?.FirstOrDefault(x => x.Id == id);
 
                 if (item == null)
                 {
+                    _logger.LogWarning($"Timetable Edit Async => Timetable schedule {id} not found");
+                    TempData["Message"] = "Timetable schedule not found.";
+                    TempData["isSuccess"] = false;
                     TempData["Error"] = "Timetable schedule not found.";
-                    return RedirectToAction(nameof(Index), new { role });
+                    return RedirectToAction("Index", new { role });
                 }
 
                 var patchModel = new TimetablePatchRequestModel
@@ -172,87 +232,157 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                 };
 
                 ViewBag.TimetableId = id;
-                await PopulateDropdowns();
+                await PopulateDropdowns(client);
                 return View("EditTimetable", patchModel);
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
-                return RedirectToAction(nameof(Index), new { role });
+                _logger.LogError(ex, "TimetableEditAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
             }
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, TimetablePatchRequestModel model, string? role)
+        [ActionName("Update")]
+        public async Task<IActionResult> TimetableUpdateAsync(int id, TimetablePatchRequestModel model, string? role)
         {
-            if (!string.IsNullOrEmpty(role))
-            {
-                ViewBag.CurrentRole = role.ToLower();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                ViewBag.TimetableId = id;
-                await PopulateDropdowns();
-                return View("EditTimetable", model);
-            }
-
             try
             {
-                var result = await _timetableApiService.UpdateTimetableAsync(id, model);
+                _logger.LogInformation($"Timetable Update Async => Updating timetable {id}");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                if (!string.IsNullOrEmpty(role))
+                {
+                    ViewBag.CurrentRole = role.ToLower();
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    ViewBag.TimetableId = id;
+                    await PopulateDropdowns(client);
+                    return View("EditTimetable", model);
+                }
+
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var httpResponse = await client.PatchAsync($"api/Timetables/{id}", content);
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<TimetablePatchResponseModel>(jsonString)
+                    ?? new TimetablePatchResponseModel { IsSuccess = false, Message = "Unknown error" };
+
                 if (result != null && result.IsSuccess)
                 {
+                    _logger.LogInformation("Timetable Update Async => Timetable updated successfully");
+                    TempData["Message"] = result.Message ?? "Timetable updated successfully!";
+                    TempData["isSuccess"] = true;
                     TempData["Success"] = result.Message ?? "Timetable updated successfully!";
-                    return RedirectToAction(nameof(Index), new { role });
+                }
+                else
+                {
+                    _logger.LogWarning($"Timetable Update Async => Failed to update timetable: {result?.Message}");
+                    TempData["Message"] = result?.Message;
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message;
+                    ViewBag.Error = result?.Message ?? "Failed to update timetable.";
+                }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                if (result != null && result.IsSuccess)
+                {
+                    return RedirectToAction("Index", new { role });
                 }
 
                 ViewBag.TimetableId = id;
-                ViewBag.Error = result?.Message ?? "Failed to update timetable.";
-                await PopulateDropdowns();
+                await PopulateDropdowns(client);
                 return View("EditTimetable", model);
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                ViewBag.TimetableId = id;
-                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-                await PopulateDropdowns();
-                return View("EditTimetable", model);
+                _logger.LogError(ex, "TimetableUpdateAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
             }
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id, string? role)
+        [ActionName("Edit")]
+        public Task<IActionResult> TimetableEditPostAsync(int id, TimetablePatchRequestModel model, string? role)
+            => TimetableUpdateAsync(id, model, role);
+
+        [HttpPost]
+        [ActionName("Delete")]
+        public async Task<IActionResult> TimetableDeleteAsync(int id, string? role)
         {
             try
             {
-                var result = await _timetableApiService.DeleteTimetableAsync(id);
+                _logger.LogInformation($"Timetable Delete Async => Deleting timetable {id}");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                var httpResponse = await client.DeleteAsync($"api/Timetables/{id}");
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<TimetableDeleteResponseModel>(jsonString)
+                    ?? new TimetableDeleteResponseModel { IsSuccess = false, Message = "Unknown error" };
+
                 if (result != null && result.IsSuccess)
                 {
+                    _logger.LogInformation("Timetable Delete Async => Timetable deleted successfully");
+                    TempData["Message"] = result.Message ?? "Timetable deleted successfully!";
+                    TempData["isSuccess"] = true;
                     TempData["Success"] = result.Message ?? "Timetable deleted successfully!";
                 }
                 else
                 {
-                    TempData["Error"] = result?.Message ?? "Failed to delete timetable.";
+                    _logger.LogWarning($"Timetable Delete Async => Failed to delete timetable: {result?.Message}");
+                    TempData["Message"] = result?.Message;
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message;
                 }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                return RedirectToAction("Index", new { role });
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
+                _logger.LogError(ex, "TimetableDeleteAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
             }
-            return RedirectToAction(nameof(Index), new { role });
         }
 
-        private async Task PopulateDropdowns()
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
         {
-            var classes = await _timetableApiService.GetSubClassesAsync();
+            try
+            {
+                return View("Error!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        private async Task PopulateDropdowns(HttpClient client)
+        {
+            var classesResp = await client.GetAsync("api/SubClass");
+            var classesJson = await classesResp.Content.ReadAsStringAsync();
+            var classes = JsonConvert.DeserializeObject<SubClassListResponseModel>(classesJson);
             ViewBag.Classes = classes?.SubClassList;
 
-            var users = await _timetableApiService.GetUsersAsync();
+            var usersResp = await client.GetAsync("api/User");
+            var usersJson = await usersResp.Content.ReadAsStringAsync();
+            var users = JsonConvert.DeserializeObject<UserListResponseModel>(usersJson);
             ViewBag.Teachers = users?.Users?.Where(u => u.Role == "Teacher" || u.Role == "Admin").ToList() ?? users?.Users;
 
-            var teachPlans = await _timetableApiService.GetTeachPlansAsync();
+            var teachPlansResp = await client.GetAsync("api/TeachPlan");
+            var teachPlansJson = await teachPlansResp.Content.ReadAsStringAsync();
+            var teachPlans = JsonConvert.DeserializeObject<TeachPlanListResponseModel>(teachPlansJson);
             ViewBag.TeachPlans = teachPlans?.TeachPlanList;
         }
     }

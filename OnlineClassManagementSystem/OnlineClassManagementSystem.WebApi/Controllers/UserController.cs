@@ -17,9 +17,9 @@ public class UserController : ControllerBase
 
     // GET api/user
     [HttpGet]
-    public async Task<IActionResult> GetUsersAsync()
+    public async Task<IActionResult> GetUsersAsync([FromQuery] UserListRequestModel? model)
     {
-        var result = await _service.GetUsersAsync();
+        var result = await _service.GetUsersAsync(model);
         return result.IsSuccess ? Ok(result) : BadRequest(result);
     }
 

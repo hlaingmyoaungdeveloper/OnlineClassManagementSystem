@@ -13,11 +13,16 @@ public class SubClassApiService
         _httpClient = factory.CreateClient("ApiClient");
     }
 
-    public async Task<SubClassListResponseModel?> GetAllAsync(SubClassListRequestModel requestModel)
+    public async Task<SubClassListResponseModel?> GetAllAsync(SubClassListRequestModel? requestModel = null)
     {
-        return await _httpClient
-          .GetFromJsonAsync<SubClassListResponseModel>(
-              "api/SubClass");
+        var query = new List<string>();
+        if (requestModel?.PageNo.HasValue == true) query.Add($"pageNo={requestModel.PageNo.Value}");
+        if (requestModel?.PageSize.HasValue == true) query.Add($"pageSize={requestModel.PageSize.Value}");
+        if (!string.IsNullOrWhiteSpace(requestModel?.Search)) query.Add($"search={Uri.EscapeDataString(requestModel.Search.Trim())}");
+        if (!string.IsNullOrWhiteSpace(requestModel?.Status) && requestModel.Status.ToLower() != "all") query.Add($"status={Uri.EscapeDataString(requestModel.Status.Trim())}");
+
+        var url = query.Count > 0 ? $"api/SubClass?{string.Join("&", query)}" : "api/SubClass";
+        return await _httpClient.GetFromJsonAsync<SubClassListResponseModel>(url);
     }
 
     public async Task<SubClassCreateResponseModel?> CreateSubClassAsync(SubClassCreateRequestModel requestModel)

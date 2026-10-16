@@ -17,9 +17,9 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEnrollmentsAsync()
+        public async Task<IActionResult> GetEnrollmentsAsync([FromQuery] EnrollmentListRequestModel? model)
         {
-            var result = await _service.GetEnrollmentsAsync(new EnrollmentListRequestModel());
+            var result = await _service.GetEnrollmentsAsync(model ?? new EnrollmentListRequestModel());
             if (result.IsSuccess)
             {
                 return Ok(result);

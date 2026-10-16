@@ -21,9 +21,62 @@ public class EnrollmentService
     {
         try
         {
-            List<EnrollmentModel> enrollments = await _db.TblEnrollments
+            var allActive = _db.TblEnrollments
                  .AsNoTracking()
-                 .Where(x => !x.IsDelete)
+                 .Where(x => !x.IsDelete);
+
+            var totalEnrollments = await allActive.CountAsync();
+            var confirmedCount = await allActive.CountAsync(x => x.Status.ToLower() == "confirm" || x.Status.ToLower() == "active");
+            var pendingCount = await allActive.CountAsync(x => x.Status.ToLower() == "pending");
+            var canceledCount = await allActive.CountAsync(x => x.Status.ToLower() == "canceled" || x.Status.ToLower() == "cancelled");
+
+            var query = _db.TblEnrollments
+                 .AsNoTracking()
+                 .Include(x => x.Class)
+                 .Include(x => x.Student)
+                 .Where(x => !x.IsDelete);
+
+            if (model.ClassId.HasValue && model.ClassId.Value > 0)
+            {
+                query = query.Where(x => x.ClassId == model.ClassId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Status) && !model.Status.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                var st = model.Status.Trim().ToLower();
+                query = query.Where(x => x.Status.ToLower() == st);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Search))
+            {
+                var search = model.Search.Trim().ToLower();
+                query = query.Where(x =>
+                    (x.Student.FullName != null && x.Student.FullName.ToLower().Contains(search)) ||
+                    (x.Class.ClassName != null && x.Class.ClassName.ToLower().Contains(search)) ||
+                    x.EnrollmentId.ToString().Contains(search));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            bool isPaged = model.PageNo.HasValue || model.PageSize.HasValue;
+            int pageNo = model.PageNo ?? 1;
+            int pageSize = model.PageSize ?? 10;
+            if (pageNo < 1) pageNo = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            if (isPaged)
+            {
+                query = query
+                    .OrderByDescending(x => x.EnrollmentId)
+                    .Skip((pageNo - 1) * pageSize)
+                    .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.EnrollmentId);
+            }
+
+            List<EnrollmentModel> enrollments = await query
                  .Select(x => new EnrollmentModel
                  {
                      EnrollmentId = x.EnrollmentId,
@@ -39,7 +92,13 @@ public class EnrollmentService
             {
                 IsSuccess = true,
                 Message = "Enrollments Fetched Successfully",
-                EnrollmentList = enrollments
+                EnrollmentList = enrollments,
+                TotalCount = totalCount,
+                PageNo = isPaged ? pageNo : 1,
+                PageSize = isPaged ? pageSize : (totalCount > 0 ? totalCount : 10),
+                ConfirmedCount = confirmedCount,
+                PendingCount = pendingCount,
+                CanceledCount = canceledCount
             };
         }
         catch (Exception ex)
@@ -47,7 +106,8 @@ public class EnrollmentService
             return new EnrollmentListResponseModel
             {
                 IsSuccess = false,
-                Message = ex.Message
+                Message = ex.Message,
+                EnrollmentList = new List<EnrollmentModel>()
             };
         }
     }

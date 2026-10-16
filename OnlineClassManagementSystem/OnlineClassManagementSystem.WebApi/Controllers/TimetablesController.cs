@@ -17,9 +17,9 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTimetablesAsync()
+        public async Task<IActionResult> GetTimetablesAsync([FromQuery] TimetableListResquestModel? model)
         {
-            var result = await _service.GetTimetablesAsync(new TimetableListResquestModel());
+            var result = await _service.GetTimetablesAsync(model ?? new TimetableListResquestModel());
             if (result.IsSuccess)
             {
                 return Ok(result);

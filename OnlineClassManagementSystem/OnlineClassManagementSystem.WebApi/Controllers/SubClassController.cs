@@ -15,9 +15,9 @@ namespace OnlineClassManagementSystem.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetSubClassesAsync()
+        public async Task<IActionResult> GetSubClassesAsync([FromQuery] SubClassListRequestModel? model)
         {
-            var result = await _service.GetSubClassesAsync(new SubClassListRequestModel());
+            var result = await _service.GetSubClassesAsync(model ?? new SubClassListRequestModel());
             if (result.IsSuccess)
             {
                 return Ok(result);

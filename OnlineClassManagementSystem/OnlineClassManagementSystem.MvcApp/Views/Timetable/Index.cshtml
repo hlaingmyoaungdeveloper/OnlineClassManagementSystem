@@ -12,470 +12,837 @@
     var teachPlans = ViewBag.TeachPlans as List<OnlineClassManagementSystem.Shared.models.TeachPlan.TeachPlanModel> ?? new();
 
     var today = DateTime.Today;
-    int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
-    var monday = today.AddDays(-1 * diff);
+    // Calculate week starting Sunday (to match the SUN 9, MON 10, TUE 11... reference design)
+    int diffToSunday = (int)today.DayOfWeek;
+    var weekSunday = today.AddDays(-diffToSunday);
 
     var days = new[]
     {
-        new { FullName = "Monday", ShortName = "Mon", Date = monday, IsToday = monday.Date == today },
-        new { FullName = "Tuesday", ShortName = "Tue", Date = monday.AddDays(1), IsToday = monday.AddDays(1).Date == today },
-        new { FullName = "Wednesday", ShortName = "Wed", Date = monday.AddDays(2), IsToday = monday.AddDays(2).Date == today },
-        new { FullName = "Thursday", ShortName = "Thu", Date = monday.AddDays(3), IsToday = monday.AddDays(3).Date == today },
-        new { FullName = "Friday", ShortName = "Fri", Date = monday.AddDays(4), IsToday = monday.AddDays(4).Date == today },
-        new { FullName = "Saturday", ShortName = "Sat", Date = monday.AddDays(5), IsToday = monday.AddDays(5).Date == today },
-        new { FullName = "Sunday", ShortName = "Sun", Date = monday.AddDays(6), IsToday = monday.AddDays(6).Date == today },
+        new { FullName = "Sunday", ShortName = "SUN", Date = weekSunday, IsToday = weekSunday.Date == today, IsWeekend = true },
+        new { FullName = "Monday", ShortName = "MON", Date = weekSunday.AddDays(1), IsToday = weekSunday.AddDays(1).Date == today, IsWeekend = false },
+        new { FullName = "Tuesday", ShortName = "TUE", Date = weekSunday.AddDays(2), IsToday = weekSunday.AddDays(2).Date == today, IsWeekend = false },
+        new { FullName = "Wednesday", ShortName = "WED", Date = weekSunday.AddDays(3), IsToday = weekSunday.AddDays(3).Date == today, IsWeekend = false },
+        new { FullName = "Thursday", ShortName = "THU", Date = weekSunday.AddDays(4), IsToday = weekSunday.AddDays(4).Date == today, IsWeekend = false },
+        new { FullName = "Friday", ShortName = "FRI", Date = weekSunday.AddDays(5), IsToday = weekSunday.AddDays(5).Date == today, IsWeekend = false },
+        new { FullName = "Saturday", ShortName = "SAT", Date = weekSunday.AddDays(6), IsToday = weekSunday.AddDays(6).Date == today, IsWeekend = true },
     };
 
     var timeSlots = new[]
     {
-        new { Label = "08:00 AM", Hour = 8, DefaultStart = "08:00", DefaultEnd = "09:30" },
-        new { Label = "09:00 AM", Hour = 9, DefaultStart = "09:00", DefaultEnd = "10:30" },
-        new { Label = "10:00 AM", Hour = 10, DefaultStart = "10:00", DefaultEnd = "11:30" },
-        new { Label = "11:00 AM", Hour = 11, DefaultStart = "11:00", DefaultEnd = "12:30" },
-        new { Label = "12:00 PM", Hour = 12, DefaultStart = "12:00", DefaultEnd = "13:00" },
-        new { Label = "01:00 PM", Hour = 13, DefaultStart = "13:00", DefaultEnd = "14:30" },
-        new { Label = "02:00 PM", Hour = 14, DefaultStart = "14:00", DefaultEnd = "15:30" },
-        new { Label = "03:00 PM", Hour = 15, DefaultStart = "15:00", DefaultEnd = "16:30" },
-        new { Label = "04:00 PM", Hour = 16, DefaultStart = "16:00", DefaultEnd = "17:30" },
-        new { Label = "05:00 PM", Hour = 17, DefaultStart = "17:00", DefaultEnd = "18:30" }
+        new { Label = "8 AM", Hour = 8, DefaultStart = "08:00", DefaultEnd = "09:30" },
+        new { Label = "9 AM", Hour = 9, DefaultStart = "09:00", DefaultEnd = "10:30" },
+        new { Label = "10 AM", Hour = 10, DefaultStart = "10:00", DefaultEnd = "11:30" },
+        new { Label = "11 AM", Hour = 11, DefaultStart = "11:00", DefaultEnd = "12:30" },
+        new { Label = "12 PM", Hour = 12, DefaultStart = "12:00", DefaultEnd = "13:30" },
+        new { Label = "1 PM", Hour = 13, DefaultStart = "13:00", DefaultEnd = "14:30" },
+        new { Label = "2 PM", Hour = 14, DefaultStart = "14:00", DefaultEnd = "15:30" },
+        new { Label = "3 PM", Hour = 15, DefaultStart = "15:00", DefaultEnd = "16:30" },
+        new { Label = "4 PM", Hour = 16, DefaultStart = "16:00", DefaultEnd = "17:30" },
+        new { Label = "5 PM", Hour = 17, DefaultStart = "17:00", DefaultEnd = "18:30" },
+        new { Label = "6 PM", Hour = 18, DefaultStart = "18:00", DefaultEnd = "19:30" }
     };
+
+    var now = DateTime.Now;
+    var currentHour = now.Hour;
+    var currentMinute = now.Minute;
+    var isNowInSlotRange = currentHour >= 8 && currentHour <= 18;
+    var currentMinuteFraction = (currentHour - 8) + (currentMinute / 60.0);
+    // 11 time slots total (8 to 18)
+    var currentIndicatorTopPercent = Math.Clamp((currentMinuteFraction / 11.0) * 100.0, 0.0, 99.0);
+    var currentTimeFormatted = now.ToString("h.mm tt").ToLower();
 
     var totalScheduled = timetables.Count;
 }
 
-<div class="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
+<style>
+    /* Waton Calendar aesthetic tokens & weekend stripes */
+    .cal-weekend-stripe {
+        background-color: #fafbfc;
+        background-image: repeating-linear-gradient(135deg, rgba(241, 245, 249, 0.65) 0, rgba(241, 245, 249, 0.65) 9px, rgba(255, 255, 255, 0.85) 9px, rgba(255, 255, 255, 0.85) 18px);
+    }
 
-    <!-- Header Section -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900">@(isTeacher ? "My Timetable" : "Timetable Management")</h1>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
-                    @totalScheduled @(totalScheduled == 1 ? "class" : "classes")
-                </span>
-            </div>
-            <p class="text-xs text-slate-500 mt-1">Weekly schedule grid. Click any card to <strong>inspect & edit</strong> in the popup pad, or click any empty slot to add a class.</p>
-        </div>
+    /* Pastel Card Styles matching Waton Calendar */
+    .card-pastel-lavender {
+        background-color: #F1EDFD !important;
+        border-color: #DDD6FE !important;
+        color: #3B2A6B !important;
+    }
+    .card-pastel-lavender:hover {
+        border-color: #C4B5FD !important;
+        box-shadow: 0 4px 12px -2px rgba(124, 58, 237, 0.12);
+    }
+    .card-pastel-lavender .cal-time-sub {
+        color: #6D5C9A !important;
+    }
 
-        <div class="flex items-center gap-2.5">
-            <button type="button" onclick="openNewSchedulePad('Monday', '09:00', '10:30')"
-               class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Add Schedule
-            </button>
-        </div>
-    </div>
+    .card-pastel-mint {
+        background-color: #EAF7EE !important;
+        border-color: #C6F0D1 !important;
+        color: #1C4A27 !important;
+    }
+    .card-pastel-mint:hover {
+        border-color: #86EFAC !important;
+        box-shadow: 0 4px 12px -2px rgba(22, 163, 74, 0.12);
+    }
+    .card-pastel-mint .cal-time-sub {
+        color: #4A7854 !important;
+    }
+
+    .card-pastel-blue {
+        background-color: #E7F3FD !important;
+        border-color: #CBE5F9 !important;
+        color: #1B3C65 !important;
+    }
+    .card-pastel-blue:hover {
+        border-color: #93C5FD !important;
+        box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.12);
+    }
+    .card-pastel-blue .cal-time-sub {
+        color: #476E95 !important;
+    }
+
+    .card-pastel-peach {
+        background-color: #FDF1EB !important;
+        border-color: #F8D6C8 !important;
+        color: #632C1B !important;
+    }
+    .card-pastel-peach:hover {
+        border-color: #FCA5A5 !important;
+        box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.12);
+    }
+    .card-pastel-peach .cal-time-sub {
+        color: #915443 !important;
+    }
+
+    .card-pastel-yellow {
+        background-color: #FEF9E7 !important;
+        border-color: #F9EBBB !important;
+        color: #5D470E !important;
+    }
+    .card-pastel-yellow:hover {
+        border-color: #FDE047 !important;
+        box-shadow: 0 4px 12px -2px rgba(202, 138, 4, 0.12);
+    }
+    .card-pastel-yellow .cal-time-sub {
+        color: #8D7438 !important;
+    }
+
+    /* Custom scrollbar for grid */
+    .cal-grid-scroll::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    .cal-grid-scroll::-webkit-scrollbar-track {
+        background: #F8FAFC;
+    }
+    .cal-grid-scroll::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 9999px;
+    }
+    .cal-grid-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94A3B8;
+    }
+</style>
+
+<div class="p-3 sm:p-5 lg:p-7 max-w-[1720px] mx-auto">
 
     <!-- Alert Notifications -->
     @if (TempData["Success"] != null)
     {
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-800 flex items-center justify-between shadow-2xs">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50/90 px-4 py-3 text-xs font-medium text-emerald-800 flex items-center justify-between shadow-2xs animate-fade-in">
+            <div class="flex items-center gap-2.5">
+                <div class="h-6 w-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </div>
                 <span>@TempData["Success"]</span>
             </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-900 text-xs font-bold">✕</button>
+            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 text-xs font-bold p-1">✕</button>
         </div>
     }
     @if (TempData["Error"] != null || ViewBag.Error != null)
     {
-        <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-800 flex items-center justify-between shadow-2xs">
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-xs font-medium text-rose-800 flex items-center justify-between shadow-2xs animate-fade-in">
+            <div class="flex items-center gap-2.5">
+                <div class="h-6 w-6 rounded-full bg-rose-100 flex items-center justify-center shrink-0 text-rose-600">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
                 <span>@(TempData["Error"] ?? ViewBag.Error)</span>
             </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-rose-600 hover:text-rose-900 text-xs font-bold">✕</button>
+            <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-800 text-xs font-bold p-1">✕</button>
         </div>
     }
 
-    <!-- Clean Filters & Date Row -->
-    <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs">
-        <form method="get" asp-action="Index" class="flex flex-wrap items-center gap-3">
-            <input type="hidden" name="role" value="@currentRole" />
+    <!-- ========================================================================= -->
+    <!-- MAIN CALENDAR CONTAINER (MATCHING WATON CALENDAR APP WINDOW)             -->
+    <!-- ========================================================================= -->
+    <div class="rounded-2xl border border-slate-200/90 bg-white shadow-xl overflow-hidden flex flex-col min-h-[820px]">
 
-            <!-- Class Filter -->
-            <div class="w-44 sm:w-48">
-                <select name="classId" onchange="this.form.submit()" class="w-full rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition">
-                    <option value="">All Classes</option>
-                    @foreach (var c in classes)
-                    {
-                        <option value="@c.SubClassId" selected="@(ViewBag.SelectedClassId == c.SubClassId ? "selected" : null)">@c.ClassName</option>
-                    }
-                </select>
-            </div>
+        <!-- Main Body: Two Columns (Left Sidebar + Timetable Grid) -->
+        <div class="flex-1 flex flex-col md:flex-row min-h-0">
 
-            @if (!isTeacher)
-            {
-                <!-- Teacher Filter -->
-                <div class="w-44 sm:w-48">
-                    <select name="teacherId" onchange="this.form.submit()" class="w-full rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition">
-                        <option value="">All Teachers</option>
-                        @foreach (var t in teachers)
-                        {
-                            <option value="@t.UserId" selected="@(ViewBag.SelectedTeacherId == t.UserId ? "selected" : null)">@t.FullName</option>
-                        }
-                    </select>
-                </div>
-            }
+            <!-- ============================================================= -->
+            <!-- 1. LEFT SIDEBAR: WATON CALENDAR NAVIGATION & FILTERS          -->
+            <!-- ============================================================= -->
+            <aside class="w-full md:w-64 lg:w-72 shrink-0 border-r border-slate-200/80 bg-[#FAFAFC] flex flex-col justify-between p-4 lg:p-5 select-none">
+                <div class="space-y-6">
 
-            @if (ViewBag.SelectedClassId != null || ViewBag.SelectedTeacherId != null)
-            {
-                <a asp-action="Index" asp-route-role="@currentRole" class="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1">
-                    Clear Filters
-                </a>
-            }
-        </form>
-
-        <!-- Week Info & Legend -->
-        <div class="flex items-center gap-4 text-xs text-slate-600">
-            <!-- Mode Indicators -->
-            <div class="hidden sm:flex items-center gap-3 text-[11px] font-medium text-slate-500">
-                <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-blue-500"></span> ClassRoom</span>
-                <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-500"></span> Online</span>
-                <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-purple-500"></span> Hybrid</span>
-            </div>
-
-            <!-- Date Range Badge -->
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-medium text-xs">
-                <svg class="h-3.5 w-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                <span>@monday.ToString("MMM d") – @monday.AddDays(6).ToString("MMM d, yyyy")</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Clean Timetable Grid -->
-    <div class="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[900px] border-collapse text-xs">
-                <!-- Column Headers (Days) -->
-                <thead>
-                    <tr class="border-b border-slate-200 bg-slate-50/70 text-slate-700">
-                        <th class="w-24 px-3 py-3 text-center border-r border-slate-200 font-semibold text-slate-500 text-[11px]">
-                            Time
-                        </th>
-
-                        <!-- 7 Days -->
-                        @foreach (var day in days)
-                        {
-                            <th class="px-3 py-3 text-center border-r border-slate-200 last:border-r-0 @(day.IsToday ? "bg-blue-50/40" : "")">
-                                <div class="flex flex-col items-center justify-center">
-                                    <span class="text-[11px] font-medium @(day.IsToday ? "text-blue-600 font-bold" : "text-slate-500")">@day.ShortName</span>
-                                    <span class="text-sm font-bold @(day.IsToday ? "text-blue-700" : "text-slate-900")">@day.Date.ToString("dd")</span>
-                                    @if (day.IsToday)
-                                    {
-                                        <span class="mt-0.5 text-[9px] font-bold text-blue-600 uppercase tracking-wider">Today</span>
-                                    }
+                    <!-- Workspace Selector / Brand Pill -->
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-200/70">
+                        <div class="flex items-center gap-3">
+                            <!-- Waton Red Calendar Icon -->
+                            <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 text-white flex flex-col items-center justify-center shadow-xs border border-rose-600 relative overflow-hidden">
+                                <div class="absolute top-0 inset-x-0 h-2 bg-rose-700/80 flex justify-around items-center px-1.5">
+                                    <span class="w-1 h-1 rounded-full bg-white/80"></span>
+                                    <span class="w-1 h-1 rounded-full bg-white/80"></span>
                                 </div>
-                            </th>
-                        }
-                    </tr>
-                </thead>
+                                <span class="text-xs font-black mt-1 font-sans">@today.Day</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-1 font-bold text-slate-900 text-xs sm:text-sm">
+                                    <span>ClassTrack Calendar</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 font-medium truncate max-w-[130px]">
+                                    @(isTeacher ? "Teacher's workspace" : "Admin's workspace")
+                                </p>
+                            </div>
+                        </div>
 
-                <!-- Time Slot Rows -->
-                <tbody class="divide-y divide-slate-100">
-                    @foreach (var slot in timeSlots)
-                    {
-                        <tr class="min-h-[100px]">
-                            <!-- Time Slot Label -->
-                            <td class="w-24 px-3 py-3 text-center border-r border-slate-200 bg-slate-50/30 align-middle">
-                                <span class="block text-xs font-semibold text-slate-700">@slot.Label</span>
-                            </td>
+                        <!-- Dropdown arrows -->
+                        <div class="text-slate-400 p-1 rounded hover:bg-slate-200/60 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+                        </div>
+                    </div>
 
-                            <!-- 7 Day Boxes -->
-                            @for (int d = 0; d < 7; d++)
+                    <!-- Mini Calendar Widget -->
+                    <div class="bg-white rounded-xl border border-slate-200/70 p-3.5 shadow-2xs">
+                        <!-- Mini Calendar Header -->
+                        <div class="flex items-center justify-between mb-3 text-xs font-semibold text-slate-800">
+                            <button type="button" onclick="changeMiniMonth(-1)" class="p-1 rounded-md hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                            <span id="miniCalendarTitle" class="font-bold text-slate-800 text-[12px]">@today.ToString("MMMM yyyy")</span>
+                            <button type="button" onclick="changeMiniMonth(1)" class="p-1 rounded-md hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Mini Days of Week -->
+                        <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-slate-400 mb-1">
+                            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                        </div>
+
+                        <!-- Mini Calendar Grid Days (Rendered via JS) -->
+                        <div id="miniCalendarGrid" class="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-slate-700">
+                            <!-- Populated dynamically by script to mirror screenshot -->
+                        </div>
+                    </div>
+
+                    <!-- Filters Section 1: "My Classes" (Matches "My Calendars" in Screenshot) -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                            <span class="tracking-tight">My Classes</span>
+                            <button type="button" class="text-slate-400 hover:text-slate-600">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs text-slate-600">
+                            <!-- All Classes Checkbox -->
+                            <label class="flex items-center gap-2 py-1 px-1.5 rounded-lg hover:bg-slate-100/70 cursor-pointer transition">
+                                <input type="checkbox" id="filterClassAll" checked onchange="toggleAllClassesFilter(this)"
+                                       class="rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 h-3.5 w-3.5">
+                                <span class="font-medium text-slate-800">All Schedules</span>
+                                <span class="ml-auto text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200/80 font-semibold text-slate-600">@totalScheduled</span>
+                            </label>
+
+                            <!-- Individual Classes -->
+                            @foreach (var c in classes.Take(6))
                             {
-                                var day = days[d];
-                                var matched = timetables.Where(t =>
-                                    (string.Equals(t.DayOfWeek, day.FullName, StringComparison.OrdinalIgnoreCase) ||
-                                     string.Equals(t.DayOfWeek, day.ShortName, StringComparison.OrdinalIgnoreCase)) &&
-                                    t.StartTime.Hour == slot.Hour).ToList();
+                                <label class="flex items-center gap-2 py-1 px-1.5 rounded-lg hover:bg-slate-100/70 cursor-pointer transition class-filter-row">
+                                    <input type="checkbox" value="@c.SubClassId" checked onchange="applyLiveFilters()"
+                                           class="class-filter-chk rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 h-3.5 w-3.5">
+                                    <span class="truncate">@c.ClassName</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
 
-                                <td class="p-2 border-r border-slate-200 last:border-r-0 align-top relative group transition hover:bg-slate-50/70 cursor-pointer"
-                                    onclick="onBoxClick(event, '@day.FullName', '@slot.DefaultStart', '@slot.DefaultEnd')">
+                    <!-- Filters Section 2: "Categories / Delivery Mode" (Colored dots like in Screenshot) -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                            <span class="tracking-tight">Categories</span>
+                            <button type="button" class="text-slate-400 hover:text-slate-600">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                        </div>
 
-                                    @if (matched.Any())
-                                    {
-                                        <!-- Class Cards Container -->
-                                        <div class="space-y-2">
-                                            @foreach (var item in matched)
+                        <div class="space-y-1.5 text-xs text-slate-600">
+                            <!-- ClassRoom -->
+                            <button type="button" onclick="filterByCategory('ClassRoom')"
+                                    class="w-full flex items-center gap-2.5 py-1 px-1.5 rounded-lg hover:bg-slate-100 text-left transition category-btn" data-cat="ClassRoom">
+                                <span class="h-2 w-2 rounded-full bg-blue-500 shrink-0"></span>
+                                <span class="font-medium text-slate-700">ClassRoom</span>
+                                <span class="ml-auto text-[10px] text-slate-400">@timetables.Count(x => string.IsNullOrEmpty(x.Mode) || x.Mode == "ClassRoom")</span>
+                            </button>
+
+                            <!-- Online -->
+                            <button type="button" onclick="filterByCategory('Online')"
+                                    class="w-full flex items-center gap-2.5 py-1 px-1.5 rounded-lg hover:bg-slate-100 text-left transition category-btn" data-cat="Online">
+                                <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
+                                <span class="font-medium text-slate-700">Online</span>
+                                <span class="ml-auto text-[10px] text-slate-400">@timetables.Count(x => x.Mode == "Online")</span>
+                            </button>
+
+                            <!-- Hybrid -->
+                            <button type="button" onclick="filterByCategory('Hybrid')"
+                                    class="w-full flex items-center gap-2.5 py-1 px-1.5 rounded-lg hover:bg-slate-100 text-left transition category-btn" data-cat="Hybrid">
+                                <span class="h-2 w-2 rounded-full bg-purple-500 shrink-0"></span>
+                                <span class="font-medium text-slate-700">Hybrid</span>
+                                <span class="ml-auto text-[10px] text-slate-400">@timetables.Count(x => x.Mode == "Hybrid")</span>
+                            </button>
+
+                            <!-- All Reset -->
+                            <button type="button" onclick="filterByCategory('All')"
+                                    class="w-full text-left text-[11px] text-blue-600 hover:text-blue-800 font-medium px-1.5 pt-0.5">
+                                Show all categories
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (!isTeacher && teachers.Count > 0)
+                    {
+                        <!-- Teacher Filter Dropdown -->
+                        <div class="space-y-1.5 pt-1">
+                            <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Teacher</label>
+                            <select id="teacherSelectFilter" onchange="applyLiveFilters()"
+                                    class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                                <option value="">All Teachers</option>
+                                @foreach (var t in teachers)
+                                {
+                                    <option value="@t.UserId" selected="@(ViewBag.SelectedTeacherId == t.UserId ? "selected" : null)">@t.FullName</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+                </div>
+
+                <!-- Bottom Team Avatar Row (Exactly as in Waton Screenshot) -->
+                <div class="pt-4 border-t border-slate-200/70 flex items-center justify-between">
+                    <div class="flex items-center -space-x-1.5 overflow-hidden">
+                        <div class="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-blue-500 text-white font-bold text-[10px] flex items-center justify-center" title="Admin">A</div>
+                        <div class="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-emerald-500 text-white font-bold text-[10px] flex items-center justify-center" title="Teacher 1">T1</div>
+                        <div class="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-purple-500 text-white font-bold text-[10px] flex items-center justify-center" title="Teacher 2">T2</div>
+                        <div class="inline-block h-7 w-7 rounded-full ring-2 ring-white bg-amber-500 text-white font-bold text-[10px] flex items-center justify-center" title="Student">S</div>
+                    </div>
+
+                    <!-- More options button -->
+                    <button type="button" class="text-slate-400 hover:text-slate-700 p-1 rounded-md hover:bg-slate-200/50 transition">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- ============================================================= -->
+            <!-- 2. MAIN TIMETABLE SCHEDULE AREA                               -->
+            <!-- ============================================================= -->
+            <main class="flex-1 flex flex-col min-w-0 bg-white">
+
+                <!-- --------------------------------------------------------- -->
+                <!-- TOP HEADER BAR: MONTH, TODAY, < >, SEARCH, DAY/WEEK/MONTH -->
+                <!-- --------------------------------------------------------- -->
+                <div class="px-5 py-4 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+
+                    <!-- Left: Month Title + Today + Prev/Next -->
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <h2 id="currentMonthYearHeading" class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                            @today.ToString("MMMM yyyy")
+                        </h2>
+
+                        <!-- Today Button -->
+                        <button type="button" onclick="goToToday()"
+                                class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs cursor-pointer">
+                            Today
+                        </button>
+
+                        <!-- Week Navigation Arrows -->
+                        <div class="flex items-center gap-0.5 rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+                            <button type="button" onclick="shiftWeek(-7)" class="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer" title="Previous Week">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                            </button>
+                            <button type="button" onclick="shiftWeek(7)" class="p-1 rounded text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer" title="Next Week">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Search, Settings & Day/Week/Month Switcher & Add Button -->
+                    <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+
+                        <!-- Live Search Bar -->
+                        <div class="relative w-36 sm:w-48">
+                            <input type="text" id="liveSearchInput" onkeyup="applyLiveFilters()" placeholder="Search schedule..."
+                                   class="w-full rounded-lg border border-slate-200 bg-slate-50/70 pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition" />
+                            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+
+                        <!-- Settings / Info Icons -->
+                        <div class="hidden sm:flex items-center gap-1 text-slate-400">
+                            <button type="button" class="p-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-600 transition" title="Help">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </button>
+                            <button type="button" class="p-1.5 rounded-lg hover:bg-slate-100 hover:text-slate-600 transition" title="Settings">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Day / Week / Month Switcher Pills (Waton aesthetic) -->
+                        <div class="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-medium text-slate-600">
+                            <button type="button" onclick="switchCalendarView('day')" id="viewBtnDay"
+                                    class="rounded-md px-3 py-1 transition hover:text-slate-900 cursor-pointer">
+                                Day
+                            </button>
+                            <button type="button" onclick="switchCalendarView('week')" id="viewBtnWeek"
+                                    class="rounded-md bg-white text-slate-900 font-semibold shadow-2xs px-3 py-1 transition cursor-pointer">
+                                Week
+                            </button>
+                            <button type="button" onclick="switchCalendarView('month')" id="viewBtnMonth"
+                                    class="rounded-md px-3 py-1 transition hover:text-slate-900 cursor-pointer">
+                                Month
+                            </button>
+                        </div>
+
+                        <!-- Add Schedule Quick Action -->
+                        <button type="button" onclick="openFloatingScheduleFlyout('Monday', '09:00', '10:30', null, event)"
+                                class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition cursor-pointer">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Add Class
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- --------------------------------------------------------- -->
+                <!-- CALENDAR VIEWS CONTAINER: WEEK (Default), DAY, MONTH      -->
+                <!-- --------------------------------------------------------- -->
+
+                <!-- 1. WEEK VIEW (Exact Layout from Waton screenshot) -->
+                <div id="viewContainerWeek" class="flex-1 flex flex-col min-h-0 cal-grid-scroll overflow-x-auto overflow-y-auto relative">
+
+                    <table class="w-full min-w-[960px] border-collapse text-xs select-none relative">
+                        <!-- Column Headers (Days of the week) -->
+                        <thead class="sticky top-0 z-20 bg-white/95 backdrop-blur-xs border-b border-slate-200">
+                            <tr>
+                                <!-- Top-Left Timezone label -->
+                                <th class="w-20 lg:w-24 px-3 py-3 text-center border-r border-slate-200/80 font-medium text-slate-400 text-[11px] align-middle">
+                                    GMT+6:30
+                                </th>
+
+                                <!-- 7 Days Columns -->
+                                @for (int d = 0; d < 7; d++)
+                                {
+                                    var day = days[d];
+                                    <th class="px-2 py-2.5 text-center border-r border-slate-200/80 last:border-r-0 w-[13.5%] @(day.IsWeekend ? "cal-weekend-stripe" : "")">
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">@day.ShortName</span>
+                                            @if (day.IsToday)
                                             {
-                                                var cardStyle = item.Mode switch
-                                                {
-                                                    "Online" => "bg-emerald-50/80 border-emerald-200 border-l-emerald-600 text-emerald-950 hover:border-emerald-400 hover:ring-1 hover:ring-emerald-400/40",
-                                                    "Hybrid" => "bg-purple-50/80 border-purple-200 border-l-purple-600 text-purple-950 hover:border-purple-400 hover:ring-1 hover:ring-purple-400/40",
-                                                    _ => "bg-blue-50/80 border-blue-200 border-l-blue-600 text-blue-950 hover:border-blue-400 hover:ring-1 hover:ring-blue-400/40"
-                                                };
-
-                                                var badgeStyle = item.Mode switch
-                                                {
-                                                    "Online" => "bg-emerald-100 text-emerald-800",
-                                                    "Hybrid" => "bg-purple-100 text-purple-800",
-                                                    _ => "bg-blue-100 text-blue-800"
-                                                };
-
-                                                <!-- TIMETABLE CARD (Click to Inspect in PopPad) -->
-                                                <div class="timetable-card w-full rounded-lg border border-l-4 @cardStyle p-2.5 shadow-2xs hover:shadow-sm transition cursor-pointer select-none group/card"
-                                                     onclick="event.stopPropagation(); openInspectPad(@item.Id, @item.SubClassId, @item.TeacherId, @item.SubjectId, '@item.DayOfWeek', '@item.StartTime.ToString("HH:mm")', '@item.EndTime.ToString("HH:mm")', '@item.Mode', '@(item.SubjectName?.Replace("'", "\\'"))', '@(item.ClassName?.Replace("'", "\\'"))', '@(item.TeacherName?.Replace("'", "\\'"))')"
-                                                     title="Click to inspect and edit timetable in popup pad">
-
-                                                    <!-- Top Line: Subject & Quick Inspect / Delete -->
-                                                    <div class="flex items-start justify-between gap-1 mb-1.5">
-                                                        <span class="font-bold text-xs truncate leading-snug flex-1" title="@(item.SubjectName ?? "Subject")">
-                                                            @(item.SubjectName ?? "Subject")
-                                                        </span>
-
-                                                        <div class="flex items-center gap-1 shrink-0">
-                                                            <!-- Inspect / Edit Icon Badge -->
-                                                            <span class="p-0.5 rounded text-slate-400 group-hover/card:text-blue-600 group-hover/card:bg-white/80 transition" title="Inspect & Edit in PopPad">
-                                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                            </span>
-
-                                                            <!-- Direct Delete Button -->
-                                                            <button type="button"
-                                                                    onclick="event.stopPropagation(); openDeleteModal(@item.Id, '@(item.SubjectName?.Replace("'", "\\'"))', '@(item.ClassName?.Replace("'", "\\'"))', '@item.DayOfWeek', '@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")')"
-                                                                    class="p-0.5 rounded text-slate-400 hover:text-rose-700 hover:bg-rose-100 transition"
-                                                                    title="Delete schedule">
-                                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- Class & Teacher Details -->
-                                                    <div class="space-y-1 text-[11px] text-slate-600">
-                                                        <div class="flex items-center gap-1.5 font-medium text-slate-800">
-                                                            <svg class="h-3 w-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                                            <span class="truncate">@(item.ClassName ?? ("Class #" + item.SubClassId))</span>
-                                                        </div>
-
-                                                        @if (!string.IsNullOrEmpty(item.TeacherName))
-                                                        {
-                                                            <div class="flex items-center gap-1.5 text-slate-500">
-                                                                <svg class="h-3 w-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                                                <span class="truncate">@item.TeacherName</span>
-                                                            </div>
-                                                        }
-                                                    </div>
-
-                                                    <!-- Bottom Line: Time & Mode Badge -->
-                                                    <div class="mt-2 pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[10px]">
-                                                        <span class="font-mono text-slate-500 font-semibold">
-                                                            @item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")
-                                                        </span>
-                                                        <span class="px-1.5 py-0.5 rounded font-medium @badgeStyle">
-                                                            @(string.IsNullOrEmpty(item.Mode) ? "ClassRoom" : item.Mode)
-                                                        </span>
-                                                    </div>
-
-                                                </div>
+                                                <!-- Waton Solid Dark Circle for Today -->
+                                                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white font-bold text-xs shadow-xs">
+                                                    @day.Date.Day
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-xs font-bold text-slate-800">
+                                                    @day.Date.Day
+                                                </span>
                                             }
                                         </div>
+                                    </th>
+                                }
+                            </tr>
+                        </thead>
 
-                                        <!-- Subtle Add Another Button on Box Hover -->
-                                        <div class="mt-1.5 hidden group-hover:flex justify-center">
-                                            <button type="button"
-                                                    onclick="openNewSchedulePad('@day.FullName', '@slot.DefaultStart', '@slot.DefaultEnd')"
-                                                    class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 bg-white border border-blue-200 px-2 py-0.5 rounded shadow-2xs">
-                                                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                                Add Another
-                                            </button>
-                                        </div>
-                                    }
-                                    else
+                        <!-- Timetable Grid Rows -->
+                        <tbody class="divide-y divide-slate-100 relative">
+
+                            @foreach (var slot in timeSlots)
+                            {
+                                <tr class="min-h-[88px] h-[92px]">
+                                    <!-- Time label (Left column: 8 AM, 9 AM, 10 AM, etc.) -->
+                                    <td class="w-20 lg:w-24 px-2.5 py-2 text-right border-r border-slate-200/80 bg-white align-top">
+                                        <span class="text-[11px] font-semibold text-slate-400 tracking-tight block -mt-1">
+                                            @slot.Label
+                                        </span>
+                                    </td>
+
+                                    <!-- 7 Day Columns for this time slot -->
+                                    @for (int d = 0; d < 7; d++)
                                     {
-                                        <!-- Empty Box (Click to Add) -->
-                                        <div class="h-16 flex items-center justify-center rounded-lg border border-transparent group-hover:border-blue-200 group-hover:bg-blue-50/30 transition">
-                                            <span class="hidden group-hover:inline-flex items-center gap-1 text-xs font-semibold text-blue-600">
-                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                                Add
-                                            </span>
-                                        </div>
+                                        var day = days[d];
+                                        var matched = timetables.Where(t =>
+                                            (string.Equals(t.DayOfWeek, day.FullName, StringComparison.OrdinalIgnoreCase) ||
+                                             string.Equals(t.DayOfWeek, day.ShortName, StringComparison.OrdinalIgnoreCase)) &&
+                                            t.StartTime.Hour == slot.Hour).ToList();
+
+                                        <td class="p-1.5 border-r border-slate-200/80 last:border-r-0 align-top relative group transition hover:bg-slate-50/50 cursor-pointer @(day.IsWeekend ? "cal-weekend-stripe" : "")"
+                                            onclick="onEmptySlotClick(event, '@day.FullName', '@slot.DefaultStart', '@slot.DefaultEnd')">
+
+                                            @if (matched.Any())
+                                            {
+                                                <!-- Schedule Cards Stack -->
+                                                <div class="space-y-1.5">
+                                                    @foreach (var item in matched)
+                                                    {
+                                                        // Determine pastel palette matching Waton Calendar
+                                                        var pastelClass = item.Mode switch
+                                                        {
+                                                            "Online" => "card-pastel-mint",
+                                                            "Hybrid" => "card-pastel-lavender",
+                                                            _ => (item.Id % 3 == 0) ? "card-pastel-lavender" : ((item.Id % 3 == 1) ? "card-pastel-blue" : "card-pastel-mint")
+                                                        };
+
+                                                        <!-- TIMETABLE EVENT CARD (Waton Calendar Style) -->
+                                                        <div class="cal-event-card w-full rounded-xl border p-2 shadow-2xs transition-all duration-150 cursor-pointer relative group/card select-none @pastelClass"
+                                                             data-item-id="@item.Id"
+                                                             data-class-id="@item.SubClassId"
+                                                             data-teacher-id="@item.TeacherId"
+                                                             data-subject-id="@item.SubjectId"
+                                                             data-mode="@(item.Mode ?? "ClassRoom")"
+                                                             data-search-text="@(item.SubjectName) @(item.ClassName) @(item.TeacherName)"
+                                                             onclick="event.stopPropagation(); openEditScheduleFlyout(@item.Id, @item.SubClassId, @item.TeacherId, @item.SubjectId, '@item.DayOfWeek', '@item.StartTime.ToString("HH:mm")', '@item.EndTime.ToString("HH:mm")', '@item.Mode', '@(item.SubjectName?.Replace("'", "\\'"))', '@(item.ClassName?.Replace("'", "\\'"))', '@(item.TeacherName?.Replace("'", "\\'"))', event)">
+
+                                                            <!-- Top Row: Title & Quick Actions -->
+                                                            <div class="flex items-start justify-between gap-1">
+                                                                <div class="font-bold text-xs truncate leading-snug flex-1" title="@item.SubjectName">
+                                                                    @(string.IsNullOrEmpty(item.SubjectName) ? "Curriculum Class" : item.SubjectName)
+                                                                </div>
+
+                                                                <!-- Card Action Controls -->
+                                                                <div class="flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 transition shrink-0">
+                                                                    <!-- Direct Delete Button -->
+                                                                    <button type="button"
+                                                                            onclick="event.stopPropagation(); triggerCardDelete(@item.Id, '@(item.SubjectName?.Replace("'", "\\'"))', '@(item.ClassName?.Replace("'", "\\'"))', '@item.DayOfWeek', '@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")')"
+                                                                            class="p-1 rounded text-slate-500 hover:text-rose-600 hover:bg-white/90 transition" title="Delete">
+                                                                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Subtitle Time Range (e.g. 8.30am - 10.00am) -->
+                                                            <div class="cal-time-sub text-[11px] font-medium mt-0.5 tracking-tight">
+                                                                @{
+                                                                    var startFormatted = item.StartTime.ToString("h.mm tt").ToLower();
+                                                                    var endFormatted = item.EndTime.ToString("h.mm tt").ToLower();
+                                                                }
+                                                                @startFormatted - @endFormatted
+                                                            </div>
+
+                                                            <!-- Class & Teacher Details Badge -->
+                                                            <div class="mt-1 pt-1 border-t border-black/5 flex items-center justify-between text-[10px]">
+                                                                <span class="truncate font-semibold opacity-80" title="@item.ClassName">
+                                                                    @(item.ClassName ?? ("Class #" + item.SubClassId))
+                                                                </span>
+
+                                                                @if (!string.IsNullOrEmpty(item.TeacherName))
+                                                                {
+                                                                    <span class="truncate opacity-75 ml-1 text-right max-w-[80px]" title="@item.TeacherName">
+                                                                        @item.TeacherName
+                                                                    </span>
+                                                                }
+                                                            </div>
+
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <!-- Empty Slot (Subtle plus icon on hover) -->
+                                                <div class="h-full min-h-[64px] flex items-center justify-center rounded-lg border border-transparent group-hover:border-blue-200/80 group-hover:bg-blue-50/20 transition">
+                                                    <span class="opacity-0 group-hover:opacity-100 text-[11px] font-semibold text-blue-600 flex items-center gap-1 transition">
+                                                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                                                    </span>
+                                                </div>
+                                            }
+
+                                        </td>
                                     }
-                                </td>
+                                </tr>
                             }
-                        </tr>
+
+                        </tbody>
+                    </table>
+
+                    <!-- Waton Red/Pink Current Time Line Indicator across the calendar -->
+                    @if (isNowInSlotRange)
+                    {
+                        <div class="pointer-events-none absolute left-0 right-0 z-10 flex items-center" style="top: @currentIndicatorTopPercent.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)%;">
+                            <!-- Time label & bead -->
+                            <div class="w-20 lg:w-24 text-right pr-1 flex items-center justify-end gap-1">
+                                <span class="text-[10px] font-bold text-rose-500 font-mono">@currentTimeFormatted</span>
+                                <span class="h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white shrink-0"></span>
+                            </div>
+                            <!-- Dotted / solid pink line across grid -->
+                            <div class="flex-1 border-t-2 border-rose-400 border-dashed"></div>
+                        </div>
                     }
-                </tbody>
-            </table>
+
+                </div>
+
+                <!-- 2. DAY VIEW (Alternate Tab) -->
+                <div id="viewContainerDay" class="hidden flex-1 p-6 overflow-y-auto cal-grid-scroll">
+                    <div class="max-w-2xl mx-auto space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900">@today.ToString("dddd, MMMM d, yyyy")</h3>
+                                <p class="text-xs text-slate-500">Day View Schedule Breakdown</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                @today.ToString("dddd")
+                            </span>
+                        </div>
+
+                        <div class="space-y-3">
+                            @{
+                                var todayDayName = today.ToString("dddd");
+                                var todayClasses = timetables.Where(t =>
+                                    string.Equals(t.DayOfWeek, todayDayName, StringComparison.OrdinalIgnoreCase)).OrderBy(t => t.StartTime).ToList();
+                            }
+
+                            @if (todayClasses.Any())
+                            {
+                                @foreach (var c in todayClasses)
+                                {
+                                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:shadow-md transition flex items-center justify-between cursor-pointer"
+                                         onclick="openEditScheduleFlyout(@c.Id, @c.SubClassId, @c.TeacherId, @c.SubjectId, '@c.DayOfWeek', '@c.StartTime.ToString("HH:mm")', '@c.EndTime.ToString("HH:mm")', '@c.Mode', '@(c.SubjectName?.Replace("'", "\\'"))', '@(c.ClassName?.Replace("'", "\\'"))', '@(c.TeacherName?.Replace("'", "\\'"))', event)">
+                                        <div class="flex items-center gap-4">
+                                            <div class="font-mono text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg p-2 text-center w-24">
+                                                @c.StartTime.ToString("HH:mm") - @c.EndTime.ToString("HH:mm")
+                                            </div>
+                                            <div>
+                                                <h4 class="font-bold text-sm text-slate-900">@(c.SubjectName ?? "Curriculum")</h4>
+                                                <p class="text-xs text-slate-500">@c.ClassName • Teacher: @(c.TeacherName ?? "Assigned")</p>
+                                            </div>
+                                        </div>
+                                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">@c.Mode</span>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-center py-12 text-slate-400 text-xs">
+                                    No classes scheduled for today (@todayDayName).
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. MONTH VIEW (Alternate Tab) -->
+                <div id="viewContainerMonth" class="hidden flex-1 p-6 overflow-y-auto cal-grid-scroll">
+                    <div class="max-w-5xl mx-auto space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900">@today.ToString("MMMM yyyy") Overview</h3>
+                                <p class="text-xs text-slate-500">Monthly schedule overview for all classes</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-500 pb-2 border-b border-slate-100">
+                            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                        </div>
+
+                        <div id="monthViewGrid" class="grid grid-cols-7 gap-2">
+                            <!-- Populated with month grid cards via script -->
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
         </div>
+
     </div>
 
 </div>
 
 <!-- ========================================================================= -->
-<!-- POPUP PAD: INSPECT & EDIT TIMETABLE POPPAD (Unified Form & Inspection)    -->
+<!-- WATON FLOATING "ADD SCHEDULE" / "EDIT SCHEDULE" POPUP FLYOUT CARD         -->
 <!-- ========================================================================= -->
-<div id="inspectPopPad" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-    <div class="w-full max-w-xl rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all my-8 overflow-hidden transform">
+<div id="watonScheduleFlyout" class="fixed inset-0 z-50 hidden bg-slate-900/30 backdrop-blur-2xs flex items-center justify-center p-4 overflow-y-auto">
 
-        <!-- PopPad Header Bar (Color Coded Accent) -->
-        <div id="popPadHeaderBar" class="h-2 bg-blue-600 transition-colors"></div>
+    <!-- Floating Dialog Card (Pixel-accurate to screenshot flyout) -->
+    <div class="w-full max-w-md rounded-2xl border border-slate-200/90 bg-white shadow-2xl p-5 lg:p-6 transition-all transform my-auto relative animate-scale-in">
 
-        <div class="p-6 space-y-5">
-            <!-- Header Section with Badge, Title, and Action Buttons -->
-            <div class="flex items-start justify-between pb-3 border-b border-slate-100">
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span id="popPadModeBadge" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800">
-                            ClassRoom
-                        </span>
-                        <span id="popPadIdBadge" class="font-mono text-xs font-semibold text-slate-400">#0</span>
-                    </div>
-                    <h2 class="text-xl font-bold tracking-tight text-slate-900" id="popPadTitle">Inspect Timetable</h2>
-                </div>
-
-                <div class="flex items-center gap-1.5">
-                    <!-- Quick Delete Action from PopPad -->
-                    <button type="button" id="popPadDeleteBtn"
-                            onclick="triggerPopPadDelete()"
-                            class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
-                            title="Delete this schedule">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    </button>
-
-                    <!-- Close Button -->
-                    <button type="button" onclick="closeInspectPopPad()" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Inspect Overview Summary Card -->
-            <div id="popPadInspectCard" class="rounded-xl bg-slate-50 border border-slate-200/80 p-3.5 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                <div>
-                    <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Class</span>
-                    <span class="font-semibold text-slate-800 truncate block" id="inspectClassName">Class 1</span>
-                </div>
-                <div>
-                    <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Teacher</span>
-                    <span class="font-semibold text-slate-800 truncate block" id="inspectTeacherName">Teacher</span>
-                </div>
-                <div>
-                    <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Day & Time</span>
-                    <span class="font-semibold text-slate-800 truncate block font-mono" id="inspectTimeRange">Mon • 09:00</span>
-                </div>
-            </div>
-
-            <!-- PopPad Form (Inspect & Edit Form with All Inputs) -->
-            <form id="popPadForm" method="post" class="space-y-4">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" id="popPadFormId" />
-
-                <!-- 1. Class & Teacher Inputs -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Class <span class="text-rose-500">*</span></label>
-                        <select name="SubClassId" id="popPadSubClassId" required class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
-                            <option value="">-- Select Class --</option>
-                            @foreach (var c in classes)
-                            {
-                                <option value="@c.SubClassId">@c.ClassName (ID: @c.SubClassId)</option>
-                            }
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Teacher / Instructor <span class="text-rose-500">*</span></label>
-                        <select name="TeacherId" id="popPadTeacherId" required class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
-                            <option value="">-- Select Teacher --</option>
-                            @foreach (var t in teachers)
-                            {
-                                <option value="@t.UserId">@t.FullName</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-
-                <!-- 2. Subject Input -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Subject Curriculum <span class="text-rose-500">*</span></label>
-                    @if (teachPlans != null && teachPlans.Count > 0)
-                    {
-                        <select name="SubjectId" id="popPadSubjectId" required class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
-                            <option value="">-- Select Subject / Plan --</option>
-                            @foreach (var p in teachPlans)
-                            {
-                                <option value="@p.SubjectId">@p.SubjectName (@p.Topic)</option>
-                            }
-                        </select>
-                    }
-                    else
-                    {
-                        <input name="SubjectId" id="popPadSubjectId" type="number" min="1" required placeholder="Enter Subject ID (e.g. 1)"
-                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition" />
-                    }
-                </div>
-
-                <!-- 3. Day of Week & Learning Mode Inputs -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Day of Week <span class="text-rose-500">*</span></label>
-                        <select name="DayOfWeek" id="popPadDayOfWeek" required class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                            <option value="Sunday">Sunday</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Delivery Mode <span class="text-rose-500">*</span></label>
-                        <select name="Mode" id="popPadMode" required onchange="updatePopPadModeColor(this.value)" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition">
-                            <option value="ClassRoom">ClassRoom (In-Person)</option>
-                            <option value="Online">Online</option>
-                            <option value="Hybrid">Hybrid</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- 4. Start & End Time Inputs -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Start Time <span class="text-rose-500">*</span></label>
-                        <input type="time" name="StartTime" id="popPadStartTime" required
-                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-mono" />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">End Time <span class="text-rose-500">*</span></label>
-                        <input type="time" name="EndTime" id="popPadEndTime" required
-                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-mono" />
-                    </div>
-                </div>
-
-                <!-- PopPad Actions Footer -->
-                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-                    <div>
-                        <button type="button" id="popPadFooterDeleteBtn" onclick="triggerPopPadDelete()"
-                                class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-2 rounded-lg transition cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            Delete
-                        </button>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="closeInspectPopPad()"
-                                class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
-                            Cancel
-                        </button>
-                        <button type="submit" id="popPadSubmitBtn"
-                                class="rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer flex items-center gap-1.5">
-                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            <span id="popPadSubmitText">Save Changes</span>
-                        </button>
-                    </div>
-                </div>
-            </form>
+        <!-- Header: Title & Close -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900" id="flyoutModalTitle">Add Schedule</h3>
+            <button type="button" onclick="closeScheduleFlyout()" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         </div>
+
+        <!-- Form Formatted to Match Screenshot Inputs -->
+        <form id="flyoutScheduleForm" method="post" class="mt-4 space-y-3.5">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="flyoutFormId" />
+
+            <!-- 1. Event Title / Subject (Border blue focus like screenshot) -->
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Event / Subject Title <span class="text-rose-500">*</span></label>
+                @if (teachPlans != null && teachPlans.Count > 0)
+                {
+                    <select name="SubjectId" id="flyoutSubjectId" required
+                            class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition font-medium">
+                        <option value="">Select subject curriculum...</option>
+                        @foreach (var p in teachPlans)
+                        {
+                            <option value="@p.SubjectId">@p.SubjectName (@p.Topic)</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <input name="SubjectId" id="flyoutSubjectId" type="number" min="1" required placeholder="New event title (Subject ID)"
+                           class="w-full rounded-xl border border-blue-400 bg-white px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-blue-100 transition font-medium" />
+                }
+            </div>
+
+            <!-- 2. Date / Day Picker (📅 Wednesday, Jul 12 style) -->
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Day of Week <span class="text-rose-500">*</span></label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </span>
+                    <select name="DayOfWeek" id="flyoutDayOfWeek" required
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-9 pr-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-medium">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 3. Time Range (🕒 9.30am → 🕒 10.00am style) -->
+            <div class="grid grid-cols-2 gap-3 items-center">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Start Time</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-slate-400 pointer-events-none">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </span>
+                        <input type="time" name="StartTime" id="flyoutStartTime" required
+                               class="w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-8 pr-2.5 py-2 text-xs font-mono text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">End Time</label>
+                    <div class="relative flex items-center">
+                        <span class="absolute left-3 text-slate-400 pointer-events-none">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </span>
+                        <input type="time" name="EndTime" id="flyoutEndTime" required
+                               class="w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-8 pr-2.5 py-2 text-xs font-mono text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Class & Teacher Guest Rows (👤 Add guest / teacher style) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Class</label>
+                    <select name="SubClassId" id="flyoutSubClassId" required
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-medium">
+                        <option value="">-- Select Class --</option>
+                        @foreach (var c in classes)
+                        {
+                            <option value="@c.SubClassId">@c.ClassName</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Teacher / Guest</label>
+                    <select name="TeacherId" id="flyoutTeacherId" required
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-medium">
+                        <option value="">-- Select Teacher --</option>
+                        @foreach (var t in teachers)
+                        {
+                            <option value="@t.UserId">@t.FullName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- 5. Mode / Link Row (🔗 https://meet.google.com/... style) -->
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Delivery Mode & Link</label>
+                <div class="relative flex items-center">
+                    <span class="absolute left-3 text-slate-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    </span>
+                    <select name="Mode" id="flyoutMode" required onchange="onFlyoutModeChange(this.value)"
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-9 pr-3.5 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-medium">
+                        <option value="ClassRoom">ClassRoom (In-Person Classroom)</option>
+                        <option value="Online">Online (https://meet.google.com/...)</option>
+                        <option value="Hybrid">Hybrid (ClassRoom + Stream)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 6. Pastel Color Swatches (Exact circles from Waton screenshot) -->
+            <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-1.5">Card Color Accent</label>
+                <div class="flex items-center gap-2.5">
+                    <button type="button" onclick="selectPaletteColor('lavender')" class="color-swatch-btn h-6 w-6 rounded-full bg-[#DDD6FE] ring-2 ring-transparent hover:scale-110 transition cursor-pointer" data-color="lavender" title="Lavender"></button>
+                    <button type="button" onclick="selectPaletteColor('mint')" class="color-swatch-btn h-6 w-6 rounded-full bg-[#BBF7D0] ring-2 ring-transparent hover:scale-110 transition cursor-pointer" data-color="mint" title="Mint"></button>
+                    <button type="button" onclick="selectPaletteColor('blue')" class="color-swatch-btn h-6 w-6 rounded-full bg-[#BAE6FD] ring-2 ring-slate-400 hover:scale-110 transition cursor-pointer" data-color="blue" title="Sky Blue"></button>
+                    <button type="button" onclick="selectPaletteColor('peach')" class="color-swatch-btn h-6 w-6 rounded-full bg-[#FECDD3] ring-2 ring-transparent hover:scale-110 transition cursor-pointer" data-color="peach" title="Peach"></button>
+                    <button type="button" onclick="selectPaletteColor('yellow')" class="color-swatch-btn h-6 w-6 rounded-full bg-[#FEF08A] ring-2 ring-transparent hover:scale-110 transition cursor-pointer" data-color="yellow" title="Butter Yellow"></button>
+                </div>
+            </div>
+
+            <!-- 7. Footer Actions: Cancel & Dark Black "Save" Button -->
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div>
+                    <!-- Delete button (visible when editing existing item) -->
+                    <button type="button" id="flyoutDeleteBtn" onclick="triggerFlyoutDelete()"
+                            class="hidden text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg transition cursor-pointer">
+                        Delete
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeScheduleFlyout()"
+                            class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" id="flyoutSubmitBtn"
+                            class="rounded-lg bg-[#18181B] hover:bg-black px-5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer flex items-center gap-1.5">
+                        <span id="flyoutSubmitText">Save</span>
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
     </div>
+
 </div>
 
 <!-- ======================================================== -->
 <!-- MODAL: DELETE CONFIRMATION MODAL                        -->
 <!-- ======================================================== -->
-<div id="deleteScheduleModal" class="fixed inset-0 z-60 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-    <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-xl transition-all my-8">
+<div id="deleteScheduleModal" class="fixed inset-0 z-60 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl transition-all my-8 animate-scale-in">
 
         <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
             <div class="h-10 w-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
@@ -483,7 +850,7 @@
             </div>
             <div>
                 <h3 class="text-base font-bold text-slate-900">Delete Schedule?</h3>
-                <p class="text-xs text-slate-500">This will remove this class from the timetable.</p>
+                <p class="text-xs text-slate-500">Remove this class from the timetable.</p>
             </div>
         </div>
 
@@ -505,7 +872,7 @@
                 </button>
                 <button type="submit"
                         class="rounded-lg bg-rose-600 hover:bg-rose-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer">
-                    Delete Schedule
+                    Delete
                 </button>
             </div>
         </form>
@@ -515,34 +882,27 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Track current timetable item for pop pad
-        let currentActiveItem = null;
+        // State
+        let currentItemUnderEdit = null;
+        let selectedCategoryFilter = 'All';
+        let currentMonthOffset = 0; // for mini calendar
+        const baseDate = new Date();
 
-        // PopPad Elements
-        const inspectPopPad = document.getElementById('inspectPopPad');
-        const popPadHeaderBar = document.getElementById('popPadHeaderBar');
-        const popPadTitle = document.getElementById('popPadTitle');
-        const popPadModeBadge = document.getElementById('popPadModeBadge');
-        const popPadIdBadge = document.getElementById('popPadIdBadge');
-        const popPadInspectCard = document.getElementById('popPadInspectCard');
-        const inspectClassName = document.getElementById('inspectClassName');
-        const inspectTeacherName = document.getElementById('inspectTeacherName');
-        const inspectTimeRange = document.getElementById('inspectTimeRange');
-
-        const popPadForm = document.getElementById('popPadForm');
-        const popPadFormId = document.getElementById('popPadFormId');
-        const popPadSubClassId = document.getElementById('popPadSubClassId');
-        const popPadTeacherId = document.getElementById('popPadTeacherId');
-        const popPadSubjectId = document.getElementById('popPadSubjectId');
-        const popPadDayOfWeek = document.getElementById('popPadDayOfWeek');
-        const popPadMode = document.getElementById('popPadMode');
-        const popPadStartTime = document.getElementById('popPadStartTime');
-        const popPadEndTime = document.getElementById('popPadEndTime');
-
-        const popPadDeleteBtn = document.getElementById('popPadDeleteBtn');
-        const popPadFooterDeleteBtn = document.getElementById('popPadFooterDeleteBtn');
-        const popPadSubmitBtn = document.getElementById('popPadSubmitBtn');
-        const popPadSubmitText = document.getElementById('popPadSubmitText');
+        // Flyout Modal Elements
+        const flyout = document.getElementById('watonScheduleFlyout');
+        const flyoutTitle = document.getElementById('flyoutModalTitle');
+        const flyoutForm = document.getElementById('flyoutScheduleForm');
+        const flyoutFormId = document.getElementById('flyoutFormId');
+        const flyoutSubjectId = document.getElementById('flyoutSubjectId');
+        const flyoutDayOfWeek = document.getElementById('flyoutDayOfWeek');
+        const flyoutStartTime = document.getElementById('flyoutStartTime');
+        const flyoutEndTime = document.getElementById('flyoutEndTime');
+        const flyoutSubClassId = document.getElementById('flyoutSubClassId');
+        const flyoutTeacherId = document.getElementById('flyoutTeacherId');
+        const flyoutMode = document.getElementById('flyoutMode');
+        const flyoutDeleteBtn = document.getElementById('flyoutDeleteBtn');
+        const flyoutSubmitBtn = document.getElementById('flyoutSubmitBtn');
+        const flyoutSubmitText = document.getElementById('flyoutSubmitText');
 
         // Delete Modal Elements
         const deleteModal = document.getElementById('deleteScheduleModal');
@@ -552,116 +912,168 @@
         const deleteClass = document.getElementById('deleteClassName');
         const deleteTime = document.getElementById('deleteTimeRange');
 
-        // Update accent color on mode change
-        function updatePopPadModeColor(mode) {
-            if (popPadHeaderBar && popPadModeBadge) {
-                if (mode === 'Online') {
-                    popPadHeaderBar.className = 'h-2 bg-emerald-600 transition-colors';
-                    popPadModeBadge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800';
-                    popPadModeBadge.innerText = 'Online';
-                } else if (mode === 'Hybrid') {
-                    popPadHeaderBar.className = 'h-2 bg-purple-600 transition-colors';
-                    popPadModeBadge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800';
-                    popPadModeBadge.innerText = 'Hybrid';
+        // Views
+        const viewWeek = document.getElementById('viewContainerWeek');
+        const viewDay = document.getElementById('viewContainerDay');
+        const viewMonth = document.getElementById('viewContainerMonth');
+        const btnDay = document.getElementById('viewBtnDay');
+        const btnWeek = document.getElementById('viewBtnWeek');
+        const btnMonth = document.getElementById('viewBtnMonth');
+
+        // Mini Calendar Elements
+        const miniCalTitle = document.getElementById('miniCalendarTitle');
+        const miniCalGrid = document.getElementById('miniCalendarGrid');
+
+        // --- 1. INITIALIZE MINI CALENDAR (Waton aesthetic) ---
+        function renderMiniCalendar() {
+            if (!miniCalGrid || !miniCalTitle) return;
+
+            const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + currentMonthOffset, 1);
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            miniCalTitle.innerText = `${monthNames[targetDate.getMonth()]} ${targetDate.getFullYear()}`;
+
+            miniCalGrid.innerHTML = '';
+
+            const firstDayIndex = targetDate.getDay(); // 0 is Sunday
+            const daysInMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0).getDate();
+            const prevMonthDays = new Date(targetDate.getFullYear(), targetDate.getMonth(), 0).getDate();
+
+            // Previous Month days (faded)
+            for (let i = firstDayIndex - 1; i >= 0; i--) {
+                const dayNum = prevMonthDays - i;
+                const span = document.createElement('span');
+                span.className = 'py-1 text-slate-300 font-normal';
+                span.innerText = dayNum;
+                miniCalGrid.appendChild(span);
+            }
+
+            // Current Month days
+            const todayDate = new Date();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.innerText = d;
+
+                const isCurrentToday = (d === todayDate.getDate() && targetDate.getMonth() === todayDate.getMonth() && targetDate.getFullYear() === todayDate.getFullYear());
+
+                if (isCurrentToday) {
+                    btn.className = 'py-1 rounded-full bg-slate-900 text-white font-bold text-[11px] shadow-2xs hover:bg-black transition cursor-pointer';
                 } else {
-                    popPadHeaderBar.className = 'h-2 bg-blue-600 transition-colors';
-                    popPadModeBadge.className = 'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800';
-                    popPadModeBadge.innerText = 'ClassRoom';
+                    btn.className = 'py-1 rounded-md text-slate-700 hover:bg-slate-100 font-medium transition cursor-pointer';
                 }
+
+                btn.onclick = () => {
+                    // Clicking mini calendar date triggers jump or view
+                    document.querySelectorAll('#miniCalendarGrid button').forEach(b => {
+                        if (!b.classList.contains('bg-slate-900')) {
+                            b.classList.remove('bg-blue-100', 'text-blue-700');
+                        }
+                    });
+                    if (!isCurrentToday) {
+                        btn.classList.add('bg-blue-100', 'text-blue-700');
+                    }
+                };
+
+                miniCalGrid.appendChild(btn);
             }
         }
 
-        // 1. OPEN INSPECT & EDIT POPPAD FOR EXISTING SCHEDULE
-        function openInspectPad(id, subClassId, teacherId, subjectId, dayOfWeek, startTime, endTime, mode, subjectName, className, teacherName) {
-            currentActiveItem = { id, subjectName, className, dayOfWeek, startTime, endTime };
-
-            // Title & Badges
-            popPadTitle.innerText = `Inspect: ${subjectName || 'Schedule'}`;
-            popPadIdBadge.innerText = `#${id}`;
-            updatePopPadModeColor(mode || 'ClassRoom');
-
-            // Inspect Overview Box
-            popPadInspectCard.classList.remove('hidden');
-            inspectClassName.innerText = className || `Class #${subClassId}`;
-            inspectTeacherName.innerText = teacherName || 'Teacher';
-            inspectTimeRange.innerText = `${dayOfWeek} • ${startTime} - ${endTime}`;
-
-            // Populate all inputs in the edit form
-            popPadFormId.value = id;
-            popPadSubClassId.value = subClassId;
-            popPadTeacherId.value = teacherId;
-            popPadSubjectId.value = subjectId;
-            popPadDayOfWeek.value = dayOfWeek;
-            popPadMode.value = mode || 'ClassRoom';
-            popPadStartTime.value = startTime;
-            popPadEndTime.value = endTime;
-
-            // Form action targets Edit
-            popPadForm.action = `@Url.Action("Edit", "Timetable")/${id}?role=@currentRole`;
-            popPadSubmitText.innerText = 'Save Changes';
-            popPadSubmitBtn.className = 'rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer flex items-center gap-1.5';
-
-            // Show delete buttons in inspect mode
-            popPadDeleteBtn.classList.remove('hidden');
-            popPadFooterDeleteBtn.classList.remove('hidden');
-
-            inspectPopPad.classList.remove('hidden');
+        function changeMiniMonth(delta) {
+            currentMonthOffset += delta;
+            renderMiniCalendar();
         }
 
-        // 2. OPEN POPPAD IN "NEW SCHEDULE" MODE (For Box Clicks or Header Add)
-        function openNewSchedulePad(day, startTime, endTime) {
-            currentActiveItem = null;
+        // --- 2. FLOATING SCHEDULE FLYOUT (ADD & EDIT) ---
+        function openFloatingScheduleFlyout(day, startTime, endTime, targetEl, event) {
+            if (event) event.stopPropagation();
+            currentItemUnderEdit = null;
 
-            popPadTitle.innerText = 'Schedule New Class';
-            popPadIdBadge.innerText = 'New';
-            updatePopPadModeColor('ClassRoom');
+            flyoutTitle.innerText = 'Add Schedule';
+            flyoutFormId.value = '';
+            if (flyoutSubjectId) flyoutSubjectId.value = '';
+            flyoutDayOfWeek.value = day || 'Monday';
+            flyoutStartTime.value = startTime || '09:00';
+            flyoutEndTime.value = endTime || '10:30';
+            flyoutSubClassId.value = '';
+            flyoutTeacherId.value = '';
+            flyoutMode.value = 'ClassRoom';
 
-            // Hide inspect overview box in create mode
-            popPadInspectCard.classList.add('hidden');
+            flyoutForm.action = `@Url.Action("Create", "Timetable")?role=@currentRole`;
+            flyoutSubmitText.innerText = 'Save';
+            flyoutDeleteBtn.classList.add('hidden');
 
-            // Reset inputs & prefill box values
-            popPadFormId.value = '';
-            popPadSubClassId.value = '';
-            popPadTeacherId.value = '';
-            popPadSubjectId.value = '';
-            popPadDayOfWeek.value = day || 'Monday';
-            popPadMode.value = 'ClassRoom';
-            popPadStartTime.value = startTime || '09:00';
-            popPadEndTime.value = endTime || '10:30';
-
-            // Form action targets Create
-            popPadForm.action = `@Url.Action("Create", "Timetable")?role=@currentRole`;
-            popPadSubmitText.innerText = 'Schedule Class';
-            popPadSubmitBtn.className = 'rounded-lg bg-blue-600 hover:bg-blue-700 px-5 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer flex items-center gap-1.5';
-
-            // Hide delete buttons in create mode
-            popPadDeleteBtn.classList.add('hidden');
-            popPadFooterDeleteBtn.classList.add('hidden');
-
-            inspectPopPad.classList.remove('hidden');
+            selectPaletteColor('blue');
+            flyout.classList.remove('hidden');
         }
 
-        function closeInspectPopPad() {
-            inspectPopPad.classList.add('hidden');
+        function openEditScheduleFlyout(id, subClassId, teacherId, subjectId, dayOfWeek, startTime, endTime, mode, subjectName, className, teacherName, event) {
+            if (event) event.stopPropagation();
+            currentItemUnderEdit = { id, subClassId, teacherId, subjectId, dayOfWeek, startTime, endTime, mode, subjectName, className, teacherName };
+
+            flyoutTitle.innerText = `Edit: ${subjectName || 'Schedule'}`;
+            flyoutFormId.value = id;
+            if (flyoutSubjectId) flyoutSubjectId.value = subjectId;
+            flyoutDayOfWeek.value = dayOfWeek;
+            flyoutStartTime.value = startTime;
+            flyoutEndTime.value = endTime;
+            flyoutSubClassId.value = subClassId;
+            flyoutTeacherId.value = teacherId;
+            flyoutMode.value = mode || 'ClassRoom';
+
+            flyoutForm.action = `@Url.Action("Edit", "Timetable")/${id}?role=@currentRole`;
+            flyoutSubmitText.innerText = 'Save Changes';
+            flyoutDeleteBtn.classList.remove('hidden');
+
+            // Pick swatch matching mode
+            if (mode === 'Online') selectPaletteColor('mint');
+            else if (mode === 'Hybrid') selectPaletteColor('lavender');
+            else selectPaletteColor('blue');
+
+            flyout.classList.remove('hidden');
         }
 
-        inspectPopPad.addEventListener('click', (e) => {
-            if (e.target === inspectPopPad) closeInspectPopPad();
+        function closeScheduleFlyout() {
+            flyout.classList.add('hidden');
+        }
+
+        flyout.addEventListener('click', (e) => {
+            if (e.target === flyout) closeScheduleFlyout();
         });
 
-        // Click anywhere in empty box to schedule
-        function onBoxClick(event, day, startTime, endTime) {
-            if (event.target.closest('.timetable-card') || event.target.closest('button')) {
+        function onEmptySlotClick(event, day, startTime, endTime) {
+            if (event.target.closest('.cal-event-card') || event.target.closest('button')) {
                 return;
             }
-            openNewSchedulePad(day, startTime, endTime);
+            openFloatingScheduleFlyout(day, startTime, endTime, event.currentTarget, event);
         }
 
-        // 3. DELETE ACTIONS
-        function triggerPopPadDelete() {
-            if (!currentActiveItem) return;
-            closeInspectPopPad();
-            openDeleteModal(currentActiveItem.id, currentActiveItem.subjectName, currentActiveItem.className, currentActiveItem.dayOfWeek, `${currentActiveItem.startTime} - ${currentActiveItem.endTime}`);
+        function onFlyoutModeChange(val) {
+            if (val === 'Online') selectPaletteColor('mint');
+            else if (val === 'Hybrid') selectPaletteColor('lavender');
+            else selectPaletteColor('blue');
+        }
+
+        function selectPaletteColor(color) {
+            document.querySelectorAll('.color-swatch-btn').forEach(btn => {
+                if (btn.getAttribute('data-color') === color) {
+                    btn.classList.add('ring-slate-900', 'ring-2');
+                    btn.classList.remove('ring-transparent');
+                } else {
+                    btn.classList.remove('ring-slate-900');
+                    btn.classList.add('ring-transparent');
+                }
+            });
+        }
+
+        // --- 3. DELETE ACTIONS ---
+        function triggerFlyoutDelete() {
+            if (!currentItemUnderEdit) return;
+            closeScheduleFlyout();
+            openDeleteModal(currentItemUnderEdit.id, currentItemUnderEdit.subjectName, currentItemUnderEdit.className, currentItemUnderEdit.dayOfWeek, `${currentItemUnderEdit.startTime} - ${currentItemUnderEdit.endTime}`);
+        }
+
+        function triggerCardDelete(id, subjectName, className, dayOfWeek, timeRange) {
+            openDeleteModal(id, subjectName, className, dayOfWeek, timeRange);
         }
 
         function openDeleteModal(id, subjectName, className, dayOfWeek, timeRange) {
@@ -685,12 +1097,130 @@
             if (e.target === deleteModal) closeDeleteModal();
         });
 
-        // Close on Escape Key
+        // --- 4. LIVE CLIENT FILTERS (CLASSES, CATEGORIES, SEARCH, TEACHERS) ---
+        function applyLiveFilters() {
+            const query = (document.getElementById('liveSearchInput')?.value || '').toLowerCase().trim();
+            const teacherId = document.getElementById('teacherSelectFilter')?.value || '';
+
+            // Selected Class IDs
+            const selectedClassIds = new Set();
+            document.querySelectorAll('.class-filter-chk:checked').forEach(chk => {
+                selectedClassIds.add(chk.value);
+            });
+
+            const cards = document.querySelectorAll('.cal-event-card');
+            cards.forEach(card => {
+                const cClassId = card.getAttribute('data-class-id');
+                const cTeacherId = card.getAttribute('data-teacher-id');
+                const cMode = card.getAttribute('data-mode');
+                const cText = (card.getAttribute('data-search-text') || '').toLowerCase();
+
+                let visible = true;
+
+                // Category filter
+                if (selectedCategoryFilter !== 'All' && cMode !== selectedCategoryFilter) {
+                    visible = false;
+                }
+
+                // Class checkbox filter
+                if (selectedClassIds.size > 0 && !selectedClassIds.has(cClassId)) {
+                    visible = false;
+                }
+
+                // Teacher filter
+                if (teacherId && cTeacherId !== teacherId) {
+                    visible = false;
+                }
+
+                // Search query
+                if (query && !cText.includes(query)) {
+                    visible = false;
+                }
+
+                card.style.display = visible ? 'block' : 'none';
+            });
+        }
+
+        function toggleAllClassesFilter(masterChk) {
+            document.querySelectorAll('.class-filter-chk').forEach(chk => {
+                chk.checked = masterChk.checked;
+            });
+            applyLiveFilters();
+        }
+
+        function filterByCategory(cat) {
+            selectedCategoryFilter = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                if (btn.getAttribute('data-cat') === cat) {
+                    btn.classList.add('bg-slate-100', 'font-bold');
+                } else {
+                    btn.classList.remove('bg-slate-100', 'font-bold');
+                }
+            });
+            applyLiveFilters();
+        }
+
+        // --- 5. CALENDAR VIEW SWITCHER (DAY / WEEK / MONTH) ---
+        function switchCalendarView(view) {
+            [btnDay, btnWeek, btnMonth].forEach(b => {
+                b.className = 'rounded-md px-3 py-1 transition hover:text-slate-900 cursor-pointer text-slate-600';
+            });
+            viewWeek.classList.add('hidden');
+            viewDay.classList.add('hidden');
+            viewMonth.classList.add('hidden');
+
+            if (view === 'day') {
+                btnDay.className = 'rounded-md bg-white text-slate-900 font-semibold shadow-2xs px-3 py-1 transition cursor-pointer';
+                viewDay.classList.remove('hidden');
+            } else if (view === 'month') {
+                btnMonth.className = 'rounded-md bg-white text-slate-900 font-semibold shadow-2xs px-3 py-1 transition cursor-pointer';
+                renderMonthOverview();
+                viewMonth.classList.remove('hidden');
+            } else {
+                btnWeek.className = 'rounded-md bg-white text-slate-900 font-semibold shadow-2xs px-3 py-1 transition cursor-pointer';
+                viewWeek.classList.remove('hidden');
+            }
+        }
+
+        function renderMonthOverview() {
+            const grid = document.getElementById('monthViewGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            for (let i = 1; i <= 35; i++) {
+                const dayNum = ((i - 1) % 30) + 1;
+                const cell = document.createElement('div');
+                cell.className = 'min-h-[90px] p-2 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition text-left flex flex-col justify-between';
+                cell.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700">${dayNum}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400">Classes</div>
+                `;
+                grid.appendChild(cell);
+            }
+        }
+
+        // --- 6. NAVIGATION HELPERS ---
+        function goToToday() {
+            window.location.href = `@Url.Action("Index", "Timetable", new { role = currentRole })`;
+        }
+
+        function shiftWeek(days) {
+            // Can be extended with query param if date persistence is desired
+            window.location.reload();
+        }
+
+        // --- 7. KEYBOARD SHORTCUTS ---
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (!inspectPopPad.classList.contains('hidden')) closeInspectPopPad();
+                if (!flyout.classList.contains('hidden')) closeScheduleFlyout();
                 if (!deleteModal.classList.contains('hidden')) closeDeleteModal();
             }
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMiniCalendar();
         });
     </script>
 }

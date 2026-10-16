@@ -10,6 +10,9 @@
     <ProjectReference Include="..\OnlineClassManagementSystem.Domain\OnlineClassManagementSystem.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\\OnlineClassManagementSystem.Shared\\OnlineClassManagementSystem.Shared.csproj" />
+    <ProjectReference Include="..\OnlineClassManagementSystem.Shared\OnlineClassManagementSystem.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 </Project>

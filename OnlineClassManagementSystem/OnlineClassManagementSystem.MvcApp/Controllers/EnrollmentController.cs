@@ -1,251 +1,365 @@
 using Microsoft.AspNetCore.Mvc;
-using OnlineClassManagementSystem.MvcApp.Services;
+using Newtonsoft.Json;
 using OnlineClassManagementSystem.Shared.models.Enrollment;
 using OnlineClassManagementSystem.Shared.models.SubClass;
 using OnlineClassManagementSystem.Shared.models.User;
+using System.Text;
 
-namespace OnlineClassManagementSystem.MvcApp.Controllers;
-
-public class EnrollmentController : Controller
+namespace OnlineClassManagementSystem.MvcApp.Controllers
 {
-    private readonly EnrollmentApiService _enrollmentApiService;
-
-    public EnrollmentController(EnrollmentApiService enrollmentApiService)
+    public class EnrollmentController : Controller
     {
-        _enrollmentApiService = enrollmentApiService;
-    }
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<EnrollmentController> _logger;
 
-    // GET: /Enrollment
-    public async Task<IActionResult> Index(int? classId, string? status, string? search, string? role = "admin")
-    {
-        ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
-        ViewBag.ActiveMenu = "Enrollment";
-        ViewBag.SelectedClassId = classId;
-        ViewBag.SelectedStatus = status ?? "all";
-        ViewBag.SearchQuery = search;
-
-        try
+        public EnrollmentController(IHttpClientFactory httpClientFactory, ILogger<EnrollmentController> logger)
         {
-            var response = await _enrollmentApiService.GetAllAsync();
-            var classesResponse = await _enrollmentApiService.GetSubClassesAsync();
-            var usersResponse = await _enrollmentApiService.GetUsersAsync();
+            _httpClientFactory = httpClientFactory;
+            _logger = logger;
+        }
 
+        // GET: /Enrollment
+        [ActionName("Index")]
+        public async Task<IActionResult> EnrollmentListAsync(int? classId, string? status, string? search, string? role = "admin", int pageNo = 1, int pageSize = 10)
+        {
+            try
+            {
+                _logger.LogInformation("Enrollment List Async => Fetching enrollments");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+                ViewBag.ActiveMenu = "Enrollment";
+                ViewBag.SelectedClassId = classId;
+                ViewBag.SelectedStatus = status ?? "all";
+                ViewBag.SearchQuery = search;
+                ViewBag.PageNo = pageNo;
+                ViewBag.PageSize = pageSize;
+
+                var query = new List<string>
+                {
+                    $"pageNo={pageNo}",
+                    $"pageSize={pageSize}"
+                };
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    query.Add($"search={Uri.EscapeDataString(search.Trim())}");
+                }
+                if (classId.HasValue && classId.Value > 0)
+                {
+                    query.Add($"classId={classId.Value}");
+                }
+                if (!string.IsNullOrWhiteSpace(status) && !status.Equals("all", StringComparison.OrdinalIgnoreCase))
+                {
+                    query.Add($"status={Uri.EscapeDataString(status.Trim())}");
+                }
+
+                var httpResponse = await client.GetAsync($"api/Enrollment?{string.Join("&", query)}");
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<EnrollmentListResponseModel>(jsonString);
+
+                await PopulateDropdowns(client);
+
+                if (response == null)
+                {
+                    ViewBag.Error = "API returned an empty response.";
+                    return View(new EnrollmentListResponseModel { EnrollmentList = new() });
+                }
+
+                if (!response.IsSuccess && (response.EnrollmentList == null || response.EnrollmentList.Count == 0))
+                {
+                    _logger.LogWarning($"Enrollment List Async => Failed to fetch enrollments: {response.Message}");
+                    ViewBag.Error = response.Message;
+                    TempData["Message"] = response.Message;
+                    TempData["isSuccess"] = false;
+                }
+
+                var list = response.EnrollmentList ?? new List<EnrollmentModel>();
+                ViewData["Enrollments"] = list;
+                _logger.LogInformation("Enrollment List Async => Enrollments fetched successfully");
+
+                return View(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "EnrollmentListAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        // POST: /Enrollment/UpdateStatus
+        [HttpPost]
+        [ActionName("UpdateStatus")]
+        public async Task<IActionResult> EnrollmentUpdateStatusAsync(int enrollmentId, string status, string? role = "admin")
+        {
+            try
+            {
+                _logger.LogInformation($"Enrollment Update Status Async => Updating enrollment {enrollmentId} to {status}");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                var request = new EnrollmentUpdateStatusResquestModel
+                {
+                    EnrollmentId = enrollmentId,
+                    Status = status
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                var httpResponse = await client.PatchAsync("api/Enrollment", content);
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<EnrollmentUpdateStatusResponseModel>(jsonString)
+                    ?? new EnrollmentUpdateStatusResponseModel { IsSuccess = false, Message = "Unknown error" };
+
+                if (result != null && result.IsSuccess)
+                {
+                    _logger.LogInformation("Enrollment Update Status Async => Status updated successfully");
+                    TempData["Message"] = result.Message ?? $"Enrollment status updated to {status}.";
+                    TempData["isSuccess"] = true;
+                    TempData["Success"] = result.Message ?? $"Enrollment status updated to {status}.";
+                }
+                else
+                {
+                    _logger.LogWarning($"Enrollment Update Status Async => Failed to update status: {result?.Message}");
+                    TempData["Message"] = result?.Message ?? "Failed to update enrollment status.";
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message ?? "Failed to update enrollment status.";
+                }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                return RedirectToAction("Index", new { role });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "EnrollmentUpdateStatusAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        // GET: /Enrollment/Create
+        [ActionName("Create")]
+        public async Task<IActionResult> EnrollmentCreateAsync(string? role = "admin")
+        {
+            try
+            {
+                ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+                var client = _httpClientFactory.CreateClient("WebAPI");
+                await PopulateDropdowns(client);
+                return View("Create", new EnrollmentCreateRequestModel { EnrollDate = DateTime.Today });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "EnrollmentCreateAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        // POST: /Enrollment/Save
+        [HttpPost]
+        [ActionName("Save")]
+        public async Task<IActionResult> EnrollmentSaveAsync(EnrollmentCreateRequestModel model, string? role = "admin")
+        {
+            try
+            {
+                _logger.LogInformation("Enrollment Save Async => Creating enrollment");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+                ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+
+                if (!ModelState.IsValid)
+                {
+                    await PopulateDropdowns(client);
+                    return View("Create", model);
+                }
+
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var httpResponse = await client.PostAsync("api/Enrollment", content);
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<EnrollmentCreateResponseModel>(jsonString)
+                    ?? new EnrollmentCreateResponseModel { IsSuccess = false, Message = "Unknown error" };
+
+                if (result != null && result.IsSuccess)
+                {
+                    _logger.LogInformation("Enrollment Save Async => Enrollment created successfully");
+                    TempData["Message"] = result.Message ?? "Enrollment created successfully!";
+                    TempData["isSuccess"] = true;
+                    TempData["Success"] = result.Message ?? "Enrollment created successfully!";
+                }
+                else
+                {
+                    _logger.LogWarning($"Enrollment Save Async => Failed to create enrollment: {result?.Message}");
+                    TempData["Message"] = result?.Message;
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message;
+                    ViewBag.Error = result?.Message ?? "Failed to create enrollment.";
+                }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                if (result != null && result.IsSuccess)
+                {
+                    return RedirectToAction("Index", new { role });
+                }
+
+                await PopulateDropdowns(client);
+                return View("Create", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "EnrollmentSaveAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("Create")]
+        public Task<IActionResult> EnrollmentCreatePostAsync(EnrollmentCreateRequestModel model, string? role = "admin")
+            => EnrollmentSaveAsync(model, role);
+
+        // GET: /Enrollment/Edit/5
+        [ActionName("Edit")]
+        public async Task<IActionResult> EnrollmentEditAsync(int id, string? role = "admin")
+        {
+            try
+            {
+                _logger.LogInformation($"Enrollment Edit Async => Fetching enrollment {id}");
+                ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                var httpResponse = await client.GetAsync($"api/Enrollment/{id}");
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var enrollment = JsonConvert.DeserializeObject<EnrollmentEditResponseModel>(jsonString);
+
+                if (enrollment == null || !enrollment.IsSuccess)
+                {
+                    _logger.LogWarning($"Enrollment Edit Async => Failed to fetch enrollment {id}: {enrollment?.Message}");
+                    TempData["Message"] = enrollment?.Message ?? "Enrollment not found.";
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = enrollment?.Message ?? "Enrollment not found.";
+                    return RedirectToAction("Index", new { role });
+                }
+
+                await PopulateDropdowns(client);
+
+                var patchModel = new EnrollmentPatchRequestModel
+                {
+                    ClassId = enrollment.ClassId,
+                    StudentId = enrollment.StudentId,
+                    EnrollDate = enrollment.EnrollDate
+                };
+                ViewBag.EnrollmentId = id;
+                ViewBag.StudentName = enrollment.StudentName;
+                ViewBag.ClassName = enrollment.ClassName;
+
+                return View("Edit", patchModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "EnrollmentEditAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        // POST: /Enrollment/Update/5
+        [HttpPost]
+        [ActionName("Update")]
+        public async Task<IActionResult> EnrollmentUpdateAsync(int id, EnrollmentPatchRequestModel model, string? role = "admin")
+        {
+            try
+            {
+                _logger.LogInformation($"Enrollment Update Async => Updating enrollment {id}");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+                ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+
+                if (!ModelState.IsValid)
+                {
+                    ViewBag.EnrollmentId = id;
+                    await PopulateDropdowns(client);
+                    return View("Edit", model);
+                }
+
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                var httpResponse = await client.PatchAsync($"api/Enrollment/{id}", content);
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<EnrollmentPatchResponseModel>(jsonString)
+                    ?? new EnrollmentPatchResponseModel { IsSuccess = false, Message = "Unknown error" };
+
+                if (result != null && result.IsSuccess)
+                {
+                    _logger.LogInformation("Enrollment Update Async => Enrollment updated successfully");
+                    TempData["Message"] = result.Message ?? "Enrollment updated successfully!";
+                    TempData["isSuccess"] = true;
+                    TempData["Success"] = result.Message ?? "Enrollment updated successfully!";
+                }
+                else
+                {
+                    _logger.LogWarning($"Enrollment Update Async => Failed to update enrollment: {result?.Message}");
+                    TempData["Message"] = result?.Message;
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message;
+                    ViewBag.EnrollmentId = id;
+                    ViewBag.Error = result?.Message ?? "Failed to update enrollment.";
+                }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                if (result != null && result.IsSuccess)
+                {
+                    return RedirectToAction("Index", new { role });
+                }
+
+                ViewBag.EnrollmentId = id;
+                await PopulateDropdowns(client);
+                return View("Edit", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "EnrollmentUpdateAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("Edit")]
+        public Task<IActionResult> EnrollmentEditPostAsync(int id, EnrollmentPatchRequestModel model, string? role = "admin")
+            => EnrollmentUpdateAsync(id, model, role);
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            try
+            {
+                return View("Error!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        private async Task PopulateDropdowns(HttpClient client)
+        {
+            var classesResp = await client.GetAsync("api/SubClass");
+            var classesJson = await classesResp.Content.ReadAsStringAsync();
+            var classesResponse = JsonConvert.DeserializeObject<SubClassListResponseModel>(classesJson);
             ViewBag.Classes = classesResponse?.SubClassList ?? new List<SubClassModel>();
+
+            var usersResp = await client.GetAsync("api/User");
+            var usersJson = await usersResp.Content.ReadAsStringAsync();
+            var usersResponse = JsonConvert.DeserializeObject<UserListResponseModel>(usersJson);
             var students = usersResponse?.Users?.Where(u => u.Role == "Student").ToList();
             if (students == null || students.Count == 0)
             {
                 students = usersResponse?.Users ?? new List<UserModel>();
             }
             ViewBag.Students = students;
-
-            if (response == null)
-            {
-                ViewBag.Error = "API returned an empty response.";
-                return View(new EnrollmentListResponseModel { EnrollmentList = new() });
-            }
-
-            if (!response.IsSuccess && (response.EnrollmentList == null || response.EnrollmentList.Count == 0))
-            {
-                ViewBag.Error = response.Message;
-            }
-
-            var list = response.EnrollmentList ?? new List<EnrollmentModel>();
-
-            // Apply filter by Class
-            if (classId.HasValue && classId.Value > 0)
-            {
-                list = list.Where(e => e.ClassId == classId.Value).ToList();
-            }
-
-            // Apply filter by Status
-            if (!string.IsNullOrWhiteSpace(status) && !status.Equals("all", StringComparison.OrdinalIgnoreCase))
-            {
-                list = list.Where(e => string.Equals(e.Status, status, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            // Apply search query
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                var q = search.Trim();
-                list = list.Where(e =>
-                    (!string.IsNullOrEmpty(e.StudentName) && e.StudentName.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrEmpty(e.ClassName) && e.ClassName.Contains(q, StringComparison.OrdinalIgnoreCase)) ||
-                    e.EnrollmentId.ToString().Contains(q)
-                ).ToList();
-            }
-
-            response.EnrollmentList = list;
-            return View(response);
         }
-        catch (HttpRequestException)
-        {
-            ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-            return View(new EnrollmentListResponseModel { EnrollmentList = new() });
-        }
-    }
-
-    // POST: /Enrollment/UpdateStatus
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateStatus(int enrollmentId, string status, string? role = "admin")
-    {
-        try
-        {
-            var request = new EnrollmentUpdateStatusResquestModel
-            {
-                EnrollmentId = enrollmentId,
-                Status = status
-            };
-
-            var result = await _enrollmentApiService.UpdateStatusAsync(request);
-            if (result != null && result.IsSuccess)
-            {
-                TempData["Success"] = result.Message ?? $"Enrollment status updated to {status}.";
-            }
-            else
-            {
-                TempData["Error"] = result?.Message ?? "Failed to update enrollment status.";
-            }
-        }
-        catch (HttpRequestException)
-        {
-            TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
-        }
-        catch (Exception ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
-
-        return RedirectToAction(nameof(Index), new { role });
-    }
-
-    // GET: /Enrollment/Create
-    [HttpGet]
-    public async Task<IActionResult> Create(string? role = "admin")
-    {
-        ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
-        await PopulateDropdowns();
-        return View(new EnrollmentCreateRequestModel { EnrollDate = DateTime.Today });
-    }
-
-    // POST: /Enrollment/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(EnrollmentCreateRequestModel model, string? role = "admin")
-    {
-        ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
-
-        if (!ModelState.IsValid)
-        {
-            await PopulateDropdowns();
-            return View(model);
-        }
-
-        try
-        {
-            var result = await _enrollmentApiService.CreateEnrollmentAsync(model);
-            if (result != null && result.IsSuccess)
-            {
-                TempData["Success"] = result.Message ?? "Enrollment created successfully!";
-                return RedirectToAction(nameof(Index), new { role });
-            }
-
-            ViewBag.Error = result?.Message ?? "Failed to create enrollment.";
-            await PopulateDropdowns();
-            return View(model);
-        }
-        catch (HttpRequestException)
-        {
-            ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-            await PopulateDropdowns();
-            return View(model);
-        }
-    }
-
-    // GET: /Enrollment/Edit/5
-    [HttpGet]
-    public async Task<IActionResult> Edit(int id, string? role = "admin")
-    {
-        ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
-
-        try
-        {
-            var enrollment = await _enrollmentApiService.GetByIdAsync(id);
-            if (enrollment == null || !enrollment.IsSuccess)
-            {
-                TempData["Error"] = enrollment?.Message ?? "Enrollment not found.";
-                return RedirectToAction(nameof(Index), new { role });
-            }
-
-            await PopulateDropdowns();
-
-            var patchModel = new EnrollmentPatchRequestModel
-            {
-                ClassId = enrollment.ClassId,
-                StudentId = enrollment.StudentId,
-                EnrollDate = enrollment.EnrollDate
-            };
-            ViewBag.EnrollmentId = id;
-            ViewBag.StudentName = enrollment.StudentName;
-            ViewBag.ClassName = enrollment.ClassName;
-
-            return View(patchModel);
-        }
-        catch (HttpRequestException)
-        {
-            TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
-            return RedirectToAction(nameof(Index), new { role });
-        }
-    }
-
-    // POST: /Enrollment/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, EnrollmentPatchRequestModel model, string? role = "admin")
-    {
-        ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
-
-        if (!ModelState.IsValid)
-        {
-            ViewBag.EnrollmentId = id;
-            await PopulateDropdowns();
-            return View(model);
-        }
-
-        try
-        {
-            var result = await _enrollmentApiService.UpdateEnrollmentAsync(id, model);
-            if (result != null && result.IsSuccess)
-            {
-                TempData["Success"] = result.Message ?? "Enrollment updated successfully!";
-                return RedirectToAction(nameof(Index), new { role });
-            }
-
-            ViewBag.EnrollmentId = id;
-            ViewBag.Error = result?.Message ?? "Failed to update enrollment.";
-            await PopulateDropdowns();
-            return View(model);
-        }
-        catch (HttpRequestException)
-        {
-            ViewBag.EnrollmentId = id;
-            ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-            await PopulateDropdowns();
-            return View(model);
-        }
-    }
-
-    private async Task PopulateDropdowns()
-    {
-        var classesResponse = await _enrollmentApiService.GetSubClassesAsync();
-        ViewBag.Classes = classesResponse?.SubClassList ?? new List<SubClassModel>();
-
-        var usersResponse = await _enrollmentApiService.GetUsersAsync();
-        var students = usersResponse?.Users?.Where(u => u.Role == "Student").ToList();
-        if (students == null || students.Count == 0)
-        {
-            students = usersResponse?.Users ?? new List<UserModel>();
-        }
-        ViewBag.Students = students;
     }
 }

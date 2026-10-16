@@ -5,7 +5,11 @@ namespace OnlineClassManagementSystem.Shared.models.TeachingTracking;
 
 public class TeachingTrackingListRequestModel
 {
-
+    public int? PageNo { get; set; }
+    public int? PageSize { get; set; }
+    public string? Search { get; set; }
+    public int? SubClassId { get; set; }
+    public int? TeacherId { get; set; }
 }
 
 public class TeachingTrackingListResponseModel
@@ -13,6 +17,13 @@ public class TeachingTrackingListResponseModel
     public bool IsSuccess { get; set; }
     public string Message { get; set; } = null!;
     public List<TeachingTrackingModel> TeachingTrackingList { get; set; } = new();
+
+    public int TotalCount { get; set; }
+    public int PageNo { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
+    public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalCount / PageSize) : 0;
+    public bool HasPreviousPage => PageNo > 1;
+    public bool HasNextPage => PageNo < TotalPages;
 }
 
 public class TeachingTrackingModel

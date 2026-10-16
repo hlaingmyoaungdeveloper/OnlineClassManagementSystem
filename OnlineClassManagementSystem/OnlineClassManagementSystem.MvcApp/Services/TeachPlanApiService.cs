@@ -12,11 +12,18 @@ public class TeachPlanApiService
     }
 
     // GET: All TeachPlans
-    public async Task<TeachPlanListResponseModel?> GetAllAsync()
+    public async Task<TeachPlanListResponseModel?> GetAllAsync(TeachPlanListRequestModel? requestModel = null)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<TeachPlanListResponseModel>("api/TeachPlan");
+            var query = new List<string>();
+            if (requestModel?.PageNo.HasValue == true) query.Add($"pageNo={requestModel.PageNo.Value}");
+            if (requestModel?.PageSize.HasValue == true) query.Add($"pageSize={requestModel.PageSize.Value}");
+            if (!string.IsNullOrWhiteSpace(requestModel?.Search)) query.Add($"search={Uri.EscapeDataString(requestModel.Search.Trim())}");
+            if (requestModel?.SubjectId.HasValue == true) query.Add($"subjectId={requestModel.SubjectId.Value}");
+
+            var url = query.Count > 0 ? $"api/TeachPlan?{string.Join("&", query)}" : "api/TeachPlan";
+            return await _httpClient.GetFromJsonAsync<TeachPlanListResponseModel>(url);
         }
         catch (HttpRequestException)
         {

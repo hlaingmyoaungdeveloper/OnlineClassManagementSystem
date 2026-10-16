@@ -21,9 +21,46 @@ public class TeachPlanService
     {
         try
         {
-            List<TeachPlanModel> teachPlans = await _db.TblTeachPlans
+            var query = _db.TblTeachPlans
                 .AsNoTracking()
-                .Where(x => !x.IsDelete)
+                .Include(x => x.Subject)
+                .Where(x => !x.IsDelete);
+
+            if (model.SubjectId.HasValue && model.SubjectId.Value > 0)
+            {
+                query = query.Where(x => x.SubjectId == model.SubjectId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Search))
+            {
+                var search = model.Search.Trim().ToLower();
+                query = query.Where(x =>
+                    (x.Topic != null && x.Topic.ToLower().Contains(search)) ||
+                    (x.Subject.SubjectName != null && x.Subject.SubjectName.ToLower().Contains(search)) ||
+                    x.TeachPlanId.ToString().Contains(search));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            bool isPaged = model.PageNo.HasValue || model.PageSize.HasValue;
+            int pageNo = model.PageNo ?? 1;
+            int pageSize = model.PageSize ?? 10;
+            if (pageNo < 1) pageNo = 1;
+            if (pageSize < 1) pageSize = 10;
+
+            if (isPaged)
+            {
+                query = query
+                    .OrderByDescending(x => x.TeachPlanId)
+                    .Skip((pageNo - 1) * pageSize)
+                    .Take(pageSize);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.TeachPlanId);
+            }
+
+            List<TeachPlanModel> teachPlans = await query
                 .Select(x => new TeachPlanModel
                 {
                     Id = x.TeachPlanId,
@@ -36,7 +73,10 @@ public class TeachPlanService
             {
                 IsSuccess = true,
                 Message = "TeachPlans Fetched Successfully",
-                TeachPlanList = teachPlans
+                TeachPlanList = teachPlans,
+                TotalCount = totalCount,
+                PageNo = isPaged ? pageNo : 1,
+                PageSize = isPaged ? pageSize : (totalCount > 0 ? totalCount : 10)
             };
         }
         catch (Exception ex)
@@ -44,7 +84,8 @@ public class TeachPlanService
             return new TeachPlanListResponseModel
             {
                 IsSuccess = false,
-                Message = ex.Message
+                Message = ex.Message,
+                TeachPlanList = new List<TeachPlanModel>()
             };
         }
     }

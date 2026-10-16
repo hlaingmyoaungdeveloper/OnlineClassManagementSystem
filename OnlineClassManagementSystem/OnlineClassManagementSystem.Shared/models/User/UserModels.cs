@@ -14,11 +14,26 @@ namespace OnlineClassManagementSystem.Shared.models.User
         public string? TelegramUsername { get; set; }
     }
 
+    public class UserListRequestModel
+    {
+        public int? PageNo { get; set; }
+        public int? PageSize { get; set; }
+        public string? Search { get; set; }
+        public string? Role { get; set; }
+    }
+
     public class UserListResponseModel
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; } = null!;
         public List<UserModel> Users { get; set; } = new();
+
+        public int TotalCount { get; set; }
+        public int PageNo { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalCount / PageSize) : 0;
+        public bool HasPreviousPage => PageNo > 1;
+        public bool HasNextPage => PageNo < TotalPages;
     }
 
     public class UserEditRequestModel

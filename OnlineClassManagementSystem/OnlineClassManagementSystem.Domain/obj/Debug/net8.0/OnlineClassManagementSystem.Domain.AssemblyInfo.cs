@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnlineClassManagementSystem.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf6a5dc30793b46a0a23eabf3761cf51d9b62cc9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+75dc3c8af8f77b1f41126b03e1a971d69701aedc")]
 [assembly: System.Reflection.AssemblyProductAttribute("OnlineClassManagementSystem.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnlineClassManagementSystem.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

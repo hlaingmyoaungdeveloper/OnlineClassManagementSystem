@@ -15,11 +15,19 @@ public class TeachingTrackingApiService
     }
 
     // GET: All TeachingTrackings
-    public async Task<TeachingTrackingListResponseModel?> GetAllAsync()
+    public async Task<TeachingTrackingListResponseModel?> GetAllAsync(TeachingTrackingListRequestModel? requestModel = null)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<TeachingTrackingListResponseModel>("api/TeachingTracking");
+            var query = new List<string>();
+            if (requestModel?.PageNo.HasValue == true) query.Add($"pageNo={requestModel.PageNo.Value}");
+            if (requestModel?.PageSize.HasValue == true) query.Add($"pageSize={requestModel.PageSize.Value}");
+            if (!string.IsNullOrWhiteSpace(requestModel?.Search)) query.Add($"search={Uri.EscapeDataString(requestModel.Search.Trim())}");
+            if (requestModel?.SubClassId.HasValue == true) query.Add($"subClassId={requestModel.SubClassId.Value}");
+            if (requestModel?.TeacherId.HasValue == true) query.Add($"teacherId={requestModel.TeacherId.Value}");
+
+            var url = query.Count > 0 ? $"api/TeachingTracking?{string.Join("&", query)}" : "api/TeachingTracking";
+            return await _httpClient.GetFromJsonAsync<TeachingTrackingListResponseModel>(url);
         }
         catch (HttpRequestException)
         {

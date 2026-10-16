@@ -1,94 +1,176 @@
 using Microsoft.AspNetCore.Mvc;
-using OnlineClassManagementSystem.MvcApp.Services;
+using Newtonsoft.Json;
 using OnlineClassManagementSystem.Shared.models.TeachPlan;
+using System.Text;
 
 namespace OnlineClassManagementSystem.MvcApp.Controllers
 {
     public class TeachPlanController : Controller
     {
-        private readonly TeachPlanApiService _teachPlanApiService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<TeachPlanController> _logger;
 
-        public TeachPlanController(TeachPlanApiService teachPlanApiService)
+        public TeachPlanController(IHttpClientFactory httpClientFactory, ILogger<TeachPlanController> logger)
         {
-            _teachPlanApiService = teachPlanApiService;
+            _httpClientFactory = httpClientFactory;
+            _logger = logger;
         }
 
         // GET: /TeachPlan
-        public async Task<IActionResult> Index()
+        [ActionName("Index")]
+        public async Task<IActionResult> TeachPlanListAsync(string? search = null, string? role = null, int pageNo = 1, int pageSize = 10)
         {
             try
             {
-                var response = await _teachPlanApiService.GetAllAsync();
+                _logger.LogInformation("TeachPlan List Async => Fetching teach plans");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                ViewBag.ActiveMenu = "TeachPlan";
+                ViewBag.SearchQuery = search;
+                ViewBag.PageNo = pageNo;
+                ViewBag.PageSize = pageSize;
+                if (!string.IsNullOrEmpty(role))
+                {
+                    ViewBag.CurrentRole = role.ToLower();
+                }
+
+                var query = new List<string>
+                {
+                    $"pageNo={pageNo}",
+                    $"pageSize={pageSize}"
+                };
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    query.Add($"search={Uri.EscapeDataString(search.Trim())}");
+                }
+
+                var httpResponse = await client.GetAsync($"api/TeachPlan?{string.Join("&", query)}");
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<TeachPlanListResponseModel>(jsonString);
 
                 if (response == null)
                 {
                     ViewBag.Error = "API returned an empty response.";
-                    return View();
+                    return View(new TeachPlanListResponseModel { TeachPlanList = new() });
                 }
 
                 if (!response.IsSuccess)
                 {
+                    _logger.LogWarning($"TeachPlan List Async => Failed to fetch teach plans: {response.Message}");
                     ViewBag.Error = response.Message;
-                    return View();
+                    TempData["Message"] = response.Message;
+                    TempData["isSuccess"] = false;
+                    return View(response);
                 }
 
+                _logger.LogInformation("TeachPlan List Async => Teach plans fetched successfully");
+                ViewData["TeachPlans"] = response.TeachPlanList;
                 return View(response);
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-                return View();
+                _logger.LogError(ex, "TeachPlanListAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
             }
         }
 
         // GET: /TeachPlan/Create
-        [HttpGet]
-        public IActionResult Create()
+        [ActionName("Create")]
+        public IActionResult TeachPlanCreate()
         {
-            return View("CreateTeachPlan", new TeachPlanCreateRequestModel());
-        }
-
-        // POST: /TeachPlan/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(TeachPlanCreateRequestModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("CreateTeachPlan", model);
-            }
-
             try
             {
-                var result = await _teachPlanApiService.CreateTeachPlanAsync(model);
+                return View("CreateTeachPlan", new TeachPlanCreateRequestModel());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "TeachPlanCreate => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        // POST: /TeachPlan/Save
+        [HttpPost]
+        [ActionName("Save")]
+        public async Task<IActionResult> TeachPlanSaveAsync(TeachPlanCreateRequestModel model)
+        {
+            try
+            {
+                _logger.LogInformation("TeachPlan Save Async => Creating teach plan");
+
+                if (!ModelState.IsValid)
+                {
+                    return View("CreateTeachPlan", model);
+                }
+
+                var client = _httpClientFactory.CreateClient("WebAPI");
+                var content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+
+                var httpResponse = await client.PostAsync("api/TeachPlan", content);
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<TeachPlanCreateResponseModel>(jsonString)
+                    ?? new TeachPlanCreateResponseModel { IsSuccess = false, Message = "Unknown error" };
 
                 if (result != null && result.IsSuccess)
                 {
+                    _logger.LogInformation("TeachPlan Save Async => Teach plan created successfully");
+                    TempData["Message"] = result.Message ?? "Teach Plan created successfully!";
+                    TempData["isSuccess"] = true;
                     TempData["Success"] = result.Message ?? "Teach Plan created successfully!";
-                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    _logger.LogWarning($"TeachPlan Save Async => Failed to create teach plan: {result?.Message}");
+                    TempData["Message"] = result?.Message;
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message;
+                    ViewBag.Error = result?.Message ?? "Failed to create Teach Plan. Please check the submitted data.";
                 }
 
-                ViewBag.Error = result?.Message ?? "Failed to create Teach Plan. Please check the submitted data.";
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                if (result != null && result.IsSuccess)
+                {
+                    return RedirectToAction("Index");
+                }
+
                 return View("CreateTeachPlan", model);
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-                return View("CreateTeachPlan", model);
+                _logger.LogError(ex, "TeachPlanSaveAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
             }
         }
 
+        [HttpPost]
+        [ActionName("Create")]
+        public Task<IActionResult> TeachPlanCreatePostAsync(TeachPlanCreateRequestModel model)
+            => TeachPlanSaveAsync(model);
+
         // GET: /TeachPlan/Edit/5
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        [ActionName("Edit")]
+        public async Task<IActionResult> TeachPlanEditAsync(int id)
         {
             try
             {
-                var response = await _teachPlanApiService.GetByIdAsync(id);
+                _logger.LogInformation($"TeachPlan Edit Async => Fetching teach plan {id}");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                var httpResponse = await client.GetAsync($"api/TeachPlan/{id}");
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<TeachPlanEditResponseModel>(jsonString);
+
                 if (response == null || !response.IsSuccess)
                 {
+                    _logger.LogWarning($"TeachPlan Edit Async => Failed to fetch teach plan {id}: {response?.Message}");
+                    TempData["Message"] = response?.Message ?? "Teach Plan not found.";
+                    TempData["isSuccess"] = false;
                     TempData["Error"] = response?.Message ?? "Teach Plan not found.";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("Index");
                 }
 
                 var requestModel = new TeachPlanModel
@@ -101,76 +183,142 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
 
                 return View("EditTeachPlan", requestModel);
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
-                return RedirectToAction(nameof(Index));
+                _logger.LogError(ex, "TeachPlanEditAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
             }
         }
 
-        // POST: /TeachPlan/Edit/5
+        // POST: /TeachPlan/Update/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, TeachPlanModel model)
+        [ActionName("Update")]
+        public async Task<IActionResult> TeachPlanUpdateAsync(int id, TeachPlanModel model)
         {
-            if (model.Id == 0 && id != 0)
-            {
-                model.Id = id;
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View("EditTeachPlan", model);
-            }
-
             try
             {
+                _logger.LogInformation($"TeachPlan Update Async => Updating teach plan {id}");
+
+                if (model.Id == 0 && id != 0)
+                {
+                    model.Id = id;
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return View("EditTeachPlan", model);
+                }
+
                 var patchModel = new TeachPlanPatchRequestModel
                 {
                     SubjectId = model.SubjectId,
                     Topic = model.Topic
                 };
 
-                bool success = await _teachPlanApiService.UpdateTeachPlanAsync(model.Id, patchModel);
-                if (success)
-                {
-                    TempData["Success"] = "Teach Plan updated successfully!";
-                    return RedirectToAction(nameof(Index));
-                }
+                var client = _httpClientFactory.CreateClient("WebAPI");
+                var content = new StringContent(JsonConvert.SerializeObject(patchModel), Encoding.UTF8, "application/json");
 
-                ViewBag.Error = "Failed to update teach plan.";
-                return View("EditTeachPlan", model);
-            }
-            catch (HttpRequestException)
-            {
-                ViewBag.Error = "Cannot connect to Web API. Please check API URL.";
-                return View("EditTeachPlan", model);
-            }
-        }
+                var httpResponse = await client.PatchAsync($"api/TeachPlan/{model.Id}", content);
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<TeachPlanPatchResponseModel>(jsonString)
+                    ?? new TeachPlanPatchResponseModel { IsSuccess = false, Message = "Unknown error" };
 
-        // POST: /TeachPlan/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
-        {
-            try
-            {
-                bool success = await _teachPlanApiService.DeleteTeachPlanAsync(id);
-                if (success)
+                if (result != null && result.IsSuccess)
                 {
-                    TempData["Success"] = "Teach Plan deleted successfully!";
+                    _logger.LogInformation("TeachPlan Update Async => Teach plan updated successfully");
+                    TempData["Message"] = result.Message ?? "Teach Plan updated successfully!";
+                    TempData["isSuccess"] = true;
+                    TempData["Success"] = result.Message ?? "Teach Plan updated successfully!";
                 }
                 else
                 {
-                    TempData["Error"] = "Failed to delete teach plan.";
+                    _logger.LogWarning($"TeachPlan Update Async => Failed to update teach plan: {result?.Message}");
+                    TempData["Message"] = result?.Message;
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message;
+                    ViewBag.Error = result?.Message ?? "Failed to update teach plan.";
                 }
-            }
-            catch (HttpRequestException)
-            {
-                TempData["Error"] = "Cannot connect to Web API. Please check API URL.";
-            }
 
-            return RedirectToAction(nameof(Index));
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                if (result != null && result.IsSuccess)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                return View("EditTeachPlan", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "TeachPlanUpdateAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [ActionName("Edit")]
+        public Task<IActionResult> TeachPlanEditPostAsync(int id, TeachPlanModel model)
+            => TeachPlanUpdateAsync(id, model);
+
+        // POST: /TeachPlan/Delete/5
+        [HttpPost]
+        [ActionName("Delete")]
+        public async Task<IActionResult> TeachPlanDeleteAsync(int id)
+        {
+            try
+            {
+                _logger.LogInformation($"TeachPlan Delete Async => Deleting teach plan {id}");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                var httpResponse = await client.DeleteAsync($"api/TeachPlan/{id}");
+                var jsonString = await httpResponse.Content.ReadAsStringAsync();
+                var result = JsonConvert.DeserializeObject<TeachPlanDeleteResponseModel>(jsonString)
+                    ?? new TeachPlanDeleteResponseModel { IsSuccess = false, Message = "Unknown error" };
+
+                if (result != null && result.IsSuccess)
+                {
+                    _logger.LogInformation("TeachPlan Delete Async => Teach plan deleted successfully");
+                    TempData["Message"] = result.Message ?? "Teach Plan deleted successfully!";
+                    TempData["isSuccess"] = true;
+                    TempData["Success"] = result.Message ?? "Teach Plan deleted successfully!";
+                }
+                else
+                {
+                    _logger.LogWarning($"TeachPlan Delete Async => Failed to delete teach plan: {result?.Message}");
+                    TempData["Message"] = result?.Message;
+                    TempData["isSuccess"] = false;
+                    TempData["Error"] = result?.Message;
+                }
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+                {
+                    return Json(result);
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "TeachPlanDeleteAsync => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            try
+            {
+                return View("Error!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error => Exception occurred");
+                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+            }
         }
     }
 }
