@@ -42,19 +42,38 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
         [ActionName("Index")]
         public async Task<IActionResult> TeachingTrackingListAsync(string? search = null, string? role = null, int pageNo = 1, int pageSize = 10)
         {
+            ViewBag.ActiveMenu = "Tracking";
+            ViewBag.SearchQuery = search ?? "";
+            ViewBag.PageNo = pageNo;
+            ViewBag.PageSize = pageSize;
+            if (!string.IsNullOrEmpty(role))
+            {
+                ViewBag.CurrentRole = role.ToLower();
+            }
+
+            // If requested via AJAX, return JSON data
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+            {
+                return await TeachingTrackingGetDataAsync(search, pageNo, pageSize);
+            }
+
+            // Return view instantly without blocking on API
+            return View(new TeachingTrackingListResponseModel 
+            { 
+                PageNo = pageNo, 
+                PageSize = pageSize,
+                TeachingTrackingList = new() 
+            });
+        }
+
+        [HttpGet]
+        [ActionName("GetData")]
+        public async Task<IActionResult> TeachingTrackingGetDataAsync(string? search = null, int pageNo = 1, int pageSize = 10)
+        {
             try
             {
-                _logger.LogInformation("TeachingTracking List Async => Fetching teaching tracking records");
+                _logger.LogInformation("TeachingTracking GetData => Fetching tracking records via AJAX");
                 var client = _httpClientFactory.CreateClient("WebAPI");
-
-                ViewBag.ActiveMenu = "Tracking";
-                ViewBag.SearchQuery = search;
-                ViewBag.PageNo = pageNo;
-                ViewBag.PageSize = pageSize;
-                if (!string.IsNullOrEmpty(role))
-                {
-                    ViewBag.CurrentRole = role.ToLower();
-                }
 
                 var query = new List<string>
                 {
@@ -68,31 +87,58 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
 
                 var httpResponse = await client.GetAsync($"api/TeachingTracking?{string.Join("&", query)}");
                 var jsonString = await httpResponse.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<TeachingTrackingListResponseModel>(jsonString);
+                var response = JsonConvert.DeserializeObject<TeachingTrackingListResponseModel>(jsonString)
+                    ?? new TeachingTrackingListResponseModel { IsSuccess = false, Message = "Empty response from API", TeachingTrackingList = new() };
 
-                if (response == null)
-                {
-                    ViewBag.Error = "API returned an empty response.";
-                    return View(new TeachingTrackingListResponseModel { TeachingTrackingList = new() });
-                }
-
-                if (!response.IsSuccess)
-                {
-                    _logger.LogWarning($"TeachingTracking List Async => Failed to fetch records: {response.Message}");
-                    ViewBag.Error = response.Message;
-                    TempData["Message"] = response.Message;
-                    TempData["isSuccess"] = false;
-                    return View(response);
-                }
-
-                _logger.LogInformation("TeachingTracking List Async => Records fetched successfully");
-                ViewData["TeachingTrackings"] = response.TeachingTrackingList;
-                return View(response);
+                return Json(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "TeachingTrackingListAsync => Exception occurred");
-                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+                _logger.LogError(ex, "TeachingTrackingGetDataAsync => Exception occurred");
+                return Json(new TeachingTrackingListResponseModel 
+                { 
+                    IsSuccess = false, 
+                    Message = "Failed to load tracking records: " + ex.Message,
+                    TeachingTrackingList = new() 
+                });
+            }
+        }
+
+        [HttpGet]
+        [ActionName("GetDropdownData")]
+        public async Task<IActionResult> TeachingTrackingGetDropdownDataAsync()
+        {
+            try
+            {
+                _logger.LogInformation("TeachingTracking GetDropdownData => Fetching dropdowns via AJAX");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                var teachPlansTask = client.GetAsync("api/TeachPlan");
+                var subClassesTask = client.GetAsync("api/SubClass");
+                var usersTask = client.GetAsync("api/User");
+
+                await Task.WhenAll(teachPlansTask, subClassesTask, usersTask);
+
+                var teachPlansJson = await (await teachPlansTask).Content.ReadAsStringAsync();
+                var subClassesJson = await (await subClassesTask).Content.ReadAsStringAsync();
+                var usersJson = await (await usersTask).Content.ReadAsStringAsync();
+
+                var teachPlans = JsonConvert.DeserializeObject<TeachPlanListResponseModel>(teachPlansJson);
+                var subClasses = JsonConvert.DeserializeObject<SubClassListResponseModel>(subClassesJson);
+                var users = JsonConvert.DeserializeObject<UserListResponseModel>(usersJson);
+
+                return Json(new 
+                { 
+                    isSuccess = true, 
+                    teachPlans = teachPlans?.TeachPlanList ?? new(),
+                    subClasses = subClasses?.SubClassList ?? new(),
+                    teachers = users?.Users ?? new()
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "TeachingTrackingGetDropdownDataAsync => Exception occurred");
+                return Json(new { isSuccess = false, message = ex.Message });
             }
         }
 

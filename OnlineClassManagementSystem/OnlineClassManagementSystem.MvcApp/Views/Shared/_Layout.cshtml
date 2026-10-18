@@ -14,6 +14,10 @@
     <!-- Tailwind CSS Browser CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@@tailwindcss/browser@4"></script>
 
+    <!-- jQuery (Local project asset for instant reliability) -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>')</script>
+
     <!-- Chart.js for Dashboards and Reports -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -34,6 +38,15 @@
         .sidebar-nav-active-teacher {
             background-color: #0D9488 !important;
             color: #ffffff !important;
+        }
+        @@keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton-shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
         }
     </style>
 </head>
@@ -241,8 +254,35 @@
         }
     </script>
 
-    <!-- JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-+bUdzX9O0/6n+U0VwZVdO9yqB6e3hC/5YBk2VZ+zR0U=" crossorigin="anonymous"></script>
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        window.showToast = function(message, isSuccess = true) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold transition-all duration-300 transform -translate-y-2 opacity-0 ${
+                isSuccess 
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+                    : 'bg-rose-50 border-rose-200 text-rose-800'
+            }`;
+            const icon = isSuccess 
+                ? '<svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
+                : '<svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.remove('-translate-y-2', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        };
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

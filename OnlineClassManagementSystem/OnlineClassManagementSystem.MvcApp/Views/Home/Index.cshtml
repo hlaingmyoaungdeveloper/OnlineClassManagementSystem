@@ -4,7 +4,7 @@
     ViewData["Title"] = "Dashboard";
     var queryRole = Context.Request.Query["role"].ToString();
     var currentRole = !string.IsNullOrEmpty(queryRole) ? queryRole.ToLower() : (ViewBag.CurrentRole as string ?? "admin");
-    var isTeacher = Model.IsTeacher;
+    var isTeacher = currentRole == "teacher";
 }
 
 <div class="p-6 md:p-8 space-y-8">
@@ -13,25 +13,32 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h1>
-            <p class="mt-1 text-sm text-slate-500">
-                @(isTeacher ? $"Welcome back, {Model.TeacherName}!" : "Welcome back, Admin!")
+            <p id="dashboardGreeting" class="mt-1 text-sm text-slate-500">
+                @(isTeacher ? "Welcome back, Teacher!" : "Welcome back, Admin!")
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs">
-                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                API Connected
+            <span id="apiStatusBadge" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs">
+                <span id="apiStatusDot" class="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+                <span id="apiStatusText">Loading Data...</span>
             </span>
+            <button id="btnRefreshDashboard" onclick="loadDashboardData()" title="Refresh Dashboard"
+                    class="rounded-lg border border-slate-200 bg-white p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
         </div>
     </div>
 
-    @if (ViewBag.Error != null)
-    {
-        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-medium text-amber-800 flex items-center gap-2">
+    <!-- Error Banner (Hidden by default) -->
+    <div id="dashboardErrorBanner" class="hidden rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-medium text-amber-800 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
             <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            <span>@ViewBag.Error</span>
+            <span id="dashboardErrorMessage">Cannot connect to Web API. Please verify the API is running.</span>
         </div>
-    }
+        <button onclick="loadDashboardData()" class="rounded-lg bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 text-xs font-semibold transition cursor-pointer">
+            Retry
+        </button>
+    </div>
 
     @if (!isTeacher)
     {
@@ -47,7 +54,8 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Classes</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TotalClasses</h3>
+                    <div id="statTotalClassesSkeleton" class="mt-1 h-7 w-12 rounded skeleton-shimmer"></div>
+                    <h3 id="statTotalClasses" class="hidden mt-1 text-2xl font-bold text-slate-800">0</h3>
                 </div>
             </a>
 
@@ -60,7 +68,8 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Students</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TotalStudents</h3>
+                    <div id="statTotalStudentsSkeleton" class="mt-1 h-7 w-12 rounded skeleton-shimmer"></div>
+                    <h3 id="statTotalStudents" class="hidden mt-1 text-2xl font-bold text-slate-800">0</h3>
                 </div>
             </div>
 
@@ -73,7 +82,8 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Teachers</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TotalTeachers</h3>
+                    <div id="statTotalTeachersSkeleton" class="mt-1 h-7 w-12 rounded skeleton-shimmer"></div>
+                    <h3 id="statTotalTeachers" class="hidden mt-1 text-2xl font-bold text-slate-800">0</h3>
                 </div>
             </div>
 
@@ -86,7 +96,8 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Enrollments</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TotalEnrollments</h3>
+                    <div id="statTotalEnrollmentsSkeleton" class="mt-1 h-7 w-12 rounded skeleton-shimmer"></div>
+                    <h3 id="statTotalEnrollments" class="hidden mt-1 text-2xl font-bold text-slate-800">0</h3>
                 </div>
             </a>
         </div>
@@ -100,12 +111,16 @@
                         <h2 class="text-base font-bold text-slate-800">Enrollment Trend (@DateTime.Now.Year)</h2>
                         <p class="text-xs text-slate-400">Monthly student enrollments from API</p>
                     </div>
-                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600">
-                        @Model.TotalEnrollments Total
+                    <span id="chartEnrollmentBadge" class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600">
+                        0 Total
                     </span>
                 </div>
-                <div class="relative h-72 w-full">
-                    <canvas id="enrollmentTrendChart"></canvas>
+                <div class="relative h-72 w-full flex items-center justify-center" id="chartWrapper">
+                    <div id="chartSkeleton" class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-50/50 rounded-xl">
+                        <div class="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                        <span class="text-xs text-slate-400">Loading chart data...</span>
+                    </div>
+                    <canvas id="enrollmentTrendChart" class="w-full h-full"></canvas>
                 </div>
             </div>
 
@@ -117,33 +132,26 @@
                         <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Live Feed</span>
                     </div>
 
-                    @if (Model.RecentActivities.Count == 0)
-                    {
-                        <div class="py-12 text-center text-slate-400">
-                            <svg class="mx-auto h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <p class="mt-2 text-xs">No recent activity recorded yet.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="space-y-4">
-                            @foreach (var act in Model.RecentActivities)
-                            {
-                                var dotColor = act.Type == "enrollment" ? "bg-blue-500 ring-blue-50"
-                                    : act.Type == "tracking" ? "bg-emerald-500 ring-emerald-50"
-                                    : "bg-purple-500 ring-purple-50";
-
-                                <div class="flex items-start gap-3.5">
-                                    <span class="mt-1.5 h-2.5 w-2.5 rounded-full @dotColor shrink-0 ring-4"></span>
-                                    <div class="min-w-0 flex-1">
-                                        <p class="text-xs font-semibold text-slate-800 truncate">@act.Title</p>
-                                        <p class="text-[11px] text-slate-500 truncate">@act.Description</p>
-                                        <span class="text-[10px] text-slate-400">@act.TimeAgo</span>
-                                    </div>
+                    <!-- Activities Skeleton -->
+                    <div id="recentActivitiesSkeleton" class="space-y-4">
+                        @for (int i = 0; i < 4; i++)
+                        {
+                            <div class="flex items-start gap-3.5">
+                                <div class="mt-1.5 h-2.5 w-2.5 rounded-full skeleton-shimmer shrink-0"></div>
+                                <div class="min-w-0 flex-1 space-y-1.5">
+                                    <div class="h-3 w-3/4 rounded skeleton-shimmer"></div>
+                                    <div class="h-2.5 w-1/2 rounded skeleton-shimmer"></div>
                                 </div>
-                            }
-                        </div>
-                    }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Activities Content -->
+                    <div id="recentActivitiesList" class="hidden space-y-4"></div>
+                    <div id="recentActivitiesEmpty" class="hidden py-12 text-center text-slate-400">
+                        <svg class="mx-auto h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="mt-2 text-xs">No recent activity recorded yet.</p>
+                    </div>
                 </div>
 
                 <div class="pt-4 border-t border-slate-100 mt-6">
@@ -168,7 +176,8 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">My Classes</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.MyClassesCount</h3>
+                    <div id="statMyClassesSkeleton" class="mt-1 h-7 w-12 rounded skeleton-shimmer"></div>
+                    <h3 id="statMyClasses" class="hidden mt-1 text-2xl font-bold text-slate-800">0</h3>
                 </div>
             </div>
 
@@ -181,7 +190,8 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Class Students</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.TeacherStudentCount</h3>
+                    <div id="statTeacherStudentsSkeleton" class="mt-1 h-7 w-12 rounded skeleton-shimmer"></div>
+                    <h3 id="statTeacherStudents" class="hidden mt-1 text-2xl font-bold text-slate-800">0</h3>
                 </div>
             </div>
 
@@ -194,7 +204,8 @@
                 </div>
                 <div>
                     <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Teaching Records</p>
-                    <h3 class="mt-1 text-2xl font-bold text-slate-800">@Model.PendingTrackingCount</h3>
+                    <div id="statPendingTrackingSkeleton" class="mt-1 h-7 w-12 rounded skeleton-shimmer"></div>
+                    <h3 id="statPendingTracking" class="hidden mt-1 text-2xl font-bold text-slate-800">0</h3>
                 </div>
             </div>
         </div>
@@ -219,32 +230,16 @@
                             <th class="px-6 py-3.5">Mode</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @if (Model.UpcomingClasses.Count == 0)
-                        {
-                            <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-slate-400 text-xs">
-                                    No scheduled classes found.
-                                </td>
-                            </tr>
-                        }
-                        else
-                        {
-                            @foreach (var sch in Model.UpcomingClasses)
-                            {
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="px-6 py-4 font-semibold text-slate-800">@sch.DayOfWeek</td>
-                                    <td class="px-6 py-4 font-medium text-slate-700">@sch.StartTime.ToString("HH:mm") - @sch.EndTime.ToString("HH:mm")</td>
-                                    <td class="px-6 py-4 text-slate-800 font-semibold">@(sch.ClassName ?? ("Class #" + sch.SubClassId))</td>
-                                    <td class="px-6 py-4 text-teal-600 font-medium">@(sch.SubjectName ?? "Subject")</td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
-                                            @(sch.Mode ?? "ClassRoom")
-                                        </span>
-                                    </td>
-                                </tr>
-                            }
-                        }
+                    <tbody id="upcomingClassesBody" class="divide-y divide-slate-100">
+                        <!-- Skeleton Rows -->
+                        <tr id="upcomingClassesSkeleton">
+                            <td colspan="5" class="px-6 py-8 text-center">
+                                <div class="flex flex-col items-center justify-center gap-2">
+                                    <div class="h-5 w-5 animate-spin rounded-full border-2 border-teal-600 border-t-transparent"></div>
+                                    <span class="text-xs text-slate-400">Loading schedule...</span>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -254,65 +249,281 @@
 </div>
 
 @section Scripts {
-    @if (!isTeacher)
-    {
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const ctx = document.getElementById('enrollmentTrendChart');
-                const monthlyData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyEnrollments));
+    <script>
+        const currentRole = '@currentRole';
+        const isTeacher = @(isTeacher ? "true" : "false");
+        let trendChartInstance = null;
 
-                if (ctx) {
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                            datasets: [{
-                                label: 'Enrollments',
-                                data: monthlyData,
-                                borderColor: '#3B82F6',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                tension: 0.35,
-                                fill: true,
-                                pointBackgroundColor: '#3B82F6',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: { display: false },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            return ' ' + context.parsed.y + ' enrolled';
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        stepSize: 1,
-                                        precision: 0,
-                                        color: '#94A3B8',
-                                        font: { size: 11 }
-                                    },
-                                    grid: { color: '#F1F5F9' }
-                                },
-                                x: {
-                                    grid: { display: false },
-                                    ticks: { color: '#94A3B8', font: { size: 11 } }
+        function loadDashboardData() {
+            // Set loading indicators
+            const statusDot = document.getElementById('apiStatusDot');
+            const statusText = document.getElementById('apiStatusText');
+            const errorBanner = document.getElementById('dashboardErrorBanner');
+
+            if (statusDot) {
+                statusDot.className = 'h-2 w-2 rounded-full bg-amber-400 animate-pulse';
+            }
+            if (statusText) {
+                statusText.innerText = 'Loading Data...';
+            }
+            if (errorBanner) {
+                errorBanner.classList.add('hidden');
+            }
+
+            const url = '@Url.Action("GetDashboardData", "Home")?role=' + encodeURIComponent(currentRole);
+
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(response => {
+                if (response && response.isSuccess && response.data) {
+                    const data = response.data;
+
+                    // Update Status
+                    if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-emerald-500';
+                    if (statusText) statusText.innerText = 'API Connected';
+
+                    if (!isTeacher) {
+                        // Populate Admin Stats
+                        updateStat('statTotalClasses', 'statTotalClassesSkeleton', data.totalClasses);
+                        updateStat('statTotalStudents', 'statTotalStudentsSkeleton', data.totalStudents);
+                        updateStat('statTotalTeachers', 'statTotalTeachersSkeleton', data.totalTeachers);
+                        updateStat('statTotalEnrollments', 'statTotalEnrollmentsSkeleton', data.totalEnrollments);
+
+                        // Update badge
+                        const badge = document.getElementById('chartEnrollmentBadge');
+                        if (badge) badge.innerText = `${data.totalEnrollments} Total`;
+
+                        // Render Trend Chart
+                        renderChart(data.monthlyEnrollments || []);
+
+                        // Render Recent Activities
+                        renderRecentActivities(data.recentActivities || []);
+                    } else {
+                        // Populate Teacher Stats
+                        updateStat('statMyClasses', 'statMyClassesSkeleton', data.myClassesCount);
+                        updateStat('statTeacherStudents', 'statTeacherStudentsSkeleton', data.teacherStudentCount);
+                        updateStat('statPendingTracking', 'statPendingTrackingSkeleton', data.pendingTrackingCount);
+
+                        // Greeting
+                        if (data.teacherName) {
+                            const greeting = document.getElementById('dashboardGreeting');
+                            if (greeting) greeting.innerText = `Welcome back, ${data.teacherName}!`;
+                        }
+
+                        // Render Upcoming Classes
+                        renderUpcomingClasses(data.upcomingClasses || []);
+                    }
+                } else {
+                    showDashboardError(response ? response.message : 'Unknown response from server');
+                }
+            })
+            .catch(err => {
+                showDashboardError('Failed to load dashboard metrics from Web API.');
+            });
+        }
+
+        function updateStat(valueElementId, skeletonElementId, value) {
+            const valEl = document.getElementById(valueElementId);
+            const skelEl = document.getElementById(skeletonElementId);
+            if (valEl) {
+                valEl.innerText = (value !== undefined && value !== null) ? value : '0';
+                valEl.classList.remove('hidden');
+            }
+            if (skelEl) {
+                skelEl.classList.add('hidden');
+            }
+        }
+
+        function showDashboardError(msg) {
+            const statusDot = document.getElementById('apiStatusDot');
+            const statusText = document.getElementById('apiStatusText');
+            const errorBanner = document.getElementById('dashboardErrorBanner');
+            const errorMsg = document.getElementById('dashboardErrorMessage');
+
+            if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-rose-500';
+            if (statusText) statusText.innerText = 'API Disconnected';
+
+            if (errorBanner) {
+                errorBanner.classList.remove('hidden');
+            }
+            if (errorMsg) {
+                errorMsg.innerText = msg;
+            }
+
+            // Hide chart skeleton on error
+            const chartSkel = document.getElementById('chartSkeleton');
+            if (chartSkel) chartSkel.classList.add('hidden');
+        }
+
+        function renderChart(monthlyData) {
+            const chartSkel = document.getElementById('chartSkeleton');
+            if (chartSkel) chartSkel.classList.add('hidden');
+
+            const ctx = document.getElementById('enrollmentTrendChart');
+            if (!ctx) return;
+
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js library is not available');
+                return;
+            }
+
+            if (trendChartInstance) {
+                trendChartInstance.destroy();
+            }
+
+            trendChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Enrollments',
+                        data: monthlyData,
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.35,
+                        fill: true,
+                        pointBackgroundColor: '#3B82F6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.parsed.y + ' enrolled';
                                 }
                             }
                         }
-                    });
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                precision: 0,
+                                color: '#94A3B8',
+                                font: { size: 11 }
+                            },
+                            grid: { color: '#F1F5F9' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94A3B8', font: { size: 11 } }
+                        }
+                    }
                 }
             });
-        </script>
-    }
+        }
+
+        function renderRecentActivities(activities) {
+            const skel = document.getElementById('recentActivitiesSkeleton');
+            const list = document.getElementById('recentActivitiesList');
+            const empty = document.getElementById('recentActivitiesEmpty');
+
+            if (skel) skel.classList.add('hidden');
+
+            if (!activities || activities.length === 0) {
+                if (empty) empty.classList.remove('hidden');
+                if (list) list.classList.add('hidden');
+                return;
+            }
+
+            if (empty) empty.classList.add('hidden');
+            if (list) {
+                list.innerHTML = '';
+                activities.forEach(act => {
+                    const dotColor = act.type === 'enrollment' ? 'bg-blue-500 ring-blue-50'
+                        : act.type === 'tracking' ? 'bg-emerald-500 ring-emerald-50'
+                        : 'bg-purple-500 ring-purple-50';
+
+                    const itemHtml = `
+                        <div class="flex items-start gap-3.5">
+                            <span class="mt-1.5 h-2.5 w-2.5 rounded-full ${dotColor} shrink-0 ring-4"></span>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs font-semibold text-slate-800 truncate">${escapeHtml(act.title)}</p>
+                                <p class="text-[11px] text-slate-500 truncate">${escapeHtml(act.description)}</p>
+                                <span class="text-[10px] text-slate-400">${escapeHtml(act.timeAgo || '')}</span>
+                            </div>
+                        </div>
+                    `;
+                    list.insertAdjacentHTML('beforeend', itemHtml);
+                });
+                list.classList.remove('hidden');
+            }
+        }
+
+        function renderUpcomingClasses(schedules) {
+            const tbody = document.getElementById('upcomingClassesBody');
+            if (!tbody) return;
+
+            if (!schedules || schedules.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-slate-400 text-xs">
+                            No scheduled classes found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            schedules.forEach(sch => {
+                const startTime = formatTime(sch.startTime);
+                const endTime = formatTime(sch.endTime);
+                const className = sch.className || ('Class #' + sch.subClassId);
+                const subjectName = sch.subjectName || 'Subject';
+                const mode = sch.mode || 'ClassRoom';
+
+                const rowHtml = `
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="px-6 py-4 font-semibold text-slate-800">${escapeHtml(sch.dayOfWeek || '-')}</td>
+                        <td class="px-6 py-4 font-medium text-slate-700">${startTime} - ${endTime}</td>
+                        <td class="px-6 py-4 text-slate-800 font-semibold">${escapeHtml(className)}</td>
+                        <td class="px-6 py-4 text-teal-600 font-medium">${escapeHtml(subjectName)}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                                ${escapeHtml(mode)}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '--:--';
+            if (typeof timeStr === 'string' && timeStr.length >= 5) {
+                return timeStr.substring(0, 5);
+            }
+            return timeStr;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Kick off AJAX load immediately
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadDashboardData);
+        } else {
+            loadDashboardData();
+        }
+    </script>
 }

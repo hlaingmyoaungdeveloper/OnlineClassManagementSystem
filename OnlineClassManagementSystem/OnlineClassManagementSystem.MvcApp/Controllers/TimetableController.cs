@@ -27,10 +27,29 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
             {
                 ViewBag.CurrentRole = role.ToLower();
             }
+            ViewBag.SelectedClassId = classId;
+            ViewBag.SelectedTeacherId = teacherId;
 
+            // If requested via AJAX, return JSON data
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+            {
+                return await TimetableGetDataAsync(classId, teacherId);
+            }
+
+            // Return view instantly without blocking on API
+            return View("Index", new TimetableListResponseModel 
+            { 
+                TimetableList = new() 
+            });
+        }
+
+        [HttpGet]
+        [ActionName("GetData")]
+        public async Task<IActionResult> TimetableGetDataAsync(int? classId, int? teacherId)
+        {
             try
             {
-                _logger.LogInformation("Timetable List Async => Fetching timetables");
+                _logger.LogInformation("Timetable GetData => Fetching timetables via AJAX");
                 var client = _httpClientFactory.CreateClient("WebAPI");
 
                 TimetableListResponseModel? response;
@@ -46,7 +65,6 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                         Message = classResult?.Message ?? "",
                         TimetableList = classResult?.TimetableList ?? new List<TimetableModel>()
                     };
-                    ViewBag.SelectedClassId = classId.Value;
                 }
                 else if (teacherId.HasValue && teacherId.Value > 0)
                 {
@@ -59,7 +77,6 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                         Message = teacherResult?.Message ?? "",
                         TimetableList = teacherResult?.TimetableList ?? new List<TimetableModel>()
                     };
-                    ViewBag.SelectedTeacherId = teacherId.Value;
                 }
                 else
                 {
@@ -68,26 +85,55 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
                     response = JsonConvert.DeserializeObject<TimetableListResponseModel>(jsonString);
                 }
 
-                if (response != null && response.IsSuccess && response.TimetableList != null)
-                {
-                    _logger.LogInformation("Timetable List Async => Timetables fetched successfully");
-                    ViewData["Timetables"] = response.TimetableList;
-                }
-                else
-                {
-                    _logger.LogWarning($"Timetable List Async => Failed to fetch timetables: {response?.Message}");
-                    TempData["Message"] = response?.Message;
-                    TempData["isSuccess"] = false;
-                    ViewBag.Error = response?.Message;
-                }
-
-                await PopulateDropdowns(client);
-                return View("Index", response ?? new TimetableListResponseModel { TimetableList = new() });
+                return Json(response ?? new TimetableListResponseModel { IsSuccess = false, Message = "Empty response", TimetableList = new() });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "TimetableListAsync => Exception occurred");
-                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+                _logger.LogError(ex, "TimetableGetDataAsync => Exception occurred");
+                return Json(new TimetableListResponseModel 
+                { 
+                    IsSuccess = false, 
+                    Message = "Failed to load timetables: " + ex.Message,
+                    TimetableList = new() 
+                });
+            }
+        }
+
+        [HttpGet]
+        [ActionName("GetDropdownData")]
+        public async Task<IActionResult> TimetableGetDropdownDataAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Timetable GetDropdownData => Fetching classes, teachers, plans via AJAX");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                var classesTask = client.GetAsync("api/SubClass");
+                var usersTask = client.GetAsync("api/User");
+                var teachPlansTask = client.GetAsync("api/TeachPlan");
+
+                await Task.WhenAll(classesTask, usersTask, teachPlansTask);
+
+                var classesJson = await (await classesTask).Content.ReadAsStringAsync();
+                var usersJson = await (await usersTask).Content.ReadAsStringAsync();
+                var teachPlansJson = await (await teachPlansTask).Content.ReadAsStringAsync();
+
+                var classes = JsonConvert.DeserializeObject<SubClassListResponseModel>(classesJson);
+                var users = JsonConvert.DeserializeObject<UserListResponseModel>(usersJson);
+                var teachPlans = JsonConvert.DeserializeObject<TeachPlanListResponseModel>(teachPlansJson);
+
+                return Json(new 
+                { 
+                    isSuccess = true, 
+                    classes = classes?.SubClassList ?? new List<SubClassModel>(),
+                    teachers = users?.Users?.Where(u => u.Role == "Teacher" || u.Role == "Admin").ToList() ?? users?.Users ?? new List<UserModel>(),
+                    teachPlans = teachPlans?.TeachPlanList ?? new List<TeachPlanModel>()
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "TimetableGetDropdownDataAsync => Exception occurred");
+                return Json(new { isSuccess = false, message = ex.Message });
             }
         }
 

@@ -22,17 +22,26 @@ public class HomeController : Controller
     }
 
     [ActionName("Index")]
-    public async Task<IActionResult> IndexAsync(string? role = "admin")
+    public IActionResult Index(string? role = "admin")
     {
         var currentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
         ViewBag.CurrentRole = currentRole;
         ViewBag.ActiveMenu = "Dashboard";
 
         var viewModel = new DashboardViewModel { Role = currentRole };
+        return View(viewModel);
+    }
+
+    [HttpGet]
+    [ActionName("GetDashboardData")]
+    public async Task<IActionResult> GetDashboardDataAsync(string? role = "admin")
+    {
+        var currentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+        var viewModel = new DashboardViewModel { Role = currentRole };
 
         try
         {
-            _logger.LogInformation("Dashboard Index => Fetching dashboard data");
+            _logger.LogInformation("GetDashboardData => Fetching dashboard data via AJAX");
             var client = _httpClientFactory.CreateClient("WebAPI");
 
             var classesTask = client.GetAsync("api/SubClass");
@@ -134,7 +143,7 @@ public class HomeController : Controller
             var teacherSchedules = timetables
                 .Where(t => (currentTeacher != null && t.TeacherId == currentTeacher.UserId) ||
                             (currentTeacher != null && string.Equals(t.TeacherName, currentTeacher.FullName, StringComparison.OrdinalIgnoreCase)))
-                .ToList();
+            .ToList();
 
             if (teacherSchedules.Count == 0 && timetables.Count > 0)
             {
@@ -151,20 +160,19 @@ public class HomeController : Controller
                 currentTeacher == null || t.TeacherId == currentTeacher.UserId ||
                 string.Equals(t.TeacherName, currentTeacher.FullName, StringComparison.OrdinalIgnoreCase));
 
-            _logger.LogInformation("Dashboard Index => Dashboard data loaded successfully");
+            _logger.LogInformation("GetDashboardData => Dashboard data fetched successfully via AJAX");
+            return Json(new { isSuccess = true, data = viewModel });
         }
         catch (HttpRequestException ex)
         {
             _logger.LogError(ex, "Error fetching dashboard data from API");
-            ViewBag.Error = "Cannot connect to Web API. Please verify the API is running.";
+            return Json(new { isSuccess = false, message = "Cannot connect to Web API. Please verify the API is running." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected error loading dashboard data");
-            ViewBag.Error = "Error loading dashboard metrics: " + ex.Message;
+            return Json(new { isSuccess = false, message = "Error loading dashboard metrics: " + ex.Message });
         }
-
-        return View(viewModel);
     }
 
     public IActionResult Enrollment(string? role = "admin")

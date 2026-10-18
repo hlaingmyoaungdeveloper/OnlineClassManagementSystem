@@ -252,18 +252,14 @@
                                 <input type="checkbox" id="filterClassAll" checked onchange="toggleAllClassesFilter(this)"
                                        class="rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 h-3.5 w-3.5">
                                 <span class="font-medium text-slate-800">All Schedules</span>
-                                <span class="ml-auto text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200/80 font-semibold text-slate-600">@totalScheduled</span>
+                                <span id="allSchedulesCount" class="ml-auto text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200/80 font-semibold text-slate-600">0</span>
                             </label>
 
-                            <!-- Individual Classes -->
-                            @foreach (var c in classes.Take(6))
-                            {
-                                <label class="flex items-center gap-2 py-1 px-1.5 rounded-lg hover:bg-slate-100/70 cursor-pointer transition class-filter-row">
-                                    <input type="checkbox" value="@c.SubClassId" checked onchange="applyLiveFilters()"
-                                           class="class-filter-chk rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 h-3.5 w-3.5">
-                                    <span class="truncate">@c.ClassName</span>
-                                </label>
-                            }
+                            <!-- Individual Classes (loaded via AJAX) -->
+                            <div id="individualClassFilters" class="space-y-1.5">
+                                <div class="skeleton-shimmer h-6 rounded-lg w-full"></div>
+                                <div class="skeleton-shimmer h-6 rounded-lg w-3/4"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -282,7 +278,7 @@
                                     class="w-full flex items-center gap-2.5 py-1 px-1.5 rounded-lg hover:bg-slate-100 text-left transition category-btn" data-cat="ClassRoom">
                                 <span class="h-2 w-2 rounded-full bg-blue-500 shrink-0"></span>
                                 <span class="font-medium text-slate-700">ClassRoom</span>
-                                <span class="ml-auto text-[10px] text-slate-400">@timetables.Count(x => string.IsNullOrEmpty(x.Mode) || x.Mode == "ClassRoom")</span>
+                                <span id="countClassRoom" class="ml-auto text-[10px] text-slate-400">0</span>
                             </button>
 
                             <!-- Online -->
@@ -290,7 +286,7 @@
                                     class="w-full flex items-center gap-2.5 py-1 px-1.5 rounded-lg hover:bg-slate-100 text-left transition category-btn" data-cat="Online">
                                 <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
                                 <span class="font-medium text-slate-700">Online</span>
-                                <span class="ml-auto text-[10px] text-slate-400">@timetables.Count(x => x.Mode == "Online")</span>
+                                <span id="countOnline" class="ml-auto text-[10px] text-slate-400">0</span>
                             </button>
 
                             <!-- Hybrid -->
@@ -298,7 +294,7 @@
                                     class="w-full flex items-center gap-2.5 py-1 px-1.5 rounded-lg hover:bg-slate-100 text-left transition category-btn" data-cat="Hybrid">
                                 <span class="h-2 w-2 rounded-full bg-purple-500 shrink-0"></span>
                                 <span class="font-medium text-slate-700">Hybrid</span>
-                                <span class="ml-auto text-[10px] text-slate-400">@timetables.Count(x => x.Mode == "Hybrid")</span>
+                                <span id="countHybrid" class="ml-auto text-[10px] text-slate-400">0</span>
                             </button>
 
                             <!-- All Reset -->
@@ -309,18 +305,14 @@
                         </div>
                     </div>
 
-                    @if (!isTeacher && teachers.Count > 0)
+                    @if (!isTeacher)
                     {
                         <!-- Teacher Filter Dropdown -->
-                        <div class="space-y-1.5 pt-1">
+                        <div class="space-y-1.5 pt-1" id="teacherFilterWrapper">
                             <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">Teacher</label>
                             <select id="teacherSelectFilter" onchange="applyLiveFilters()"
                                     class="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                                 <option value="">All Teachers</option>
-                                @foreach (var t in teachers)
-                                {
-                                    <option value="@t.UserId" selected="@(ViewBag.SelectedTeacherId == t.UserId ? "selected" : null)">@t.FullName</option>
-                                }
                             </select>
                         </div>
                     }
@@ -428,6 +420,7 @@
 
                 <!-- 1. WEEK VIEW (Exact Layout from Waton screenshot) -->
                 <div id="viewContainerWeek" class="flex-1 flex flex-col min-h-0 cal-grid-scroll overflow-x-auto overflow-y-auto relative">
+                    <div id="timetableLoadingBar" class="h-1 bg-blue-600 w-full animate-pulse hidden"></div>
 
                     <table class="w-full min-w-[960px] border-collapse text-xs select-none relative">
                         <!-- Column Headers (Days of the week) -->
@@ -481,91 +474,21 @@
                                     @for (int d = 0; d < 7; d++)
                                     {
                                         var day = days[d];
-                                        var matched = timetables.Where(t =>
-                                            (string.Equals(t.DayOfWeek, day.FullName, StringComparison.OrdinalIgnoreCase) ||
-                                             string.Equals(t.DayOfWeek, day.ShortName, StringComparison.OrdinalIgnoreCase)) &&
-                                            t.StartTime.Hour == slot.Hour).ToList();
-
-                                        <td class="p-1.5 border-r border-slate-200/80 last:border-r-0 align-top relative group transition hover:bg-slate-50/50 cursor-pointer @(day.IsWeekend ? "cal-weekend-stripe" : "")"
+                                        <td class="cal-slot-cell p-1.5 border-r border-slate-200/80 last:border-r-0 align-top relative group transition hover:bg-slate-50/50 cursor-pointer @(day.IsWeekend ? "cal-weekend-stripe" : "")"
+                                            data-day="@day.FullName"
+                                            data-shortday="@day.ShortName"
+                                            data-hour="@slot.Hour"
+                                            data-default-start="@slot.DefaultStart"
+                                            data-default-end="@slot.DefaultEnd"
                                             onclick="onEmptySlotClick(event, '@day.FullName', '@slot.DefaultStart', '@slot.DefaultEnd')">
 
-                                            @if (matched.Any())
-                                            {
-                                                <!-- Schedule Cards Stack -->
-                                                <div class="space-y-1.5">
-                                                    @foreach (var item in matched)
-                                                    {
-                                                        // Determine pastel palette matching Waton Calendar
-                                                        var pastelClass = item.Mode switch
-                                                        {
-                                                            "Online" => "card-pastel-mint",
-                                                            "Hybrid" => "card-pastel-lavender",
-                                                            _ => (item.Id % 3 == 0) ? "card-pastel-lavender" : ((item.Id % 3 == 1) ? "card-pastel-blue" : "card-pastel-mint")
-                                                        };
-
-                                                        <!-- TIMETABLE EVENT CARD (Waton Calendar Style) -->
-                                                        <div class="cal-event-card w-full rounded-xl border p-2 shadow-2xs transition-all duration-150 cursor-pointer relative group/card select-none @pastelClass"
-                                                             data-item-id="@item.Id"
-                                                             data-class-id="@item.SubClassId"
-                                                             data-teacher-id="@item.TeacherId"
-                                                             data-subject-id="@item.SubjectId"
-                                                             data-mode="@(item.Mode ?? "ClassRoom")"
-                                                             data-search-text="@(item.SubjectName) @(item.ClassName) @(item.TeacherName)"
-                                                             onclick="event.stopPropagation(); openEditScheduleFlyout(@item.Id, @item.SubClassId, @item.TeacherId, @item.SubjectId, '@item.DayOfWeek', '@item.StartTime.ToString("HH:mm")', '@item.EndTime.ToString("HH:mm")', '@item.Mode', '@(item.SubjectName?.Replace("'", "\\'"))', '@(item.ClassName?.Replace("'", "\\'"))', '@(item.TeacherName?.Replace("'", "\\'"))', event)">
-
-                                                            <!-- Top Row: Title & Quick Actions -->
-                                                            <div class="flex items-start justify-between gap-1">
-                                                                <div class="font-bold text-xs truncate leading-snug flex-1" title="@item.SubjectName">
-                                                                    @(string.IsNullOrEmpty(item.SubjectName) ? "Curriculum Class" : item.SubjectName)
-                                                                </div>
-
-                                                                <!-- Card Action Controls -->
-                                                                <div class="flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 transition shrink-0">
-                                                                    <!-- Direct Delete Button -->
-                                                                    <button type="button"
-                                                                            onclick="event.stopPropagation(); triggerCardDelete(@item.Id, '@(item.SubjectName?.Replace("'", "\\'"))', '@(item.ClassName?.Replace("'", "\\'"))', '@item.DayOfWeek', '@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")')"
-                                                                            class="p-1 rounded text-slate-500 hover:text-rose-600 hover:bg-white/90 transition" title="Delete">
-                                                                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Subtitle Time Range (e.g. 8.30am - 10.00am) -->
-                                                            <div class="cal-time-sub text-[11px] font-medium mt-0.5 tracking-tight">
-                                                                @{
-                                                                    var startFormatted = item.StartTime.ToString("h.mm tt").ToLower();
-                                                                    var endFormatted = item.EndTime.ToString("h.mm tt").ToLower();
-                                                                }
-                                                                @startFormatted - @endFormatted
-                                                            </div>
-
-                                                            <!-- Class & Teacher Details Badge -->
-                                                            <div class="mt-1 pt-1 border-t border-black/5 flex items-center justify-between text-[10px]">
-                                                                <span class="truncate font-semibold opacity-80" title="@item.ClassName">
-                                                                    @(item.ClassName ?? ("Class #" + item.SubClassId))
-                                                                </span>
-
-                                                                @if (!string.IsNullOrEmpty(item.TeacherName))
-                                                                {
-                                                                    <span class="truncate opacity-75 ml-1 text-right max-w-[80px]" title="@item.TeacherName">
-                                                                        @item.TeacherName
-                                                                    </span>
-                                                                }
-                                                            </div>
-
-                                                        </div>
-                                                    }
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <!-- Empty Slot (Subtle plus icon on hover) -->
-                                                <div class="h-full min-h-[64px] flex items-center justify-center rounded-lg border border-transparent group-hover:border-blue-200/80 group-hover:bg-blue-50/20 transition">
+                                            <div class="cal-slot-content space-y-1.5 h-full">
+                                                <div class="empty-slot-placeholder h-full min-h-[64px] flex items-center justify-center rounded-lg border border-transparent group-hover:border-blue-200/80 group-hover:bg-blue-50/20 transition">
                                                     <span class="opacity-0 group-hover:opacity-100 text-[11px] font-semibold text-blue-600 flex items-center gap-1 transition">
                                                         <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                                                     </span>
                                                 </div>
-                                            }
+                                            </div>
 
                                         </td>
                                     }
@@ -604,38 +527,9 @@
                             </span>
                         </div>
 
-                        <div class="space-y-3">
-                            @{
-                                var todayDayName = today.ToString("dddd");
-                                var todayClasses = timetables.Where(t =>
-                                    string.Equals(t.DayOfWeek, todayDayName, StringComparison.OrdinalIgnoreCase)).OrderBy(t => t.StartTime).ToList();
-                            }
-
-                            @if (todayClasses.Any())
-                            {
-                                @foreach (var c in todayClasses)
-                                {
-                                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:shadow-md transition flex items-center justify-between cursor-pointer"
-                                         onclick="openEditScheduleFlyout(@c.Id, @c.SubClassId, @c.TeacherId, @c.SubjectId, '@c.DayOfWeek', '@c.StartTime.ToString("HH:mm")', '@c.EndTime.ToString("HH:mm")', '@c.Mode', '@(c.SubjectName?.Replace("'", "\\'"))', '@(c.ClassName?.Replace("'", "\\'"))', '@(c.TeacherName?.Replace("'", "\\'"))', event)">
-                                        <div class="flex items-center gap-4">
-                                            <div class="font-mono text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg p-2 text-center w-24">
-                                                @c.StartTime.ToString("HH:mm") - @c.EndTime.ToString("HH:mm")
-                                            </div>
-                                            <div>
-                                                <h4 class="font-bold text-sm text-slate-900">@(c.SubjectName ?? "Curriculum")</h4>
-                                                <p class="text-xs text-slate-500">@c.ClassName • Teacher: @(c.TeacherName ?? "Assigned")</p>
-                                            </div>
-                                        </div>
-                                        <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">@c.Mode</span>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="text-center py-12 text-slate-400 text-xs">
-                                    No classes scheduled for today (@todayDayName).
-                                </div>
-                            }
+                        <div class="space-y-3" id="dayViewScheduleContainer">
+                            <div class="skeleton-shimmer h-16 rounded-xl w-full"></div>
+                            <div class="skeleton-shimmer h-16 rounded-xl w-full"></div>
                         </div>
                     </div>
                 </div>
@@ -692,22 +586,10 @@
             <!-- 1. Event Title / Subject (Border blue focus like screenshot) -->
             <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1">Event / Subject Title <span class="text-rose-500">*</span></label>
-                @if (teachPlans != null && teachPlans.Count > 0)
-                {
-                    <select name="SubjectId" id="flyoutSubjectId" required
-                            class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition font-medium">
-                        <option value="">Select subject curriculum...</option>
-                        @foreach (var p in teachPlans)
-                        {
-                            <option value="@p.SubjectId">@p.SubjectName (@p.Topic)</option>
-                        }
-                    </select>
-                }
-                else
-                {
-                    <input name="SubjectId" id="flyoutSubjectId" type="number" min="1" required placeholder="New event title (Subject ID)"
-                           class="w-full rounded-xl border border-blue-400 bg-white px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-blue-100 transition font-medium" />
-                }
+                <select name="SubjectId" id="flyoutSubjectId" required
+                        class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition font-medium">
+                    <option value="">Select subject curriculum...</option>
+                </select>
             </div>
 
             <!-- 2. Date / Day Picker (📅 Wednesday, Jul 12 style) -->
@@ -762,10 +644,6 @@
                     <select name="SubClassId" id="flyoutSubClassId" required
                             class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-medium">
                         <option value="">-- Select Class --</option>
-                        @foreach (var c in classes)
-                        {
-                            <option value="@c.SubClassId">@c.ClassName</option>
-                        }
                     </select>
                 </div>
 
@@ -774,10 +652,6 @@
                     <select name="TeacherId" id="flyoutTeacherId" required
                             class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition font-medium">
                         <option value="">-- Select Teacher --</option>
-                        @foreach (var t in teachers)
-                        {
-                            <option value="@t.UserId">@t.FullName</option>
-                        }
                     </select>
                 </div>
             </div>
@@ -887,6 +761,7 @@
         let selectedCategoryFilter = 'All';
         let currentMonthOffset = 0; // for mini calendar
         const baseDate = new Date();
+        let allTimetableItems = [];
 
         // Flyout Modal Elements
         const flyout = document.getElementById('watonScheduleFlyout');
@@ -923,6 +798,21 @@
         // Mini Calendar Elements
         const miniCalTitle = document.getElementById('miniCalendarTitle');
         const miniCalGrid = document.getElementById('miniCalendarGrid');
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return $('<div>').text(text).html();
+        }
+
+        function formatTimeDisplay(t) {
+            if (!t) return '';
+            const parts = t.split(':');
+            let h = parseInt(parts[0], 10);
+            const m = parts[1] || '00';
+            const ampm = h >= 12 ? 'pm' : 'am';
+            h = h % 12 || 12;
+            return `${h}.${m} ${ampm}`;
+        }
 
         // --- 1. INITIALIZE MINI CALENDAR (Waton aesthetic) ---
         function renderMiniCalendar() {
@@ -963,7 +853,6 @@
                 }
 
                 btn.onclick = () => {
-                    // Clicking mini calendar date triggers jump or view
                     document.querySelectorAll('#miniCalendarGrid button').forEach(b => {
                         if (!b.classList.contains('bg-slate-900')) {
                             b.classList.remove('bg-blue-100', 'text-blue-700');
@@ -983,7 +872,287 @@
             renderMiniCalendar();
         }
 
-        // --- 2. FLOATING SCHEDULE FLYOUT (ADD & EDIT) ---
+        // --- 2. AJAX DROPDOWN LOADER ---
+        function loadDropdownData() {
+            $.ajax({
+                url: '@Url.Action("GetDropdownData", "Timetable")',
+                type: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function(res) {
+                    if (!res || !res.isSuccess) return;
+
+                    // 1. Sidebar Class Filters
+                    const $classFilter = $('#individualClassFilters');
+                    if ($classFilter.length && res.classes) {
+                        let filterHtml = '';
+                        res.classes.slice(0, 8).forEach(c => {
+                            const subId = c.subClassId || c.SubClassId;
+                            const clsName = c.className || c.ClassName;
+                            filterHtml += `
+                            <label class="flex items-center gap-2 py-1 px-1.5 rounded-lg hover:bg-slate-100/70 cursor-pointer transition class-filter-row">
+                                <input type="checkbox" value="${subId}" checked onchange="applyLiveFilters()"
+                                       class="class-filter-chk rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 h-3.5 w-3.5">
+                                <span class="truncate">${escapeHtml(clsName)}</span>
+                            </label>`;
+                        });
+                        $classFilter.html(filterHtml);
+                    }
+
+                    // 2. Sidebar Teacher Filter
+                    const $teacherSelect = $('#teacherSelectFilter');
+                    if ($teacherSelect.length && res.teachers) {
+                        let optionsHtml = '<option value="">All Teachers</option>';
+                        const selectedTeacherId = '@(ViewBag.SelectedTeacherId ?? "")';
+                        res.teachers.forEach(t => {
+                            const uId = t.userId || t.UserId;
+                            const fName = t.fullName || t.FullName;
+                            const isSel = (selectedTeacherId && selectedTeacherId == uId) ? 'selected' : '';
+                            optionsHtml += `<option value="${uId}" ${isSel}>${escapeHtml(fName)}</option>`;
+                        });
+                        $teacherSelect.html(optionsHtml);
+                    }
+
+                    // 3. Flyout Selects
+                    const $flyoutClass = $('#flyoutSubClassId');
+                    if ($flyoutClass.length && res.classes) {
+                        let options = '<option value="">-- Select Class --</option>';
+                        res.classes.forEach(c => {
+                            const subId = c.subClassId || c.SubClassId;
+                            const clsName = c.className || c.ClassName;
+                            options += `<option value="${subId}">${escapeHtml(clsName)}</option>`;
+                        });
+                        $flyoutClass.html(options);
+                    }
+
+                    const $flyoutTeacher = $('#flyoutTeacherId');
+                    if ($flyoutTeacher.length && res.teachers) {
+                        let options = '<option value="">-- Select Teacher --</option>';
+                        res.teachers.forEach(t => {
+                            const uId = t.userId || t.UserId;
+                            const fName = t.fullName || t.FullName;
+                            options += `<option value="${uId}">${escapeHtml(fName)}</option>`;
+                        });
+                        $flyoutTeacher.html(options);
+                    }
+
+                    const $flyoutSubject = $('#flyoutSubjectId');
+                    if ($flyoutSubject.length && res.teachPlans) {
+                        let options = '<option value="">Select subject curriculum...</option>';
+                        res.teachPlans.forEach(p => {
+                            const sId = p.subjectId || p.SubjectId;
+                            const sName = p.subjectName || p.SubjectName;
+                            const topic = p.topic || p.Topic || '';
+                            options += `<option value="${sId}">${escapeHtml(sName)} (${escapeHtml(topic)})</option>`;
+                        });
+                        $flyoutSubject.html(options);
+                    }
+                }
+            });
+        }
+
+        // --- 3. AJAX TIMETABLE DATA LOADER ---
+        function loadTimetableData() {
+            const classId = '@(ViewBag.SelectedClassId ?? "")';
+            const teacherId = '@(ViewBag.SelectedTeacherId ?? "")';
+
+            $('#timetableLoadingBar').removeClass('hidden');
+
+            $.ajax({
+                url: '@Url.Action("GetData", "Timetable")',
+                type: 'GET',
+                data: { classId: classId, teacherId: teacherId },
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function(res) {
+                    $('#timetableLoadingBar').addClass('hidden');
+                    const items = (res && res.timetableList) ? res.timetableList : [];
+                    allTimetableItems = items;
+                    renderTimetableGrid(items);
+                    renderDayView(items);
+                    updateStats(items);
+                    applyLiveFilters();
+                },
+                error: function(err) {
+                    $('#timetableLoadingBar').addClass('hidden');
+                    window.showToast('Failed to load timetables. Please retry.', false);
+                }
+            });
+        }
+
+        function createEventCardHtml(item) {
+            const id = item.id || item.Id;
+            const subClassId = item.subClassId || item.SubClassId;
+            const teacherId = item.teacherId || item.TeacherId;
+            const subjectId = item.subjectId || item.SubjectId;
+            const dayOfWeek = item.dayOfWeek || item.DayOfWeek || '';
+            const mode = item.mode || item.Mode || 'ClassRoom';
+            const subjectName = item.subjectName || item.SubjectName || 'Curriculum Class';
+            const className = item.className || item.ClassName || ('Class #' + subClassId);
+            const teacherName = item.teacherName || item.TeacherName || '';
+
+            let startStr = item.startTime || item.StartTime || '09:00';
+            let endStr = item.endTime || item.EndTime || '10:30';
+            if (typeof startStr === 'string' && startStr.length > 5) startStr = startStr.substring(0, 5);
+            if (typeof endStr === 'string' && endStr.length > 5) endStr = endStr.substring(0, 5);
+
+            const displayTime = `${formatTimeDisplay(startStr)} - ${formatTimeDisplay(endStr)}`;
+
+            let pastelClass = 'card-pastel-blue';
+            if (mode === 'Online') pastelClass = 'card-pastel-mint';
+            else if (mode === 'Hybrid') pastelClass = 'card-pastel-lavender';
+            else if (id % 3 === 0) pastelClass = 'card-pastel-lavender';
+            else if (id % 3 === 1) pastelClass = 'card-pastel-blue';
+            else pastelClass = 'card-pastel-mint';
+
+            const safeSubjectName = (subjectName || '').replace(/'/g, "\\'");
+            const safeClassName = (className || '').replace(/'/g, "\\'");
+            const safeTeacherName = (teacherName || '').replace(/'/g, "\\'");
+
+            return `
+            <div class="cal-event-card w-full rounded-xl border p-2 shadow-2xs transition-all duration-150 cursor-pointer relative group/card select-none ${pastelClass}"
+                 data-item-id="${id}"
+                 data-class-id="${subClassId}"
+                 data-teacher-id="${teacherId}"
+                 data-subject-id="${subjectId}"
+                 data-mode="${mode}"
+                 data-search-text="${escapeHtml(subjectName)} ${escapeHtml(className)} ${escapeHtml(teacherName)}"
+                 onclick="event.stopPropagation(); openEditScheduleFlyout(${id}, ${subClassId}, ${teacherId}, ${subjectId}, '${dayOfWeek}', '${startStr}', '${endStr}', '${mode}', '${safeSubjectName}', '${safeClassName}', '${safeTeacherName}', event)">
+
+                <div class="flex items-start justify-between gap-1">
+                    <div class="font-bold text-xs truncate leading-snug flex-1" title="${escapeHtml(subjectName)}">
+                        ${escapeHtml(subjectName)}
+                    </div>
+                    <div class="flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 transition shrink-0">
+                        <button type="button"
+                                onclick="event.stopPropagation(); triggerCardDelete(${id}, '${safeSubjectName}', '${safeClassName}', '${dayOfWeek}', '${startStr} - ${endStr}')"
+                                class="p-1 rounded text-slate-500 hover:text-rose-600 hover:bg-white/90 transition" title="Delete">
+                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cal-time-sub text-[11px] font-medium mt-0.5 tracking-tight">
+                    ${displayTime}
+                </div>
+
+                <div class="mt-1 pt-1 border-t border-black/5 flex items-center justify-between text-[10px]">
+                    <span class="truncate font-semibold opacity-80" title="${escapeHtml(className)}">
+                        ${escapeHtml(className)}
+                    </span>
+                    ${teacherName ? `<span class="truncate opacity-75 ml-1 text-right max-w-[80px]" title="${escapeHtml(teacherName)}">${escapeHtml(teacherName)}</span>` : ''}
+                </div>
+            </div>`;
+        }
+
+        function renderTimetableGrid(items) {
+            $('.cal-slot-cell').each(function() {
+                const $cell = $(this);
+                $cell.find('.cal-slot-content').html(`
+                    <div class="empty-slot-placeholder h-full min-h-[64px] flex items-center justify-center rounded-lg border border-transparent group-hover:border-blue-200/80 group-hover:bg-blue-50/20 transition">
+                        <span class="opacity-0 group-hover:opacity-100 text-[11px] font-semibold text-blue-600 flex items-center gap-1 transition">
+                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        </span>
+                    </div>
+                `);
+            });
+
+            items.forEach(item => {
+                const dayOfWeek = (item.dayOfWeek || item.DayOfWeek || '').toLowerCase();
+                let startStr = item.startTime || item.StartTime || '09:00';
+                let hour = 9;
+                if (typeof startStr === 'string') {
+                    hour = parseInt(startStr.split(':')[0], 10);
+                } else if (startStr && startStr.hour !== undefined) {
+                    hour = startStr.hour;
+                }
+
+                $('.cal-slot-cell').each(function() {
+                    const $cell = $(this);
+                    const cellDay = ($cell.attr('data-day') || '').toLowerCase();
+                    const cellShortDay = ($cell.attr('data-shortday') || '').toLowerCase();
+                    const cellHour = parseInt($cell.attr('data-hour'), 10);
+
+                    if ((cellDay === dayOfWeek || cellShortDay === dayOfWeek) && cellHour === hour) {
+                        const $content = $cell.find('.cal-slot-content');
+                        $content.find('.empty-slot-placeholder').remove();
+                        $content.append(createEventCardHtml(item));
+                    }
+                });
+            });
+        }
+
+        function renderDayView(items) {
+            const $container = $('#dayViewScheduleContainer');
+            if (!$container.length) return;
+
+            const todayDayName = '@today.ToString("dddd")'.toLowerCase();
+            const todayClasses = items.filter(t => (t.dayOfWeek || t.DayOfWeek || '').toLowerCase() === todayDayName);
+
+            if (todayClasses.length === 0) {
+                $container.html(`
+                    <div class="text-center py-12 text-slate-400 text-xs">
+                        No classes scheduled for today (@today.ToString("dddd")).
+                    </div>
+                `);
+                return;
+            }
+
+            let html = '';
+            todayClasses.sort((a, b) => (a.startTime || a.StartTime || '').localeCompare(b.startTime || b.StartTime || ''));
+            todayClasses.forEach(c => {
+                const id = c.id || c.Id;
+                const subClassId = c.subClassId || c.SubClassId;
+                const teacherId = c.teacherId || c.TeacherId;
+                const subjectId = c.subjectId || c.SubjectId;
+                const dayOfWeek = c.dayOfWeek || c.DayOfWeek || '';
+                const mode = c.mode || c.Mode || 'ClassRoom';
+                const subjectName = c.subjectName || c.SubjectName || 'Curriculum';
+                const className = c.className || c.ClassName || '';
+                const teacherName = c.teacherName || c.TeacherName || 'Assigned';
+                let startStr = (c.startTime || c.StartTime || '09:00').substring(0, 5);
+                let endStr = (c.endTime || c.EndTime || '10:30').substring(0, 5);
+
+                const safeSubjectName = subjectName.replace(/'/g, "\\'");
+                const safeClassName = className.replace(/'/g, "\\'");
+                const safeTeacherName = teacherName.replace(/'/g, "\\'");
+
+                html += `
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:shadow-md transition flex items-center justify-between cursor-pointer"
+                     onclick="openEditScheduleFlyout(${id}, ${subClassId}, ${teacherId}, ${subjectId}, '${dayOfWeek}', '${startStr}', '${endStr}', '${mode}', '${safeSubjectName}', '${safeClassName}', '${safeTeacherName}', event)">
+                    <div class="flex items-center gap-4">
+                        <div class="font-mono text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg p-2 text-center w-24">
+                            ${startStr} - ${endStr}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-900">${escapeHtml(subjectName)}</h4>
+                            <p class="text-xs text-slate-500">${escapeHtml(className)} • Teacher: ${escapeHtml(teacherName)}</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">${escapeHtml(mode)}</span>
+                </div>`;
+            });
+            $container.html(html);
+        }
+
+        function updateStats(items) {
+            const total = items.length;
+            let classroom = 0;
+            let online = 0;
+            let hybrid = 0;
+
+            items.forEach(item => {
+                const mode = item.mode || item.Mode || 'ClassRoom';
+                if (mode === 'Online') online++;
+                else if (mode === 'Hybrid') hybrid++;
+                else classroom++;
+            });
+
+            $('#allSchedulesCount').text(total);
+            $('#countClassRoom').text(classroom);
+            $('#countOnline').text(online);
+            $('#countHybrid').text(hybrid);
+        }
+
+        // --- 4. FLOATING SCHEDULE FLYOUT (ADD & EDIT) ---
         function openFloatingScheduleFlyout(day, startTime, endTime, targetEl, event) {
             if (event) event.stopPropagation();
             currentItemUnderEdit = null;
@@ -1024,7 +1193,6 @@
             flyoutSubmitText.innerText = 'Save Changes';
             flyoutDeleteBtn.classList.remove('hidden');
 
-            // Pick swatch matching mode
             if (mode === 'Online') selectPaletteColor('mint');
             else if (mode === 'Hybrid') selectPaletteColor('lavender');
             else selectPaletteColor('blue');
@@ -1065,7 +1233,38 @@
             });
         }
 
-        // --- 3. DELETE ACTIONS ---
+        // --- 5. AJAX FORM SUBMISSIONS (SAVE & DELETE) ---
+        $('#flyoutScheduleForm').on('submit', function(e) {
+            e.preventDefault();
+            const $btn = $('#flyoutSubmitBtn');
+            const originalText = $('#flyoutSubmitText').text();
+            $('#flyoutSubmitText').text('Saving...');
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: this.action,
+                type: 'POST',
+                data: $(this).serialize(),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function(res) {
+                    $btn.prop('disabled', false);
+                    $('#flyoutSubmitText').text(originalText);
+                    if (res && res.isSuccess) {
+                        window.showToast(res.message || 'Schedule saved successfully!', true);
+                        closeScheduleFlyout();
+                        loadTimetableData();
+                    } else {
+                        window.showToast((res && res.message) ? res.message : 'Failed to save schedule.', false);
+                    }
+                },
+                error: function(err) {
+                    $btn.prop('disabled', false);
+                    $('#flyoutSubmitText').text(originalText);
+                    window.showToast('Network error while saving schedule.', false);
+                }
+            });
+        });
+
         function triggerFlyoutDelete() {
             if (!currentItemUnderEdit) return;
             closeScheduleFlyout();
@@ -1097,12 +1296,39 @@
             if (e.target === deleteModal) closeDeleteModal();
         });
 
-        // --- 4. LIVE CLIENT FILTERS (CLASSES, CATEGORIES, SEARCH, TEACHERS) ---
+        $('#deleteScheduleForm').on('submit', function(e) {
+            e.preventDefault();
+            const $btn = $(this).find('button[type="submit"]');
+            $btn.prop('disabled', true).text('Deleting...');
+
+            $.ajax({
+                url: this.action,
+                type: 'POST',
+                data: $(this).serialize(),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function(res) {
+                    $btn.prop('disabled', false).text('Delete');
+                    closeDeleteModal();
+                    if (res && res.isSuccess) {
+                        window.showToast(res.message || 'Schedule deleted successfully!', true);
+                        loadTimetableData();
+                    } else {
+                        window.showToast((res && res.message) ? res.message : 'Failed to delete schedule.', false);
+                    }
+                },
+                error: function(err) {
+                    $btn.prop('disabled', false).text('Delete');
+                    closeDeleteModal();
+                    window.showToast('Network error while deleting schedule.', false);
+                }
+            });
+        });
+
+        // --- 6. LIVE CLIENT FILTERS ---
         function applyLiveFilters() {
             const query = (document.getElementById('liveSearchInput')?.value || '').toLowerCase().trim();
             const teacherId = document.getElementById('teacherSelectFilter')?.value || '';
 
-            // Selected Class IDs
             const selectedClassIds = new Set();
             document.querySelectorAll('.class-filter-chk:checked').forEach(chk => {
                 selectedClassIds.add(chk.value);
@@ -1117,22 +1343,18 @@
 
                 let visible = true;
 
-                // Category filter
                 if (selectedCategoryFilter !== 'All' && cMode !== selectedCategoryFilter) {
                     visible = false;
                 }
 
-                // Class checkbox filter
                 if (selectedClassIds.size > 0 && !selectedClassIds.has(cClassId)) {
                     visible = false;
                 }
 
-                // Teacher filter
                 if (teacherId && cTeacherId !== teacherId) {
                     visible = false;
                 }
 
-                // Search query
                 if (query && !cText.includes(query)) {
                     visible = false;
                 }
@@ -1160,7 +1382,7 @@
             applyLiveFilters();
         }
 
-        // --- 5. CALENDAR VIEW SWITCHER (DAY / WEEK / MONTH) ---
+        // --- 7. CALENDAR VIEW SWITCHER (DAY / WEEK / MONTH) ---
         function switchCalendarView(view) {
             [btnDay, btnWeek, btnMonth].forEach(b => {
                 b.className = 'rounded-md px-3 py-1 transition hover:text-slate-900 cursor-pointer text-slate-600';
@@ -1200,17 +1422,16 @@
             }
         }
 
-        // --- 6. NAVIGATION HELPERS ---
+        // --- 8. NAVIGATION HELPERS ---
         function goToToday() {
             window.location.href = `@Url.Action("Index", "Timetable", new { role = currentRole })`;
         }
 
         function shiftWeek(days) {
-            // Can be extended with query param if date persistence is desired
             window.location.reload();
         }
 
-        // --- 7. KEYBOARD SHORTCUTS ---
+        // --- 9. KEYBOARD SHORTCUTS ---
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (!flyout.classList.contains('hidden')) closeScheduleFlyout();
@@ -1221,6 +1442,8 @@
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
             renderMiniCalendar();
+            loadDropdownData();
+            loadTimetableData();
         });
     </script>
 }

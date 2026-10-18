@@ -4,12 +4,27 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient("WebAPI", 
-    client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7103/")
-);
-builder.Services.AddHttpClient("ApiClient", 
-    client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7103/")
-);
+builder.Services.AddHttpClient("WebAPI", client =>
+{
+    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://127.0.0.1:7103/";
+    baseUrl = baseUrl.Replace("localhost", "127.0.0.1");
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(15);
+}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+{
+    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+});
+
+builder.Services.AddHttpClient("ApiClient", client =>
+{
+    var baseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https://127.0.0.1:7103/";
+    baseUrl = baseUrl.Replace("localhost", "127.0.0.1");
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(15);
+}).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+{
+    ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+});
 builder.Services.AddScoped<SubClassApiService>();
 builder.Services.AddScoped<TimetableApiService>();
 builder.Services.AddScoped<TeachPlanApiService>();

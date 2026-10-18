@@ -21,16 +21,34 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
         [ActionName("Index")]
         public async Task<IActionResult> SubClassListAsync(int pageNo = 1, int pageSize = 10, string? search = null, string? status = "all")
         {
+            ViewBag.ActiveMenu = "Class";
+            ViewBag.Search = search;
+            ViewBag.Status = status ?? "all";
+            ViewBag.PageNo = pageNo;
+            ViewBag.PageSize = pageSize;
+
+            // If requested via AJAX, return JSON data
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+            {
+                return await SubClassGetDataAsync(pageNo, pageSize, search, status);
+            }
+
+            // Return view instantly without blocking on API
+            return View("Index", new SubClassListResponseModel 
+            { 
+                PageNo = pageNo, 
+                PageSize = pageSize,
+                SubClassList = new() 
+            });
+        }
+
+        [HttpGet]
+        [ActionName("GetData")]
+        public async Task<IActionResult> SubClassGetDataAsync(int pageNo = 1, int pageSize = 10, string? search = null, string? status = "all")
+        {
             try
             {
-                _logger.LogInformation("SubClass List Async => Fetching subclasses");
-
-                ViewBag.ActiveMenu = "Class";
-                ViewBag.Search = search;
-                ViewBag.Status = status ?? "all";
-                ViewBag.PageNo = pageNo;
-                ViewBag.PageSize = pageSize;
-
+                _logger.LogInformation("SubClass GetData => Fetching subclasses via AJAX");
                 var client = _httpClientFactory.CreateClient("WebAPI");
 
                 var query = new List<string>
@@ -49,40 +67,45 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
 
                 var httpResponse = await client.GetAsync($"api/SubClass?{string.Join("&", query)}");
                 var jsonString = await httpResponse.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<SubClassListResponseModel>(jsonString);
+                var response = JsonConvert.DeserializeObject<SubClassListResponseModel>(jsonString)
+                    ?? new SubClassListResponseModel { IsSuccess = false, Message = "Empty response from API", SubClassList = new() };
 
-                // Fetch registered students for the enrollment modal
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "SubClassGetDataAsync => Exception occurred");
+                return Json(new SubClassListResponseModel 
+                { 
+                    IsSuccess = false, 
+                    Message = "Failed to load classes: " + ex.Message,
+                    SubClassList = new() 
+                });
+            }
+        }
+
+        [HttpGet]
+        [ActionName("GetStudents")]
+        public async Task<IActionResult> SubClassGetStudentsAsync()
+        {
+            try
+            {
+                _logger.LogInformation("SubClass GetStudents => Fetching students via AJAX");
+                var client = _httpClientFactory.CreateClient("WebAPI");
                 var userHttpResponse = await client.GetAsync("api/User");
                 var userJsonString = await userHttpResponse.Content.ReadAsStringAsync();
                 var userResponse = JsonConvert.DeserializeObject<UserListResponseModel>(userJsonString);
                 var studentList = userResponse?.Users?.Where(u => u.Role == "Student").ToList();
                 if (studentList == null || studentList.Count == 0)
                 {
-                    studentList = userResponse?.Users;
+                    studentList = userResponse?.Users ?? new List<UserModel>();
                 }
-                ViewBag.Students = studentList ?? new List<UserModel>();
-                ViewData["Students"] = studentList ?? new List<UserModel>();
-
-                if (response != null && response.IsSuccess && response.SubClassList != null)
-                {
-                    ViewData["SubClasses"] = response.SubClassList;
-                    _logger.LogInformation("SubClass List Async => Subclasses fetched successfully");
-                }
-                else
-                {
-                    _logger.LogWarning($"SubClass List Async => Failed to fetch subclasses: {response?.Message}");
-                    TempData["Message"] = response?.Message;
-                    TempData["isSuccess"] = false;
-                    TempData["Error"] = response?.Message;
-                    ViewBag.Error = response?.Message;
-                }
-
-                return View("Index", response ?? new SubClassListResponseModel { SubClassList = new() });
+                return Json(new { isSuccess = true, students = studentList });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "SubClassListAsync => Exception occurred");
-                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+                _logger.LogError(ex, "SubClassGetStudentsAsync => Exception occurred");
+                return Json(new { isSuccess = false, students = new List<UserModel>(), message = ex.Message });
             }
         }
 

@@ -22,18 +22,37 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
         [ActionName("Index")]
         public async Task<IActionResult> EnrollmentListAsync(int? classId, string? status, string? search, string? role = "admin", int pageNo = 1, int pageSize = 10)
         {
+            ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
+            ViewBag.ActiveMenu = "Enrollment";
+            ViewBag.SelectedClassId = classId;
+            ViewBag.SelectedStatus = status ?? "all";
+            ViewBag.SearchQuery = search;
+            ViewBag.PageNo = pageNo;
+            ViewBag.PageSize = pageSize;
+
+            // If requested via AJAX, return JSON data
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+            {
+                return await EnrollmentGetDataAsync(classId, status, search, pageNo, pageSize);
+            }
+
+            // Return view instantly without blocking on API
+            return View(new EnrollmentListResponseModel 
+            { 
+                PageNo = pageNo, 
+                PageSize = pageSize,
+                EnrollmentList = new() 
+            });
+        }
+
+        [HttpGet]
+        [ActionName("GetData")]
+        public async Task<IActionResult> EnrollmentGetDataAsync(int? classId, string? status, string? search, int pageNo = 1, int pageSize = 10)
+        {
             try
             {
-                _logger.LogInformation("Enrollment List Async => Fetching enrollments");
+                _logger.LogInformation("Enrollment GetData => Fetching enrollments via AJAX");
                 var client = _httpClientFactory.CreateClient("WebAPI");
-
-                ViewBag.CurrentRole = (role?.ToLower() == "teacher") ? "teacher" : "admin";
-                ViewBag.ActiveMenu = "Enrollment";
-                ViewBag.SelectedClassId = classId;
-                ViewBag.SelectedStatus = status ?? "all";
-                ViewBag.SearchQuery = search;
-                ViewBag.PageNo = pageNo;
-                ViewBag.PageSize = pageSize;
 
                 var query = new List<string>
                 {
@@ -55,34 +74,60 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
 
                 var httpResponse = await client.GetAsync($"api/Enrollment?{string.Join("&", query)}");
                 var jsonString = await httpResponse.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<EnrollmentListResponseModel>(jsonString);
+                var response = JsonConvert.DeserializeObject<EnrollmentListResponseModel>(jsonString)
+                    ?? new EnrollmentListResponseModel { IsSuccess = false, Message = "Empty response from API", EnrollmentList = new() };
 
-                await PopulateDropdowns(client);
-
-                if (response == null)
-                {
-                    ViewBag.Error = "API returned an empty response.";
-                    return View(new EnrollmentListResponseModel { EnrollmentList = new() });
-                }
-
-                if (!response.IsSuccess && (response.EnrollmentList == null || response.EnrollmentList.Count == 0))
-                {
-                    _logger.LogWarning($"Enrollment List Async => Failed to fetch enrollments: {response.Message}");
-                    ViewBag.Error = response.Message;
-                    TempData["Message"] = response.Message;
-                    TempData["isSuccess"] = false;
-                }
-
-                var list = response.EnrollmentList ?? new List<EnrollmentModel>();
-                ViewData["Enrollments"] = list;
-                _logger.LogInformation("Enrollment List Async => Enrollments fetched successfully");
-
-                return View(response);
+                return Json(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "EnrollmentListAsync => Exception occurred");
-                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+                _logger.LogError(ex, "EnrollmentGetDataAsync => Exception occurred");
+                return Json(new EnrollmentListResponseModel 
+                { 
+                    IsSuccess = false, 
+                    Message = "Failed to load enrollments: " + ex.Message,
+                    EnrollmentList = new() 
+                });
+            }
+        }
+
+        [HttpGet]
+        [ActionName("GetDropdownData")]
+        public async Task<IActionResult> EnrollmentGetDropdownDataAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Enrollment GetDropdownData => Fetching classes and students via AJAX");
+                var client = _httpClientFactory.CreateClient("WebAPI");
+
+                var classesTask = client.GetAsync("api/SubClass");
+                var usersTask = client.GetAsync("api/User");
+
+                await Task.WhenAll(classesTask, usersTask);
+
+                var classesJson = await (await classesTask).Content.ReadAsStringAsync();
+                var usersJson = await (await usersTask).Content.ReadAsStringAsync();
+
+                var classesResponse = JsonConvert.DeserializeObject<SubClassListResponseModel>(classesJson);
+                var usersResponse = JsonConvert.DeserializeObject<UserListResponseModel>(usersJson);
+
+                var students = usersResponse?.Users?.Where(u => u.Role == "Student").ToList();
+                if (students == null || students.Count == 0)
+                {
+                    students = usersResponse?.Users ?? new List<UserModel>();
+                }
+
+                return Json(new 
+                { 
+                    isSuccess = true, 
+                    classes = classesResponse?.SubClassList ?? new List<SubClassModel>(),
+                    students = students 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "EnrollmentGetDropdownDataAsync => Exception occurred");
+                return Json(new { isSuccess = false, classes = new List<SubClassModel>(), students = new List<UserModel>(), message = ex.Message });
             }
         }
 

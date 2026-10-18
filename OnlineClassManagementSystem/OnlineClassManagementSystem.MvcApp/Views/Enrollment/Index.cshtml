@@ -5,20 +5,8 @@
     var queryRole = Context.Request.Query["role"].ToString();
     var currentRole = !string.IsNullOrEmpty(queryRole) ? queryRole.ToLower() : (ViewBag.CurrentRole as string ?? "admin");
 
-    var enrollments = Model?.EnrollmentList ?? new List<OnlineClassManagementSystem.Shared.models.Enrollment.EnrollmentModel>();
-    var classes = ViewBag.Classes as List<OnlineClassManagementSystem.Shared.models.SubClass.SubClassModel> ?? new();
-
-    var totalCount = Model?.TotalCount ?? enrollments.Count;
-    var confirmedCount = Model != null && Model.ConfirmedCount > 0 ? Model.ConfirmedCount : enrollments.Count(e => string.Equals(e.Status, "confirm", StringComparison.OrdinalIgnoreCase) || string.Equals(e.Status, "active", StringComparison.OrdinalIgnoreCase));
-    var pendingCount = Model != null && Model.PendingCount > 0 ? Model.PendingCount : enrollments.Count(e => string.Equals(e.Status, "pending", StringComparison.OrdinalIgnoreCase));
-    var canceledCount = Model != null && Model.CanceledCount > 0 ? Model.CanceledCount : enrollments.Count(e => string.Equals(e.Status, "canceled", StringComparison.OrdinalIgnoreCase) || string.Equals(e.Status, "cancelled", StringComparison.OrdinalIgnoreCase));
-
-    var pageNo = Model?.PageNo ?? (ViewBag.PageNo as int? ?? 1);
-    var pageSize = Model?.PageSize ?? (ViewBag.PageSize as int? ?? 10);
-    var totalPages = Model?.TotalPages ?? (pageSize > 0 ? (int)Math.Ceiling((double)totalCount / pageSize) : 1);
-    if (totalPages < 1) totalPages = 1;
-    var hasPrevious = Model?.HasPreviousPage ?? (pageNo > 1);
-    var hasNext = Model?.HasNextPage ?? (pageNo < totalPages);
+    var pageNo = (int)(ViewBag.PageNo ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 10);
     var searchVal = ViewBag.SearchQuery as string ?? "";
     var statusVal = ViewBag.SelectedStatus as string ?? "all";
     var selectedClassId = ViewBag.SelectedClassId as int?;
@@ -45,66 +33,46 @@
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs">
             <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total Enrollments</span>
-            <p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">@totalCount</p>
+            <div id="statTotalEnrollmentsSkel" class="mt-2 h-7 w-12 rounded skeleton-shimmer"></div>
+            <p id="statTotalEnrollments" class="hidden mt-2 text-2xl font-bold tracking-tight text-slate-900">0</p>
         </div>
         <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs">
             <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Confirmed</span>
-            <p class="mt-2 text-2xl font-bold tracking-tight text-emerald-600">@confirmedCount</p>
+            <div id="statConfirmedSkel" class="mt-2 h-7 w-12 rounded skeleton-shimmer"></div>
+            <p id="statConfirmed" class="hidden mt-2 text-2xl font-bold tracking-tight text-emerald-600">0</p>
         </div>
         <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs">
             <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Pending</span>
-            <p class="mt-2 text-2xl font-bold tracking-tight text-amber-600">@pendingCount</p>
+            <div id="statPendingSkel" class="mt-2 h-7 w-12 rounded skeleton-shimmer"></div>
+            <p id="statPending" class="hidden mt-2 text-2xl font-bold tracking-tight text-amber-600">0</p>
         </div>
         <div class="rounded-xl border border-slate-200/80 bg-white p-4 shadow-2xs">
             <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Canceled</span>
-            <p class="mt-2 text-2xl font-bold tracking-tight text-rose-600">@canceledCount</p>
+            <div id="statCanceledSkel" class="mt-2 h-7 w-12 rounded skeleton-shimmer"></div>
+            <p id="statCanceled" class="hidden mt-2 text-2xl font-bold tracking-tight text-rose-600">0</p>
         </div>
     </div>
 
-    <!-- Alerts -->
-    @if (TempData["Success"] != null)
-    {
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-medium text-emerald-800 flex items-center gap-2">
-            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            <span>@TempData["Success"]</span>
-        </div>
-    }
-    @if (TempData["Error"] != null || ViewBag.Error != null)
-    {
-        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-medium text-amber-800 flex items-center gap-2">
-            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-            <span>@(TempData["Error"] ?? ViewBag.Error)</span>
-        </div>
-    }
-
     <!-- Filters Row -->
     <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-        <form method="get" asp-action="Index" class="flex flex-wrap items-center justify-between gap-4">
-            <input type="hidden" name="role" value="@currentRole" />
-            <input type="hidden" name="pageNo" value="1" />
-            <input type="hidden" name="pageSize" value="@pageSize" />
-
+        <form id="enrollmentFilterForm" onsubmit="event.preventDefault(); triggerEnrollmentSearch();" class="flex flex-wrap items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-3 flex-1">
                 <!-- Class Dropdown -->
                 <div class="w-44">
                     <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Class</label>
-                    <select name="classId" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500">
+                    <select id="classFilterSelect" onchange="triggerEnrollmentSearch()" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 cursor-pointer">
                         <option value="">All Classes</option>
-                        @foreach (var c in classes)
-                        {
-                            <option value="@c.SubClassId" selected="@(ViewBag.SelectedClassId == c.SubClassId ? "selected" : null)">@c.ClassName</option>
-                        }
                     </select>
                 </div>
 
                 <!-- Status Dropdown -->
                 <div class="w-36">
                     <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Status</label>
-                    <select name="status" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500">
-                        <option value="all" selected="@(ViewBag.SelectedStatus == "all" ? "selected" : null)">All Status</option>
-                        <option value="confirm" selected="@(ViewBag.SelectedStatus == "confirm" ? "selected" : null)">Confirm</option>
-                        <option value="pending" selected="@(ViewBag.SelectedStatus == "pending" ? "selected" : null)">Pending</option>
-                        <option value="canceled" selected="@(ViewBag.SelectedStatus == "canceled" ? "selected" : null)">Canceled</option>
+                    <select id="statusFilterSelect" onchange="triggerEnrollmentSearch()" class="w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-blue-500 cursor-pointer">
+                        <option value="all">All Status</option>
+                        <option value="confirm">Confirm</option>
+                        <option value="pending">Pending</option>
+                        <option value="canceled">Canceled</option>
                     </select>
                 </div>
 
@@ -115,21 +83,18 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </span>
-                        <input type="text" name="search" value="@ViewBag.SearchQuery" placeholder="Search student or class..."
-                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                        <input type="text" id="enrollmentSearchInput" value="@searchVal" placeholder="Search student or class..."
+                               class="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition" />
                     </div>
                 </div>
 
                 <div class="self-end">
-                    <button type="submit" class="rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition">
+                    <button type="submit" class="rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-xs font-semibold text-white shadow-xs transition cursor-pointer">
                         Filter
                     </button>
-                    @if (ViewBag.SelectedClassId != null || ViewBag.SelectedStatus != "all" || !string.IsNullOrEmpty(ViewBag.SearchQuery))
-                    {
-                        <a asp-action="Index" asp-route-role="@currentRole" class="ml-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 transition">
-                            Reset
-                        </a>
-                    }
+                    <button type="button" id="btnResetEnrollment" onclick="resetEnrollmentFilters()" class="hidden ml-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 transition cursor-pointer">
+                        Reset
+                    </button>
                 </div>
             </div>
         </form>
@@ -149,173 +114,407 @@
                         <th class="px-6 py-3.5 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @if (enrollments.Count == 0)
+                <tbody id="enrollmentTableBody" class="divide-y divide-slate-100">
+                    @for (int i = 0; i < 5; i++)
                     {
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">
-                                <div class="flex flex-col items-center justify-center gap-2">
-                                    <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                    <span>No enrollment records found.</span>
-                                </div>
-                            </td>
+                            <td class="px-6 py-4"><div class="h-4 w-12 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-36 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-28 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-20 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-16 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4 text-center"><div class="mx-auto h-4 w-20 rounded skeleton-shimmer"></div></td>
                         </tr>
-                    }
-                    else
-                    {
-                        @foreach (var item in enrollments)
-                        {
-                            var codeId = "EN00" + item.EnrollmentId;
-                            var st = (item.Status ?? "pending").ToLower();
-
-                            <tr class="hover:bg-slate-50/60 transition">
-                                <td class="px-6 py-4 font-semibold text-slate-800">@codeId</td>
-                                <td class="px-6 py-4 text-slate-800 font-medium">@(item.StudentName ?? ("Student #" + item.StudentId))</td>
-                                <td class="px-6 py-4 text-slate-600">@(item.ClassName ?? ("Class #" + item.ClassId))</td>
-                                <td class="px-6 py-4 text-slate-500">@(item.EnrollDate?.ToString("dd-MM-yyyy") ?? "-")</td>
-                                <td class="px-6 py-4">
-                                    @if (st == "confirm" || st == "active")
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 border border-emerald-100">Confirmed</span>
-                                    }
-                                    else if (st == "pending")
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-600 border border-amber-100">Pending</span>
-                                    }
-                                    else if (st == "canceled" || st == "cancelled")
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-600 border border-rose-100">Canceled</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 capitalize">@item.Status</span>
-                                    }
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="inline-flex items-center justify-center gap-2">
-                                        <!-- Status actions when pending -->
-                                        @if (st == "pending")
-                                        {
-                                            <form asp-action="UpdateStatus" asp-route-role="@currentRole" method="post" class="inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="enrollmentId" value="@item.EnrollmentId" />
-                                                <input type="hidden" name="status" value="confirm" />
-                                                <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-emerald-600 hover:bg-emerald-700 px-2.5 py-1 text-xs font-medium text-white shadow-2xs transition" title="Confirm Enrollment">
-                                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                                    Confirm
-                                                </button>
-                                            </form>
-
-                                            <form asp-action="UpdateStatus" asp-route-role="@currentRole" method="post" class="inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="enrollmentId" value="@item.EnrollmentId" />
-                                                <input type="hidden" name="status" value="canceled" />
-                                                <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-2.5 py-1 text-xs font-medium transition" title="Cancel Enrollment" onclick="return confirm('Cancel this enrollment?');">
-                                                    Cancel
-                                                </button>
-                                            </form>
-                                        }
-
-                                        <!-- Edit Class/Student/Date -->
-                                        <a asp-action="Edit" asp-route-id="@item.EnrollmentId" asp-route-role="@currentRole"
-                                           class="h-7 w-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-blue-600 flex items-center justify-center transition"
-                                           title="Edit Enrollment Details">
-                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
                     }
                 </tbody>
             </table>
         </div>
 
-        @{
-            var startItem = totalCount > 0 ? (pageNo - 1) * pageSize + 1 : 0;
-            var endItem = Math.Min(pageNo * pageSize, totalCount);
-            int startPage = Math.Max(1, pageNo - 2);
-            int endPage = Math.Min(totalPages, pageNo + 2);
-        }
-
-        <!-- Table Pagination Footer -->
+        <!-- Pagination Footer -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200/80 px-6 py-3.5 bg-slate-50/50 text-xs text-slate-500">
             <div class="flex items-center gap-3">
-                <span>Showing @(totalCount > 0 ? $"{startItem} - {endItem} of {totalCount}" : "0") enrollments</span>
+                <span id="enrollmentShowingText">Loading enrollments...</span>
                 <div class="flex items-center gap-1.5 pl-3 border-l border-slate-200">
                     <span>Per page:</span>
-                    <select onchange="location.href='@Url.Action("Index", new { role = currentRole, classId = selectedClassId, status = statusVal, search = searchVal, pageNo = 1 })&pageSize=' + this.value"
-                            class="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-blue-500">
-                        <option value="5" selected="@(pageSize == 5 ? "selected" : null)">5</option>
-                        <option value="10" selected="@(pageSize == 10 ? "selected" : null)">10</option>
-                        <option value="20" selected="@(pageSize == 20 ? "selected" : null)">20</option>
-                        <option value="50" selected="@(pageSize == 50 ? "selected" : null)">50</option>
+                    <select id="enrollmentPageSizeSelect" onchange="changeEnrollmentPageSize(this.value)"
+                            class="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-blue-500 cursor-pointer">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
                     </select>
                 </div>
             </div>
-            <div class="flex items-center gap-1">
-                @if (hasPrevious)
-                {
-                    <a asp-action="Index" asp-route-pageNo="@(pageNo - 1)" asp-route-pageSize="@pageSize" asp-route-classId="@selectedClassId" asp-route-status="@statusVal" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
-                        &lsaquo; Prev
-                    </a>
-                }
-                else
-                {
-                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
-                        &lsaquo; Prev
-                    </span>
-                }
 
-                @if (startPage > 1)
-                {
-                    <a asp-action="Index" asp-route-pageNo="1" asp-route-pageSize="@pageSize" asp-route-classId="@selectedClassId" asp-route-status="@statusVal" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">1</a>
-                    @if (startPage > 2)
-                    {
-                        <span class="px-1 text-slate-400">...</span>
-                    }
-                }
-
-                @for (int i = startPage; i <= endPage; i++)
-                {
-                    if (i == pageNo)
-                    {
-                        <span class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center shadow-xs">@i</span>
-                    }
-                    else
-                    {
-                        <a asp-action="Index" asp-route-pageNo="@i" asp-route-pageSize="@pageSize" asp-route-classId="@selectedClassId" asp-route-status="@statusVal" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                           class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@i</a>
-                    }
-                }
-
-                @if (endPage < totalPages)
-                {
-                    @if (endPage < totalPages - 1)
-                    {
-                        <span class="px-1 text-slate-400">...</span>
-                    }
-                    <a asp-action="Index" asp-route-pageNo="@totalPages" asp-route-pageSize="@pageSize" asp-route-classId="@selectedClassId" asp-route-status="@statusVal" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@totalPages</a>
-                }
-
-                @if (hasNext)
-                {
-                    <a asp-action="Index" asp-route-pageNo="@(pageNo + 1)" asp-route-pageSize="@pageSize" asp-route-classId="@selectedClassId" asp-route-status="@statusVal" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
-                        Next &rsaquo;
-                    </a>
-                }
-                else
-                {
-                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
-                        Next &rsaquo;
-                    </span>
-                }
-            </div>
+            <div id="enrollmentPaginationNav" class="flex items-center gap-1"></div>
         </div>
     </div>
 
 </div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        const currentRole = '@currentRole';
+
+        let currentPageNo = @pageNo;
+        let currentPageSize = @pageSize;
+        let currentSearch = '@searchVal';
+        let currentStatus = '@statusVal';
+        let currentClassId = '@(selectedClassId?.ToString() ?? "")';
+
+        function loadEnrollments(pageNo = currentPageNo, pageSize = currentPageSize, search = currentSearch, status = currentStatus, classId = currentClassId) {
+            currentPageNo = pageNo;
+            currentPageSize = pageSize;
+            currentSearch = search;
+            currentStatus = status;
+            currentClassId = classId;
+
+            // Reset button visibility
+            const resetBtn = document.getElementById('btnResetEnrollment');
+            if (resetBtn) {
+                if ((currentSearch && currentSearch.trim().length > 0) || currentStatus !== 'all' || (currentClassId && currentClassId.length > 0)) {
+                    resetBtn.classList.remove('hidden');
+                } else {
+                    resetBtn.classList.add('hidden');
+                }
+            }
+
+            const tbody = document.getElementById('enrollmentTableBody');
+            tbody.innerHTML = `
+                @for (int i = 0; i < 5; i++)
+                {
+                    <tr>
+                        <td class="px-6 py-4"><div class="h-4 w-12 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-36 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-28 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-20 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-16 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4 text-center"><div class="mx-auto h-4 w-20 rounded skeleton-shimmer"></div></td>
+                    </tr>
+                }
+            `;
+
+            const queryParams = $.param({
+                pageNo: currentPageNo,
+                pageSize: currentPageSize,
+                search: currentSearch || '',
+                status: currentStatus || 'all',
+                classId: currentClassId || ''
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetData", "Enrollment")?' + queryParams,
+                type: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function (response) {
+                    if (response && response.isSuccess) {
+                        const list = response.enrollmentList || [];
+                        const totalCount = response.totalCount || list.length;
+                        const confirmedCount = response.confirmedCount || list.filter(e => e.status && (e.status.toLowerCase() === 'confirm' || e.status.toLowerCase() === 'active')).length;
+                        const pendingCount = response.pendingCount || list.filter(e => e.status && e.status.toLowerCase() === 'pending').length;
+                        const canceledCount = response.canceledCount || list.filter(e => e.status && (e.status.toLowerCase() === 'canceled' || e.status.toLowerCase() === 'cancelled')).length;
+                        const totalPages = response.totalPages || Math.max(1, Math.ceil(totalCount / currentPageSize));
+
+                        updateEnrollmentStat('statTotalEnrollments', 'statTotalEnrollmentsSkel', totalCount);
+                        updateEnrollmentStat('statConfirmed', 'statConfirmedSkel', confirmedCount);
+                        updateEnrollmentStat('statPending', 'statPendingSkel', pendingCount);
+                        updateEnrollmentStat('statCanceled', 'statCanceledSkel', canceledCount);
+
+                        renderEnrollmentTable(list);
+                        renderEnrollmentPagination(totalCount, totalPages, currentPageNo, currentPageSize);
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-amber-600">
+                                    <p class="font-medium">${escapeHtml(response ? response.message : 'Error loading enrollments')}</p>
+                                    <button onclick="loadEnrollments()" class="mt-2 text-xs text-blue-600 hover:underline">Retry</button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                },
+                error: function () {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-rose-500">
+                                <p class="font-medium">Failed to connect to Web API.</p>
+                                <button onclick="loadEnrollments()" class="mt-2 text-xs text-blue-600 hover:underline">Retry</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+
+        function updateEnrollmentStat(valId, skelId, value) {
+            const valEl = document.getElementById(valId);
+            const skelEl = document.getElementById(skelId);
+            if (valEl) {
+                valEl.innerText = value;
+                valEl.classList.remove('hidden');
+            }
+            if (skelEl) skelEl.classList.add('hidden');
+        }
+
+        function renderEnrollmentTable(list) {
+            const tbody = document.getElementById('enrollmentTableBody');
+            tbody.innerHTML = '';
+
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                <span>No enrollment records found.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            list.forEach(item => {
+                const codeId = 'EN00' + item.enrollmentId;
+                const studentName = item.studentName || ('Student #' + item.studentId);
+                const className = item.className || ('Class #' + item.classId);
+                const enrollDate = item.enrollDate ? formatDate(item.enrollDate) : '-';
+                const st = (item.status || 'pending').toLowerCase();
+
+                let statusBadge = '';
+                if (st === 'confirm' || st === 'active') {
+                    statusBadge = `<span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 border border-emerald-100">Confirmed</span>`;
+                } else if (st === 'pending') {
+                    statusBadge = `<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-600 border border-amber-100">Pending</span>`;
+                } else if (st === 'canceled' || st === 'cancelled') {
+                    statusBadge = `<span class="inline-flex items-center rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-600 border border-rose-100">Canceled</span>`;
+                } else {
+                    statusBadge = `<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 capitalize">${escapeHtml(item.status)}</span>`;
+                }
+
+                let actionsHtml = '';
+                if (st === 'pending') {
+                    actionsHtml = `
+                        <div class="inline-flex items-center justify-center gap-1.5">
+                            <button type="button" onclick="updateEnrollmentStatus(${item.enrollmentId}, 'confirm')"
+                                    class="rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 text-xs font-semibold transition cursor-pointer" title="Approve Enrollment">
+                                Approve
+                            </button>
+                            <button type="button" onclick="updateEnrollmentStatus(${item.enrollmentId}, 'canceled')"
+                                    class="rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 px-2 py-1 text-xs font-semibold transition cursor-pointer" title="Reject Enrollment">
+                                Reject
+                            </button>
+                            <a href="@Url.Action("Edit", "Enrollment")/${item.enrollmentId}?role=${encodeURIComponent(currentRole)}"
+                               class="text-blue-600 hover:text-blue-800 p-1" title="Edit">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </a>
+                        </div>
+                    `;
+                } else if (st === 'confirm' || st === 'active') {
+                    actionsHtml = `
+                        <div class="inline-flex items-center justify-center gap-1.5">
+                            <button type="button" onclick="updateEnrollmentStatus(${item.enrollmentId}, 'canceled')"
+                                    class="rounded-lg bg-slate-50 hover:bg-rose-50 hover:text-rose-700 text-slate-500 px-2 py-1 text-xs font-semibold transition cursor-pointer" title="Cancel Enrollment">
+                                Cancel
+                            </button>
+                            <a href="@Url.Action("Edit", "Enrollment")/${item.enrollmentId}?role=${encodeURIComponent(currentRole)}"
+                               class="text-blue-600 hover:text-blue-800 p-1" title="Edit">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    actionsHtml = `
+                        <div class="inline-flex items-center justify-center gap-1.5">
+                            <button type="button" onclick="updateEnrollmentStatus(${item.enrollmentId}, 'confirm')"
+                                    class="rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 text-xs font-semibold transition cursor-pointer" title="Reactivate Enrollment">
+                                Re-enroll
+                            </button>
+                        </div>
+                    `;
+                }
+
+                const rowHtml = `
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="px-6 py-4 font-semibold text-slate-800">${escapeHtml(codeId)}</td>
+                        <td class="px-6 py-4 text-slate-800 font-medium">${escapeHtml(studentName)}</td>
+                        <td class="px-6 py-4 text-slate-600">${escapeHtml(className)}</td>
+                        <td class="px-6 py-4 text-slate-500">${enrollDate}</td>
+                        <td class="px-6 py-4">${statusBadge}</td>
+                        <td class="px-6 py-4 text-center">${actionsHtml}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+        }
+
+        function renderEnrollmentPagination(totalCount, totalPages, pageNo, pageSize) {
+            const showingText = document.getElementById('enrollmentShowingText');
+            const startItem = totalCount > 0 ? (pageNo - 1) * pageSize + 1 : 0;
+            const endItem = Math.min(pageNo * pageSize, totalCount);
+
+            if (showingText) {
+                showingText.innerText = totalCount > 0 
+                    ? `Showing ${startItem} - ${endItem} of ${totalCount} enrollments`
+                    : 'Showing 0 enrollments';
+            }
+
+            const paginationNav = document.getElementById('enrollmentPaginationNav');
+            paginationNav.innerHTML = '';
+
+            const hasPrevious = pageNo > 1;
+            const hasNext = pageNo < totalPages;
+
+            if (hasPrevious) {
+                paginationNav.insertAdjacentHTML('beforeend', `
+                    <button type="button" onclick="loadEnrollments(${pageNo - 1})"
+                            class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium cursor-pointer">
+                        &lsaquo; Prev
+                    </button>
+                `);
+            } else {
+                paginationNav.insertAdjacentHTML('beforeend', `
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        &lsaquo; Prev
+                    </span>
+                `);
+            }
+
+            const startPage = Math.max(1, pageNo - 2);
+            const endPage = Math.min(totalPages, pageNo + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === pageNo) {
+                    paginationNav.insertAdjacentHTML('beforeend', `
+                        <span class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center shadow-xs">${i}</span>
+                    `);
+                } else {
+                    paginationNav.insertAdjacentHTML('beforeend', `
+                        <button type="button" onclick="loadEnrollments(${i})"
+                                class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium cursor-pointer">${i}</button>
+                    `);
+                }
+            }
+
+            if (hasNext) {
+                paginationNav.insertAdjacentHTML('beforeend', `
+                    <button type="button" onclick="loadEnrollments(${pageNo + 1})"
+                            class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium cursor-pointer">
+                        Next &rsaquo;
+                    </button>
+                `);
+            } else {
+                paginationNav.insertAdjacentHTML('beforeend', `
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        Next &rsaquo;
+                    </span>
+                `);
+            }
+        }
+
+        function triggerEnrollmentSearch() {
+            const input = document.getElementById('enrollmentSearchInput');
+            const searchVal = input ? input.value.trim() : '';
+            const statusVal = document.getElementById('statusFilterSelect').value;
+            const classVal = document.getElementById('classFilterSelect').value;
+            loadEnrollments(1, currentPageSize, searchVal, statusVal, classVal);
+        }
+
+        function resetEnrollmentFilters() {
+            const input = document.getElementById('enrollmentSearchInput');
+            if (input) input.value = '';
+            const statusFilter = document.getElementById('statusFilterSelect');
+            if (statusFilter) statusFilter.value = 'all';
+            const classFilter = document.getElementById('classFilterSelect');
+            if (classFilter) classFilter.value = '';
+            loadEnrollments(1, currentPageSize, '', 'all', '');
+        }
+
+        function changeEnrollmentPageSize(size) {
+            loadEnrollments(1, parseInt(size, 10), currentSearch, currentStatus, currentClassId);
+        }
+
+        function updateEnrollmentStatus(enrollmentId, status) {
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateStatus", "Enrollment")',
+                type: 'POST',
+                data: {
+                    enrollmentId: enrollmentId,
+                    status: status,
+                    role: currentRole
+                },
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (res) {
+                    if (res && res.isSuccess) {
+                        if (window.showToast) window.showToast(res.message || `Status updated to ${status}`, true);
+                        loadEnrollments();
+                    } else {
+                        if (window.showToast) window.showToast(res ? res.message : 'Failed to update status', false);
+                    }
+                },
+                error: function () {
+                    if (window.showToast) window.showToast('Error communicating with server', false);
+                }
+            });
+        }
+
+        function loadDropdownsAsync() {
+            $.ajax({
+                url: '@Url.Action("GetDropdownData", "Enrollment")',
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.isSuccess && res.classes) {
+                        const classSelect = document.getElementById('classFilterSelect');
+                        if (classSelect) {
+                            classSelect.innerHTML = '<option value="">All Classes</option>';
+                            res.classes.forEach(c => {
+                                const selected = currentClassId && parseInt(currentClassId, 10) === c.subClassId ? 'selected' : '';
+                                classSelect.insertAdjacentHTML('beforeend', `
+                                    <option value="${c.subClassId}" ${selected}>${escapeHtml(c.className)}</option>
+                                `);
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dStr) {
+            if (!dStr) return '-';
+            const dt = new Date(dStr);
+            if (isNaN(dt.getTime())) return dStr;
+            return dt.toLocaleDateString();
+        }
+
+        // Debounced search
+        let searchTimeout = null;
+        document.getElementById('enrollmentSearchInput').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                triggerEnrollmentSearch();
+            }, 350);
+        });
+
+        // Initialize
+        $(document).ready(function () {
+            loadDropdownsAsync();
+            loadEnrollments();
+        });
+    </script>
+}

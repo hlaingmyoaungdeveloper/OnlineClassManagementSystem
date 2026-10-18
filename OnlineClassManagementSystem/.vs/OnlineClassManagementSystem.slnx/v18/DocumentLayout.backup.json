@@ -134,10 +134,6 @@
       "RelativeMoniker": "D:0:0:{314907FB-8C89-48DB-B8B8-BC3AEE91D46D}|OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj|solutionrelative:onlineclassmanagementsystem.webapi\\controllers\\subclasscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\services\\subclassapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\services\\subclassapiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|c:\\users\\user\\documents\\project\\onlineclassmanagementsystem\\onlineclassmanagementsystem.mvcapp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{1924A644-EA8B-4019-ABE1-115937007167}|OnlineClassManagementSystem.MvcApp\\OnlineClassManagementSystem.MvcApp.csproj|solutionrelative:onlineclassmanagementsystem.mvcapp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -618,18 +614,6 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
-              "Title": "SubClassApiService.cs",
-              "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Services\\SubClassApiService.cs",
-              "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Services\\SubClassApiService.cs",
-              "ToolTip": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Services\\SubClassApiService.cs",
-              "RelativeToolTip": "OnlineClassManagementSystem.MvcApp\\Services\\SubClassApiService.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAqwBQAAABGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-09T16:51:19.961Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 30,
               "Title": "SubClassCreateRequestModel.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\models\\SubClass\\SubClassCreateRequestModel.cs",
@@ -642,7 +626,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 33,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Views\\Shared\\_Layout.cshtml",
@@ -666,7 +650,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 35,
               "Title": "EnrollmentController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\EnrollmentController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\EnrollmentController.cs",
@@ -678,7 +662,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 34,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Program.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Program.cs",
@@ -690,7 +674,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 36,
               "Title": "TeachPlanService.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\TeachPlan\\TeachPlanService.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\TeachPlan\\TeachPlanService.cs",
@@ -702,7 +686,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 37,
               "Title": "TeachingTrackingService.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\TeachingTracking\\TeachingTrackingService.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\TeachingTracking\\TeachingTrackingService.cs",
@@ -714,7 +698,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 38,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Shared\\Class1.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Shared\\Class1.cs",
@@ -726,7 +710,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 39,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\appsettings.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\appsettings.json",
@@ -738,7 +722,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 40,
               "Title": "launchSettings.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.MvcApp\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.MvcApp\\Properties\\launchSettings.json",
@@ -750,7 +734,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 41,
               "Title": "launchSettings.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Properties\\launchSettings.json",
@@ -762,7 +746,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 43,
               "Title": "appsettings.Development.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\appsettings.Development.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\appsettings.Development.json",
@@ -774,7 +758,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 44,
               "Title": "OnlineClassManagementSystem.WebApi.http",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.http",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.http",
@@ -786,7 +770,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 42,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\appsettings.json",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\appsettings.json",
@@ -798,7 +782,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
+              "DocumentIndex": 45,
               "Title": "OnlineClassManagementSystem.WebApi.csproj",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\OnlineClassManagementSystem.WebApi.csproj",
@@ -811,7 +795,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 46,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Program.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Program.cs",
@@ -823,7 +807,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 48,
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\UserController.cs",
@@ -835,7 +819,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 49,
               "Title": "TblUser.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Database\\Models\\TblUser.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Database\\Models\\TblUser.cs",
@@ -847,7 +831,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 51,
+              "DocumentIndex": 50,
               "Title": "TblTeachTracking.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Database\\Models\\TblTeachTracking.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Database\\Models\\TblTeachTracking.cs",
@@ -859,7 +843,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 47,
               "Title": "TimetableService.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Domain\\features\\Timetable\\TimetableService.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Domain\\features\\Timetable\\TimetableService.cs",
@@ -871,7 +855,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 52,
+              "DocumentIndex": 51,
               "Title": "TblTeachPlan.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.Database\\Models\\TblTeachPlan.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.Database\\Models\\TblTeachPlan.cs",
@@ -883,7 +867,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 53,
+              "DocumentIndex": 52,
               "Title": "TeachPlanController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\TeachPlanController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\TeachPlanController.cs",
@@ -895,7 +879,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 54,
+              "DocumentIndex": 53,
               "Title": "TeachingTrackingController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Documents\\Project\\OnlineClassManagementSystem\\OnlineClassManagementSystem.WebApi\\Controllers\\TeachingTrackingController.cs",
               "RelativeDocumentMoniker": "OnlineClassManagementSystem.WebApi\\Controllers\\TeachingTrackingController.cs",

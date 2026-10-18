@@ -6,14 +6,8 @@
     var isTeacher = currentRole == "teacher";
     ViewData["Title"] = isTeacher ? "My Test Tracking" : "Test Tracking";
 
-    var trackings = Model?.TeachingTrackingList ?? new List<OnlineClassManagementSystem.Shared.models.TeachingTracking.TeachingTrackingModel>();
-    var pageNo = Model?.PageNo ?? (int)(ViewBag.PageNo ?? 1);
-    var pageSize = Model?.PageSize ?? (int)(ViewBag.PageSize ?? 10);
-    var totalCount = Model?.TotalCount ?? trackings.Count;
-    var totalPages = Model?.TotalPages ?? (int)Math.Ceiling((double)totalCount / pageSize);
-    if (totalPages < 1) totalPages = 1;
-    var hasPrevious = Model?.HasPreviousPage ?? (pageNo > 1);
-    var hasNext = Model?.HasNextPage ?? (pageNo < totalPages);
+    var pageNo = (int)(ViewBag.PageNo ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 10);
     var searchVal = ViewBag.SearchQuery as string ?? "";
 }
 
@@ -23,6 +17,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold tracking-tight text-slate-900">@(isTeacher ? "My Test Tracking" : "Test Tracking")</h1>
+            <p class="text-xs text-slate-500 mt-1">Track teaching activities, completed test plan lessons, topics, and teacher logs.</p>
         </div>
         <div>
             <a asp-action="Create" asp-route-role="@currentRole"
@@ -33,49 +28,30 @@
         </div>
     </div>
 
-    <!-- Alerts -->
-    @if (TempData["Success"] != null)
-    {
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-800">
-            @TempData["Success"]
-        </div>
-    }
-    @if (TempData["Error"] != null || ViewBag.Error != null)
-    {
-        <div class="rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-800">
-            @(TempData["Error"] ?? ViewBag.Error)
-        </div>
-    }
-
     <!-- Search / Filter Row -->
     <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
-        <form method="get" asp-action="Index" class="flex flex-wrap items-center gap-3 flex-1">
-            <input type="hidden" name="role" value="@currentRole" />
-            <input type="hidden" name="pageNo" value="1" />
-            <input type="hidden" name="pageSize" value="@pageSize" />
-
+        <form id="trackingSearchForm" onsubmit="event.preventDefault(); triggerTrackingSearch();" class="flex flex-wrap items-center gap-3 flex-1">
             <div class="flex-1 min-w-[200px] max-w-sm">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </span>
-                    <input type="text" name="search" value="@searchVal" placeholder="Search test tracking..." class="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-blue-500" />
+                    <input type="text" id="trackingSearchInput" value="@searchVal" placeholder="Search test tracking..."
+                           class="w-full rounded-lg border border-slate-200 bg-slate-50/50 py-2 pl-9 pr-3 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition" />
                 </div>
             </div>
 
-            <button type="submit" class="rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 text-xs font-semibold transition">
+            <button type="submit" class="rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 text-xs font-semibold transition cursor-pointer">
                 Search
             </button>
 
-            @if (!string.IsNullOrEmpty(searchVal))
-            {
-                <a asp-action="Index" asp-route-role="@currentRole" class="text-xs text-rose-600 hover:underline">
-                    Clear
-                </a>
-            }
+            <button type="button" id="btnClearTrackingSearch" onclick="clearTrackingSearch()" class="hidden text-xs text-rose-600 hover:underline cursor-pointer">
+                Clear
+            </button>
         </form>
+
         <div class="text-xs text-slate-500">
-            Total: <span class="font-semibold text-slate-700">@totalCount</span> records
+            Total: <span id="totalTrackingCount" class="font-semibold text-slate-700">0</span> records
         </div>
     </div>
 
@@ -95,140 +71,327 @@
                         <th class="px-6 py-3.5 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @if (trackings.Count == 0)
+                <tbody id="trackingTableBody" class="divide-y divide-slate-100">
+                    @for (int i = 0; i < 5; i++)
                     {
                         <tr>
-                            <td colspan="8" class="px-6 py-12 text-center text-slate-400">
-                                <div class="flex flex-col items-center justify-center gap-2">
-                                    <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                    <span>No test tracking records found.</span>
-                                </div>
-                            </td>
+                            <td class="px-6 py-4"><div class="h-4 w-12 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-28 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-24 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-36 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-20 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-20 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4"><div class="h-4 w-16 rounded skeleton-shimmer"></div></td>
+                            <td class="px-6 py-4 text-center"><div class="mx-auto h-4 w-16 rounded skeleton-shimmer"></div></td>
                         </tr>
-                    }
-                    else
-                    {
-                        @foreach (var track in trackings)
-                        {
-                            var codeId = "TT00" + track.TrackId;
-
-                            <tr class="hover:bg-slate-50/60 transition">
-                                <td class="px-6 py-4 font-semibold text-slate-800">@codeId</td>
-                                <td class="px-6 py-4 text-slate-800 font-medium">@(track.ClassName ?? ("Class #" + track.SubClassId))</td>
-                                <td class="px-6 py-4 text-slate-700">@(track.TeacherName ?? ("Teacher #" + track.TeacherId))</td>
-                                <td class="px-6 py-4 text-slate-700">@(track.TopicTaught ?? "-")</td>
-                                <td class="px-6 py-4 text-slate-500">@track.DateTaught.ToString("dd-MM-yyyy")</td>
-                                <td class="px-6 py-4 text-slate-500">
-                                    @track.StartTime.ToString("HH:mm") - @track.EndTime.ToString("HH:mm")
-                                </td>
-                                <td class="px-6 py-4 text-slate-500">@(string.IsNullOrEmpty(track.Remarks) ? "-" : track.Remarks)</td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="inline-flex items-center gap-2">
-                                        <a asp-action="Edit" asp-route-id="@track.TrackId" asp-route-role="@currentRole" class="text-blue-600 hover:text-blue-800 p-1" title="Edit">
-                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                        </a>
-                                        <form asp-action="Delete" asp-route-id="@track.TrackId" asp-route-role="@currentRole" method="post" class="inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="text-rose-500 hover:text-rose-700 p-1" title="Delete" onclick="return confirm('Are you sure you want to delete this tracking record?');">
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
                     }
                 </tbody>
             </table>
         </div>
 
-        @{
-            var startItem = totalCount > 0 ? (pageNo - 1) * pageSize + 1 : 0;
-            var endItem = Math.Min(pageNo * pageSize, totalCount);
-            int startPage = Math.Max(1, pageNo - 2);
-            int endPage = Math.Min(totalPages, pageNo + 2);
-        }
-
         <!-- Pagination Footer -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200/80 px-6 py-3.5 bg-slate-50/50 text-xs text-slate-500">
             <div class="flex items-center gap-3">
-                <span>Showing @(totalCount > 0 ? $"{startItem} - {endItem} of {totalCount}" : "0") records</span>
+                <span id="trackingShowingText">Loading tracking records...</span>
                 <div class="flex items-center gap-1.5 pl-3 border-l border-slate-200">
                     <span>Per page:</span>
-                    <select onchange="location.href='@Url.Action("Index", new { role = currentRole, search = searchVal, pageNo = 1 })&pageSize=' + this.value"
-                            class="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-blue-500">
-                        <option value="5" selected="@(pageSize == 5 ? "selected" : null)">5</option>
-                        <option value="10" selected="@(pageSize == 10 ? "selected" : null)">10</option>
-                        <option value="20" selected="@(pageSize == 20 ? "selected" : null)">20</option>
-                        <option value="50" selected="@(pageSize == 50 ? "selected" : null)">50</option>
+                    <select id="trackingPageSizeSelect" onchange="changeTrackingPageSize(this.value)"
+                            class="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 outline-none focus:border-blue-500 cursor-pointer">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
                     </select>
                 </div>
             </div>
 
-            <div class="flex items-center gap-1">
-                @if (hasPrevious)
-                {
-                    <a asp-action="Index" asp-route-pageNo="@(pageNo - 1)" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
-                        &lsaquo; Prev
-                    </a>
-                }
-                else
-                {
-                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
-                        &lsaquo; Prev
-                    </span>
-                }
-
-                @if (startPage > 1)
-                {
-                    <a asp-action="Index" asp-route-pageNo="1" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">1</a>
-                    @if (startPage > 2)
-                    {
-                        <span class="px-1 text-slate-400">...</span>
-                    }
-                }
-
-                @for (int i = startPage; i <= endPage; i++)
-                {
-                    if (i == pageNo)
-                    {
-                        <span class="h-7 w-7 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center shadow-xs">@i</span>
-                    }
-                    else
-                    {
-                        <a asp-action="Index" asp-route-pageNo="@i" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                           class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@i</a>
-                    }
-                }
-
-                @if (endPage < totalPages)
-                {
-                    @if (endPage < totalPages - 1)
-                    {
-                        <span class="px-1 text-slate-400">...</span>
-                    }
-                    <a asp-action="Index" asp-route-pageNo="@totalPages" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                       class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">@totalPages</a>
-                }
-
-                @if (hasNext)
-                {
-                    <a asp-action="Index" asp-route-pageNo="@(pageNo + 1)" asp-route-pageSize="@pageSize" asp-route-search="@searchVal" asp-route-role="@currentRole"
-                       class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium">
-                        Next &rsaquo;
-                    </a>
-                }
-                else
-                {
-                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
-                        Next &rsaquo;
-                    </span>
-                }
-            </div>
+            <div id="trackingPaginationNav" class="flex items-center gap-1"></div>
         </div>
     </div>
 
 </div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        const currentRole = '@currentRole';
+        const isTeacher = @(isTeacher ? "true" : "false");
+
+        let currentPageNo = @pageNo;
+        let currentPageSize = @pageSize;
+        let currentSearch = '@searchVal';
+
+        function loadTracking(pageNo = currentPageNo, pageSize = currentPageSize, search = currentSearch) {
+            currentPageNo = pageNo;
+            currentPageSize = pageSize;
+            currentSearch = search;
+
+            const clearBtn = document.getElementById('btnClearTrackingSearch');
+            if (clearBtn) {
+                if (currentSearch && currentSearch.trim().length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
+            const tbody = document.getElementById('trackingTableBody');
+            tbody.innerHTML = `
+                @for (int i = 0; i < 5; i++)
+                {
+                    <tr>
+                        <td class="px-6 py-4"><div class="h-4 w-12 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-28 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-24 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-36 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-20 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-20 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4"><div class="h-4 w-16 rounded skeleton-shimmer"></div></td>
+                        <td class="px-6 py-4 text-center"><div class="mx-auto h-4 w-16 rounded skeleton-shimmer"></div></td>
+                    </tr>
+                }
+            `;
+
+            const queryParams = $.param({
+                pageNo: currentPageNo,
+                pageSize: currentPageSize,
+                search: currentSearch || ''
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetData", "TeachingTracking")?' + queryParams,
+                type: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function (response) {
+                    if (response && response.isSuccess) {
+                        const list = response.teachingTrackingList || [];
+                        const totalCount = response.totalCount || list.length;
+                        const totalPages = response.totalPages || Math.max(1, Math.ceil(totalCount / currentPageSize));
+
+                        document.getElementById('totalTrackingCount').innerText = totalCount;
+
+                        renderTrackingTable(list);
+                        renderTrackingPagination(totalCount, totalPages, currentPageNo, currentPageSize);
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="8" class="px-6 py-12 text-center text-amber-600">
+                                    <p class="font-medium">${escapeHtml(response ? response.message : 'Error loading records')}</p>
+                                    <button onclick="loadTracking()" class="mt-2 text-xs text-blue-600 hover:underline">Retry</button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                },
+                error: function () {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="px-6 py-12 text-center text-rose-500">
+                                <p class="font-medium">Failed to connect to Web API.</p>
+                                <button onclick="loadTracking()" class="mt-2 text-xs text-blue-600 hover:underline">Retry</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+
+        function renderTrackingTable(list) {
+            const tbody = document.getElementById('trackingTableBody');
+            tbody.innerHTML = '';
+
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-slate-400">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span>No teaching tracking records found.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            list.forEach(item => {
+                const trackId = item.trackId || item.trackingId || item.TrackId || 0;
+                const codeId = 'TT00' + trackId;
+                const className = item.className || ('Class #' + item.subClassId);
+                const teacherName = item.teacherName || ('Teacher #' + item.teacherId);
+                const topic = item.topicTaught || 'Session Completed';
+                const dateTaught = item.dateTaught ? formatDate(item.dateTaught) : '-';
+                const timeStr = `${formatTime(item.startTime)} - ${formatTime(item.endTime)}`;
+                const remarks = item.remarks || item.remark || '-';
+
+                const rowHtml = `
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="px-6 py-4 font-semibold text-slate-800">${escapeHtml(codeId)}</td>
+                        <td class="px-6 py-4 text-slate-800 font-medium">${escapeHtml(className)}</td>
+                        <td class="px-6 py-4 text-slate-700">${escapeHtml(teacherName)}</td>
+                        <td class="px-6 py-4 text-slate-800">
+                            <div class="text-xs">
+                                <span class="font-medium">${escapeHtml(topic)}</span>
+                                ${item.subjectName ? `<span class="text-[11px] text-teal-600 block">${escapeHtml(item.subjectName)}</span>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600">${dateTaught}</td>
+                        <td class="px-6 py-4 text-slate-600 text-xs">${timeStr}</td>
+                        <td class="px-6 py-4 text-slate-500 text-xs truncate max-w-xs">${escapeHtml(remarks)}</td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="inline-flex items-center gap-2">
+                                <a href="@Url.Action("Edit", "TeachingTracking")/${trackId}?role=${encodeURIComponent(currentRole)}"
+                                   class="text-blue-600 hover:text-blue-800 p-1" title="Edit">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                </a>
+                                <button type="button" onclick="deleteTracking(${trackId})" class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer" title="Delete">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+        }
+
+        function renderTrackingPagination(totalCount, totalPages, pageNo, pageSize) {
+            const showingText = document.getElementById('trackingShowingText');
+            const startItem = totalCount > 0 ? (pageNo - 1) * pageSize + 1 : 0;
+            const endItem = Math.min(pageNo * pageSize, totalCount);
+
+            if (showingText) {
+                showingText.innerText = totalCount > 0 
+                    ? `Showing ${startItem} - ${endItem} of ${totalCount} records`
+                    : 'Showing 0 records';
+            }
+
+            const paginationNav = document.getElementById('trackingPaginationNav');
+            paginationNav.innerHTML = '';
+
+            const hasPrevious = pageNo > 1;
+            const hasNext = pageNo < totalPages;
+
+            if (hasPrevious) {
+                paginationNav.insertAdjacentHTML('beforeend', `
+                    <button type="button" onclick="loadTracking(${pageNo - 1})"
+                            class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium cursor-pointer">
+                        &lsaquo; Prev
+                    </button>
+                `);
+            } else {
+                paginationNav.insertAdjacentHTML('beforeend', `
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        &lsaquo; Prev
+                    </span>
+                `);
+            }
+
+            const startPage = Math.max(1, pageNo - 2);
+            const endPage = Math.min(totalPages, pageNo + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === pageNo) {
+                    paginationNav.insertAdjacentHTML('beforeend', `
+                        <span class="h-7 w-7 rounded-md @(isTeacher ? "bg-teal-600" : "bg-blue-600") text-white font-semibold flex items-center justify-center shadow-xs">${i}</span>
+                    `);
+                } else {
+                    paginationNav.insertAdjacentHTML('beforeend', `
+                        <button type="button" onclick="loadTracking(${i})"
+                                class="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium cursor-pointer">${i}</button>
+                    `);
+                }
+            }
+
+            if (hasNext) {
+                paginationNav.insertAdjacentHTML('beforeend', `
+                    <button type="button" onclick="loadTracking(${pageNo + 1})"
+                            class="h-7 px-2.5 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 transition shadow-2xs font-medium cursor-pointer">
+                        Next &rsaquo;
+                    </button>
+                `);
+            } else {
+                paginationNav.insertAdjacentHTML('beforeend', `
+                    <span class="h-7 px-2.5 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-not-allowed">
+                        Next &rsaquo;
+                    </span>
+                `);
+            }
+        }
+
+        function triggerTrackingSearch() {
+            const input = document.getElementById('trackingSearchInput');
+            const searchVal = input ? input.value.trim() : '';
+            loadTracking(1, currentPageSize, searchVal);
+        }
+
+        function clearTrackingSearch() {
+            const input = document.getElementById('trackingSearchInput');
+            if (input) input.value = '';
+            loadTracking(1, currentPageSize, '');
+        }
+
+        function changeTrackingPageSize(size) {
+            loadTracking(1, parseInt(size, 10), currentSearch);
+        }
+
+        function deleteTracking(id) {
+            if (!confirm('Are you sure you want to delete this record?')) return;
+
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '@Url.Action("Delete", "TeachingTracking")/' + id + '?role=' + encodeURIComponent(currentRole),
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (res) {
+                    if (res && res.isSuccess) {
+                        if (window.showToast) window.showToast('Record deleted successfully!', true);
+                        loadTracking();
+                    } else {
+                        if (window.showToast) window.showToast(res ? res.message : 'Failed to delete record', false);
+                    }
+                },
+                error: function () {
+                    if (window.showToast) window.showToast('Error communicating with server', false);
+                }
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dStr) {
+            if (!dStr) return '-';
+            const dt = new Date(dStr);
+            if (isNaN(dt.getTime())) return dStr;
+            return dt.toLocaleDateString();
+        }
+
+        function formatTime(tStr) {
+            if (!tStr) return '--:--';
+            if (typeof tStr === 'string' && tStr.length >= 5) return tStr.substring(0, 5);
+            return tStr;
+        }
+
+        // Live search
+        let searchTimeout = null;
+        document.getElementById('trackingSearchInput').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                triggerTrackingSearch();
+            }, 350);
+        });
+
+        // Initial Load
+        $(document).ready(function () {
+            loadTracking();
+        });
+    </script>
+}

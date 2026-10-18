@@ -20,19 +20,39 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
         [ActionName("Index")]
         public async Task<IActionResult> TeachPlanListAsync(string? search = null, string? role = null, int pageNo = 1, int pageSize = 10)
         {
+            ViewBag.ActiveMenu = "TeachPlan";
+            ViewBag.SearchQuery = search ?? "";
+            ViewBag.PageNo = pageNo;
+            ViewBag.PageSize = pageSize;
+            if (!string.IsNullOrEmpty(role))
+            {
+                ViewBag.CurrentRole = role.ToLower();
+            }
+
+            // If requested via AJAX, return JSON data
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+            {
+                return await TeachPlanGetDataAsync(search, pageNo, pageSize);
+            }
+
+            // Return view instantly without blocking on API
+            return View("Index", new TeachPlanListResponseModel 
+            { 
+                PageNo = pageNo, 
+                PageSize = pageSize,
+                TeachPlanList = new()
+            });
+        }
+
+        // GET: /TeachPlan/GetData
+        [HttpGet]
+        [ActionName("GetData")]
+        public async Task<IActionResult> TeachPlanGetDataAsync(string? search = null, int pageNo = 1, int pageSize = 10)
+        {
             try
             {
-                _logger.LogInformation("TeachPlan List Async => Fetching teach plans");
+                _logger.LogInformation("TeachPlan GetData => Fetching teach plans via AJAX");
                 var client = _httpClientFactory.CreateClient("WebAPI");
-
-                ViewBag.ActiveMenu = "TeachPlan";
-                ViewBag.SearchQuery = search;
-                ViewBag.PageNo = pageNo;
-                ViewBag.PageSize = pageSize;
-                if (!string.IsNullOrEmpty(role))
-                {
-                    ViewBag.CurrentRole = role.ToLower();
-                }
 
                 var query = new List<string>
                 {
@@ -46,31 +66,20 @@ namespace OnlineClassManagementSystem.MvcApp.Controllers
 
                 var httpResponse = await client.GetAsync($"api/TeachPlan?{string.Join("&", query)}");
                 var jsonString = await httpResponse.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<TeachPlanListResponseModel>(jsonString);
+                var response = JsonConvert.DeserializeObject<TeachPlanListResponseModel>(jsonString)
+                    ?? new TeachPlanListResponseModel { IsSuccess = false, Message = "Empty response from API", TeachPlanList = new() };
 
-                if (response == null)
-                {
-                    ViewBag.Error = "API returned an empty response.";
-                    return View(new TeachPlanListResponseModel { TeachPlanList = new() });
-                }
-
-                if (!response.IsSuccess)
-                {
-                    _logger.LogWarning($"TeachPlan List Async => Failed to fetch teach plans: {response.Message}");
-                    ViewBag.Error = response.Message;
-                    TempData["Message"] = response.Message;
-                    TempData["isSuccess"] = false;
-                    return View(response);
-                }
-
-                _logger.LogInformation("TeachPlan List Async => Teach plans fetched successfully");
-                ViewData["TeachPlans"] = response.TeachPlanList;
-                return View(response);
+                return Json(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "TeachPlanListAsync => Exception occurred");
-                return StatusCode(500, new { isSuccess = false, Message = "Internal Server Error: " + ex.Message });
+                _logger.LogError(ex, "TeachPlanGetDataAsync => Exception occurred");
+                return Json(new TeachPlanListResponseModel 
+                { 
+                    IsSuccess = false, 
+                    Message = "Failed to load test plans: " + ex.Message,
+                    TeachPlanList = new() 
+                });
             }
         }
 
