@@ -152,6 +152,69 @@
 
 </div>
 
+<!-- EDIT ENROLLMENT POPUP MODAL -->
+<div id="editEnrollmentModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs hidden transition-opacity duration-200">
+    <div class="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+        <!-- Close Button (X) -->
+        <button type="button" onclick="closeEditEnrollmentModal()" class="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition cursor-pointer">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <!-- Header -->
+        <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100">
+            <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 id="editEnrollmentModalTitle" class="text-lg font-bold text-slate-900">Edit Enrollment</h3>
+                <p class="text-xs text-slate-500">Update class allocation, student, or enrollment date</p>
+            </div>
+        </div>
+
+        <form id="editEnrollmentForm" onsubmit="event.preventDefault(); submitEditEnrollment();" class="space-y-4">
+            <input type="hidden" id="editEnrollmentId" />
+
+            <!-- Class Selection -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Class <span class="text-rose-500">*</span></label>
+                <select id="editEnrollmentClassId" required class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition cursor-pointer">
+                    <option value="">-- Select Class --</option>
+                </select>
+            </div>
+
+            <!-- Student Selection -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Student <span class="text-rose-500">*</span></label>
+                <select id="editEnrollmentStudentId" required class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition cursor-pointer">
+                    <option value="">-- Select Student --</option>
+                </select>
+            </div>
+
+            <!-- Enroll Date -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Enrollment Date</label>
+                <input id="editEnrollmentDate" type="date"
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition cursor-pointer" />
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 mt-6">
+                <button type="button" onclick="closeEditEnrollmentModal()"
+                        class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit" id="btnSubmitEditEnrollment"
+                        class="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition cursor-pointer">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Update Enrollment</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @Html.AntiForgeryToken()
 
 @section Scripts {
@@ -163,6 +226,9 @@
         let currentSearch = '@searchVal';
         let currentStatus = '@statusVal';
         let currentClassId = '@(selectedClassId?.ToString() ?? "")';
+
+        let cachedClasses = [];
+        let cachedStudents = [];
 
         function loadEnrollments(pageNo = currentPageNo, pageSize = currentPageSize, search = currentSearch, status = currentStatus, classId = currentClassId) {
             currentPageNo = pageNo;
@@ -296,6 +362,13 @@
                 }
 
                 let actionsHtml = '';
+                const editBtnHtml = `
+                    <button type="button" onclick="openEditEnrollmentModal(${item.enrollmentId}, ${item.classId || 0}, ${item.studentId || 0}, '${item.enrollDate ? item.enrollDate.substring(0, 10) : ''}')"
+                            class="text-blue-600 hover:text-blue-800 p-1 rounded-lg hover:bg-blue-50 transition cursor-pointer" title="Edit">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                `;
+
                 if (st === 'pending') {
                     actionsHtml = `
                         <div class="inline-flex items-center justify-center gap-1.5">
@@ -307,10 +380,7 @@
                                     class="rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 px-2 py-1 text-xs font-semibold transition cursor-pointer" title="Reject Enrollment">
                                 Reject
                             </button>
-                            <a href="@Url.Action("Edit", "Enrollment")/${item.enrollmentId}?role=${encodeURIComponent(currentRole)}"
-                               class="text-blue-600 hover:text-blue-800 p-1" title="Edit">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                            </a>
+                            ${editBtnHtml}
                         </div>
                     `;
                 } else if (st === 'confirm' || st === 'active') {
@@ -320,10 +390,7 @@
                                     class="rounded-lg bg-slate-50 hover:bg-rose-50 hover:text-rose-700 text-slate-500 px-2 py-1 text-xs font-semibold transition cursor-pointer" title="Cancel Enrollment">
                                 Cancel
                             </button>
-                            <a href="@Url.Action("Edit", "Enrollment")/${item.enrollmentId}?role=${encodeURIComponent(currentRole)}"
-                               class="text-blue-600 hover:text-blue-800 p-1" title="Edit">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                            </a>
+                            ${editBtnHtml}
                         </div>
                     `;
                 } else {
@@ -333,6 +400,7 @@
                                     class="rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 text-xs font-semibold transition cursor-pointer" title="Reactivate Enrollment">
                                 Re-enroll
                             </button>
+                            ${editBtnHtml}
                         </div>
                     `;
                 }
@@ -472,11 +540,14 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function (res) {
-                    if (res && res.isSuccess && res.classes) {
+                    if (res && res.isSuccess) {
+                        cachedClasses = res.classes || [];
+                        cachedStudents = res.students || [];
+
                         const classSelect = document.getElementById('classFilterSelect');
                         if (classSelect) {
                             classSelect.innerHTML = '<option value="">All Classes</option>';
-                            res.classes.forEach(c => {
+                            cachedClasses.forEach(c => {
                                 const selected = currentClassId && parseInt(currentClassId, 10) === c.subClassId ? 'selected' : '';
                                 classSelect.insertAdjacentHTML('beforeend', `
                                     <option value="${c.subClassId}" ${selected}>${escapeHtml(c.className)}</option>
@@ -487,6 +558,124 @@
                 }
             });
         }
+
+        function populateEditEnrollmentDropdowns(selectedClassId, selectedStudentId) {
+            const classSelect = document.getElementById('editEnrollmentClassId');
+            if (classSelect) {
+                classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+                cachedClasses.forEach(c => {
+                    const isSel = selectedClassId && parseInt(selectedClassId, 10) === c.subClassId ? 'selected' : '';
+                    classSelect.insertAdjacentHTML('beforeend', `
+                        <option value="${c.subClassId}" ${isSel}>${escapeHtml(c.className)} (Limit: ${c.studentLimit || 0})</option>
+                    `);
+                });
+            }
+
+            const studentSelect = document.getElementById('editEnrollmentStudentId');
+            if (studentSelect) {
+                studentSelect.innerHTML = '<option value="">-- Select Student --</option>';
+                cachedStudents.forEach(s => {
+                    const isSel = selectedStudentId && parseInt(selectedStudentId, 10) === s.userId ? 'selected' : '';
+                    studentSelect.insertAdjacentHTML('beforeend', `
+                        <option value="${s.userId}" ${isSel}>${escapeHtml(s.fullName || 'Student')} (${escapeHtml(s.email || '')}) [No: ${s.userId}]</option>
+                    `);
+                });
+            }
+        }
+
+        function openEditEnrollmentModal(id, classId, studentId, enrollDate) {
+            document.getElementById('editEnrollmentId').value = id;
+            const titleEl = document.getElementById('editEnrollmentModalTitle');
+            if (titleEl) titleEl.innerText = `Edit Enrollment #EN00${id}`;
+
+            populateEditEnrollmentDropdowns(classId, studentId);
+
+            const dateEl = document.getElementById('editEnrollmentDate');
+            if (dateEl) {
+                dateEl.value = enrollDate ? enrollDate.substring(0, 10) : '';
+            }
+
+            const modal = document.getElementById('editEnrollmentModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeEditEnrollmentModal() {
+            const modal = document.getElementById('editEnrollmentModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function submitEditEnrollment() {
+            const id = document.getElementById('editEnrollmentId').value;
+            const classId = document.getElementById('editEnrollmentClassId').value;
+            const studentId = document.getElementById('editEnrollmentStudentId').value;
+            const enrollDate = document.getElementById('editEnrollmentDate').value;
+            const token = $('input[name="__RequestVerificationToken"]').val();
+
+            if (!classId || !studentId) {
+                if (window.showToast) window.showToast('Please select both a Class and a Student.', false);
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitEditEnrollment');
+            const originalContent = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span>Saving...</span>';
+            }
+
+            $.ajax({
+                url: `@Url.Action("Update", "Enrollment")/${id}?role=${encodeURIComponent(currentRole)}`,
+                type: 'POST',
+                data: {
+                    ClassId: parseInt(classId, 10),
+                    StudentId: parseInt(studentId, 10),
+                    EnrollDate: enrollDate || null,
+                    role: currentRole
+                },
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (res) {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }
+                    if (res && res.isSuccess) {
+                        if (window.showToast) window.showToast(res.message || 'Enrollment updated successfully!', true);
+                        closeEditEnrollmentModal();
+                        loadEnrollments();
+                    } else {
+                        if (window.showToast) window.showToast(res ? res.message : 'Failed to update enrollment', false);
+                    }
+                },
+                error: function (xhr) {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }
+                    let msg = 'Error communicating with server';
+                    try {
+                        const errRes = JSON.parse(xhr.responseText);
+                        if (errRes && errRes.message) msg = errRes.message;
+                    } catch (e) { }
+                    if (window.showToast) window.showToast(msg, false);
+                }
+            });
+        }
+
+        const editEnrollmentModalEl = document.getElementById('editEnrollmentModal');
+        if (editEnrollmentModalEl) {
+            editEnrollmentModalEl.addEventListener('click', function(e) {
+                if (e.target === editEnrollmentModalEl) closeEditEnrollmentModal();
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEditEnrollmentModal();
+            }
+        });
 
         function escapeHtml(text) {
             if (!text) return '';

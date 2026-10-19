@@ -251,6 +251,79 @@
     </div>
 </div>
 
+<!-- EDIT CLASS POPUP MODAL -->
+<div id="editClassModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs hidden transition-opacity duration-200">
+    <div class="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+        <!-- Close Button (X) -->
+        <button type="button" onclick="closeEditClassModal()" class="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition cursor-pointer">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <!-- Header -->
+        <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100">
+            <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Edit Class</h3>
+                <p class="text-xs text-slate-500">Update class schedule, room allocation, and student capacity</p>
+            </div>
+        </div>
+
+        <form id="editClassForm" onsubmit="event.preventDefault(); submitEditClass();" class="space-y-4">
+            <input type="hidden" id="editSubClassId" />
+
+            <!-- Class Name -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Class Name <span class="text-rose-500">*</span></label>
+                <input id="editClassName" required placeholder="e.g. Class A, Grade 10 Math"
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+            </div>
+
+            <!-- Room / Place -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Room / Place <span class="text-rose-500">*</span></label>
+                <input id="editPlace" required placeholder="e.g. Room 101, Lab A"
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+            </div>
+
+            <!-- Grid 3 items: StudentLimit, OpenDate, OpenTime -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Capacity <span class="text-rose-500">*</span></label>
+                    <input id="editStudentLimit" type="number" min="1" max="500" required
+                           class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Open Date <span class="text-rose-500">*</span></label>
+                    <input id="editOpenDate" type="date" required
+                           class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Open Time <span class="text-rose-500">*</span></label>
+                    <input id="editOpenTime" type="time" required
+                           class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+                </div>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 mt-6">
+                <button type="button" onclick="closeEditClassModal()"
+                        class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit" id="btnSubmitEditClass"
+                        class="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition cursor-pointer">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Update Class</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- ENROLL STUDENT MODAL -->
 <div id="enrollModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs hidden transition-opacity duration-200">
     <div class="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
@@ -612,10 +685,10 @@
                         <td class="px-6 py-4 text-center">
                             <div class="inline-flex items-center gap-1.5">
                                 ${enrollBtn}
-                                <a href="@Url.Action("Edit", "SubClass")/${item.subClassId}?role=${encodeURIComponent(currentRole)}"
-                                   class="rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 p-1.5 transition" title="Edit Class">
+                                <button type="button" onclick="openEditClassModal(${item.subClassId}, '${escapeJs(item.className)}', '${escapeJs(item.place || '')}', ${item.studentLimit || 30}, '${item.openDate || ''}', '${item.openTime || ''}')"
+                                        class="rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 p-1.5 transition cursor-pointer" title="Edit Class">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                </a>
+                                </button>
                                 <button type="button" onclick="deleteClass(${item.subClassId})"
                                         class="rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 p-1.5 transition cursor-pointer" title="Delete Class">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -680,10 +753,10 @@
                                         Enroll
                                    </button>` 
                                 : ''}
-                            <a href="@Url.Action("Edit", "SubClass")/${item.subClassId}?role=${encodeURIComponent(currentRole)}"
-                               class="rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-3 py-1.5 text-xs font-semibold transition">
+                            <button type="button" onclick="openEditClassModal(${item.subClassId}, '${escapeJs(item.className)}', '${escapeJs(item.place || '')}', ${item.studentLimit || 30}, '${item.openDate || ''}', '${item.openTime || ''}')"
+                                    class="rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-3 py-1.5 text-xs font-semibold transition cursor-pointer">
                                 Edit
-                            </a>
+                            </button>
                             <button type="button" onclick="deleteClass(${item.subClassId})"
                                     class="rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer">
                                 Delete
@@ -842,6 +915,86 @@
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg><span>Create Class</span>';
+                    }
+                }
+            });
+        }
+
+        // Edit Class AJAX
+        const editClassModal = document.getElementById('editClassModal');
+
+        function openEditClassModal(id, name, place, limit, openDate, openTime) {
+            document.getElementById('editSubClassId').value = id;
+            document.getElementById('editClassName').value = name || '';
+            document.getElementById('editPlace').value = place || '';
+            document.getElementById('editStudentLimit').value = limit || 30;
+            if (openDate) {
+                document.getElementById('editOpenDate').value = openDate.length >= 10 ? openDate.substring(0, 10) : openDate;
+            }
+            if (openTime) {
+                document.getElementById('editOpenTime').value = openTime.length >= 5 ? openTime.substring(0, 5) : openTime;
+            }
+            editClassModal.classList.remove('hidden');
+            const firstInput = document.getElementById('editClassName');
+            if (firstInput) setTimeout(() => firstInput.focus(), 100);
+        }
+
+        function closeEditClassModal() {
+            editClassModal.classList.add('hidden');
+        }
+
+        function submitEditClass() {
+            const form = document.getElementById('editClassForm');
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            const submitBtn = document.getElementById('btnSubmitEditClass');
+            const id = document.getElementById('editSubClassId').value;
+
+            const model = {
+                SubClassId: parseInt(id, 10),
+                ClassName: document.getElementById('editClassName').value.trim(),
+                Place: document.getElementById('editPlace').value.trim(),
+                StudentLimit: parseInt(document.getElementById('editStudentLimit').value, 10),
+                OpenDate: document.getElementById('editOpenDate').value,
+                OpenTime: document.getElementById('editOpenTime').value
+            };
+
+            if (!model.ClassName || !model.Place || !model.StudentLimit) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="inline-block animate-spin mr-1">⌛</span> Updating...';
+            }
+
+            $.ajax({
+                url: '@Url.Action("Update", "SubClass")/' + id + '?role=' + encodeURIComponent(currentRole),
+                type: 'POST',
+                data: model,
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (res) {
+                    if (res && res.isSuccess) {
+                        closeEditClassModal();
+                        if (window.showToast) window.showToast(res.message || 'Class updated successfully!', true);
+                        loadClasses();
+                    } else {
+                        if (window.showToast) window.showToast(res ? res.message : 'Failed to update class', false);
+                        else alert(res ? res.message : 'Failed to update class');
+                    }
+                },
+                error: function (xhr) {
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Server error updating class';
+                    if (window.showToast) window.showToast(msg, false);
+                    else alert(msg);
+                },
+                complete: function () {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Update Class</span>';
                     }
                 }
             });
@@ -1081,6 +1234,9 @@
         createClassModal.addEventListener('click', (e) => {
             if (e.target === createClassModal) closeCreateClassModal();
         });
+        editClassModal.addEventListener('click', (e) => {
+            if (e.target === editClassModal) closeEditClassModal();
+        });
         enrollModal.addEventListener('click', (e) => {
             if (e.target === enrollModal) closeEnrollModal();
         });
@@ -1088,6 +1244,7 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (!createClassModal.classList.contains('hidden')) closeCreateClassModal();
+                if (!editClassModal.classList.contains('hidden')) closeEditClassModal();
                 if (!enrollModal.classList.contains('hidden')) closeEnrollModal();
             }
         });

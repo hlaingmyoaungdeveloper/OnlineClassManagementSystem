@@ -111,6 +111,101 @@
 
 </div>
 
+<!-- EDIT TRACKING POPUP MODAL -->
+<div id="editTrackingModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs hidden transition-opacity duration-200">
+    <div class="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+        <!-- Close Button (X) -->
+        <button type="button" onclick="closeEditTrackingModal()" class="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition cursor-pointer">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <!-- Header -->
+        <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100">
+            <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Edit Test Tracking</h3>
+                <p class="text-xs text-slate-500">Update teaching tracking record, date taught, and teacher remarks</p>
+            </div>
+        </div>
+
+        <form id="editTrackingForm" onsubmit="event.preventDefault(); submitEditTracking();" class="space-y-4">
+            <input type="hidden" id="editTrackId" />
+
+            <!-- Class & Test Plan Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Class <span class="text-rose-500">*</span></label>
+                    <select id="editSubClassId" required class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition cursor-pointer">
+                        <option value="">-- Select Class --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Test Plan <span class="text-rose-500">*</span></label>
+                    <select id="editTeachPlanId" required class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition cursor-pointer">
+                        <option value="">-- Select Test Plan --</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Teacher & Date Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Teacher <span class="text-rose-500">*</span></label>
+                    <select id="editTeacherId" required class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition cursor-pointer">
+                        <option value="">-- Select Teacher --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Date Taught <span class="text-rose-500">*</span></label>
+                    <input type="date" id="editDateTaught" required
+                           class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+                </div>
+            </div>
+
+            <!-- Start Time & End Time Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Start Time</label>
+                    <input type="time" id="editStartTime"
+                           class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">End Time</label>
+                    <input type="time" id="editEndTime"
+                           class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+                </div>
+            </div>
+
+            <!-- Remarks -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Remarks</label>
+                <textarea id="editRemarks" rows="2" placeholder="Topics covered, student engagement, notes..."
+                          class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition resize-none"></textarea>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 mt-6">
+                <button type="button" onclick="closeEditTrackingModal()"
+                        class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit" id="btnSubmitEditTracking"
+                        class="inline-flex items-center gap-1.5 rounded-xl @(isTeacher ? "bg-teal-600 hover:bg-teal-700" : "bg-blue-600 hover:bg-blue-700") px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition cursor-pointer">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Update Tracking</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @Html.AntiForgeryToken()
 
 @section Scripts {
@@ -239,10 +334,10 @@
                         <td class="px-6 py-4 text-slate-500 text-xs truncate max-w-xs">${escapeHtml(remarks)}</td>
                         <td class="px-6 py-4 text-center">
                             <div class="inline-flex items-center gap-2">
-                                <a href="@Url.Action("Edit", "TeachingTracking")/${trackId}?role=${encodeURIComponent(currentRole)}"
-                                   class="text-blue-600 hover:text-blue-800 p-1" title="Edit">
+                                <button type="button" onclick="openEditTrackingModal(${trackId}, ${item.subClassId || 0}, ${item.teachPlanId || 0}, ${item.teacherId || 0}, '${item.dateTaught || ''}', '${item.startTime || ''}', '${item.endTime || ''}', '${escapeJs(item.remarks || item.remark || '')}')"
+                                        class="text-blue-600 hover:text-blue-800 p-1 cursor-pointer" title="Edit">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                </a>
+                                </button>
                                 <button type="button" onclick="deleteTracking(${trackId})" class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer" title="Delete">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
@@ -380,6 +475,165 @@
             return tStr;
         }
 
+        function escapeJs(text) {
+            if (!text) return '';
+            return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+
+        function formatTimeForInput(tStr) {
+            if (!tStr) return '';
+            if (typeof tStr === 'string' && tStr.length >= 5) return tStr.substring(0, 5);
+            return tStr;
+        }
+
+        // Edit Tracking Modal Logic
+        const editTrackingModal = document.getElementById('editTrackingModal');
+        let trackingDropdowns = { classes: [], teachers: [], teachPlans: [] };
+
+        function loadTrackingDropdowns() {
+            $.ajax({
+                url: '@Url.Action("GetDropdownData", "Timetable")',
+                type: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function(res) {
+                    if (res && res.isSuccess) {
+                        trackingDropdowns = {
+                            classes: res.classes || [],
+                            teachers: res.teachers || [],
+                            teachPlans: res.teachPlans || []
+                        };
+                        populateTrackingDropdowns();
+                    }
+                }
+            });
+        }
+
+        function populateTrackingDropdowns() {
+            const classSelect = document.getElementById('editSubClassId');
+            if (classSelect) {
+                const currentVal = classSelect.value;
+                classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+                trackingDropdowns.classes.forEach(c => {
+                    const id = c.subClassId || c.SubClassId;
+                    const name = c.className || c.ClassName;
+                    classSelect.insertAdjacentHTML('beforeend', `<option value="${id}">${escapeHtml(name)}</option>`);
+                });
+                if (currentVal) classSelect.value = currentVal;
+            }
+
+            const planSelect = document.getElementById('editTeachPlanId');
+            if (planSelect) {
+                const currentVal = planSelect.value;
+                planSelect.innerHTML = '<option value="">-- Select Test Plan --</option>';
+                trackingDropdowns.teachPlans.forEach(p => {
+                    const id = p.id || p.Id || p.teachPlanId;
+                    const topic = p.topic || p.Topic;
+                    const subName = p.subjectName || p.SubjectName || ('Subject #' + (p.subjectId || p.SubjectId));
+                    planSelect.insertAdjacentHTML('beforeend', `<option value="${id}">${escapeHtml(topic)} (${escapeHtml(subName)})</option>`);
+                });
+                if (currentVal) planSelect.value = currentVal;
+            }
+
+            const teacherSelect = document.getElementById('editTeacherId');
+            if (teacherSelect) {
+                const currentVal = teacherSelect.value;
+                teacherSelect.innerHTML = '<option value="">-- Select Teacher --</option>';
+                trackingDropdowns.teachers.forEach(t => {
+                    const id = t.userId || t.UserId;
+                    const name = t.fullName || t.FullName;
+                    teacherSelect.insertAdjacentHTML('beforeend', `<option value="${id}">${escapeHtml(name)}</option>`);
+                });
+                if (currentVal) teacherSelect.value = currentVal;
+            }
+        }
+
+        function openEditTrackingModal(trackId, subClassId, teachPlanId, teacherId, dateTaught, startTime, endTime, remarks) {
+            document.getElementById('editTrackId').value = trackId;
+            if (subClassId) document.getElementById('editSubClassId').value = subClassId;
+            if (teachPlanId) document.getElementById('editTeachPlanId').value = teachPlanId;
+            if (teacherId) document.getElementById('editTeacherId').value = teacherId;
+            if (dateTaught) {
+                document.getElementById('editDateTaught').value = dateTaught.length >= 10 ? dateTaught.substring(0, 10) : dateTaught;
+            }
+            document.getElementById('editStartTime').value = formatTimeForInput(startTime);
+            document.getElementById('editEndTime').value = formatTimeForInput(endTime);
+            document.getElementById('editRemarks').value = remarks || '';
+
+            editTrackingModal.classList.remove('hidden');
+        }
+
+        function closeEditTrackingModal() {
+            editTrackingModal.classList.add('hidden');
+        }
+
+        function submitEditTracking() {
+            const id = document.getElementById('editTrackId').value;
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            const submitBtn = document.getElementById('btnSubmitEditTracking');
+
+            const model = {
+                TrackId: parseInt(id, 10),
+                SubClassId: parseInt(document.getElementById('editSubClassId').value, 10),
+                TeachPlanId: parseInt(document.getElementById('editTeachPlanId').value, 10),
+                TeacherId: parseInt(document.getElementById('editTeacherId').value, 10),
+                DateTaught: document.getElementById('editDateTaught').value,
+                StartTime: document.getElementById('editStartTime').value,
+                EndTime: document.getElementById('editEndTime').value,
+                Remarks: document.getElementById('editRemarks').value.trim()
+            };
+
+            if (!model.SubClassId || !model.TeachPlanId || !model.TeacherId || !model.DateTaught) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="inline-block animate-spin mr-1">⌛</span> Updating...';
+            }
+
+            $.ajax({
+                url: '@Url.Action("Update", "TeachingTracking")/' + id + '?role=' + encodeURIComponent(currentRole),
+                type: 'POST',
+                data: model,
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(res) {
+                    if (res && res.isSuccess) {
+                        closeEditTrackingModal();
+                        if (window.showToast) window.showToast(res.message || 'Tracking updated successfully!', true);
+                        loadTracking();
+                    } else {
+                        if (window.showToast) window.showToast(res ? res.message : 'Failed to update tracking', false);
+                        else alert(res ? res.message : 'Failed to update tracking');
+                    }
+                },
+                error: function(xhr) {
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Server error updating tracking';
+                    if (window.showToast) window.showToast(msg, false);
+                    else alert(msg);
+                },
+                complete: function() {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Update Tracking</span>';
+                    }
+                }
+            });
+        }
+
+        // Close on backdrop click & ESC
+        editTrackingModal.addEventListener('click', (e) => {
+            if (e.target === editTrackingModal) closeEditTrackingModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !editTrackingModal.classList.contains('hidden')) {
+                closeEditTrackingModal();
+            }
+        });
+
         // Live search
         let searchTimeout = null;
         document.getElementById('trackingSearchInput').addEventListener('input', function() {
@@ -391,6 +645,7 @@
 
         // Initial Load
         $(document).ready(function () {
+            loadTrackingDropdowns();
             loadTracking();
         });
     </script>

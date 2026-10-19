@@ -108,6 +108,60 @@
 
 </div>
 
+<!-- EDIT TEACH PLAN POPUP MODAL -->
+<div id="editTeachPlanModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs hidden transition-opacity duration-200">
+    <div class="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+        <!-- Close Button (X) -->
+        <button type="button" onclick="closeEditTeachPlanModal()" class="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition cursor-pointer">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+
+        <!-- Header -->
+        <div class="flex items-center gap-3 pb-4 mb-5 border-b border-slate-100">
+            <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Edit Test Plan</h3>
+                <p class="text-xs text-slate-500">Update test plan title and subject curriculum</p>
+            </div>
+        </div>
+
+        <form id="editTeachPlanForm" onsubmit="event.preventDefault(); submitEditTeachPlan();" class="space-y-4">
+            <input type="hidden" id="editTeachPlanId" />
+
+            <!-- Topic / Title -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Test Plan Title <span class="text-rose-500">*</span></label>
+                <input id="editTeachPlanTopic" required placeholder="e.g. Mid Term Test"
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+            </div>
+
+            <!-- Subject ID -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">Subject ID <span class="text-rose-500">*</span></label>
+                <input id="editTeachPlanSubjectId" type="number" min="1" required placeholder="e.g. 1"
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3.5 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100 transition" />
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100 mt-6">
+                <button type="button" onclick="closeEditTeachPlanModal()"
+                        class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit" id="btnSubmitEditTeachPlan"
+                        class="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-2.5 text-xs font-semibold text-white shadow-sm transition cursor-pointer">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Update Test Plan</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @Html.AntiForgeryToken()
 
 @section Scripts {
@@ -222,10 +276,10 @@
                 if (!isTeacher) {
                     actionsHtml = `
                         <div class="inline-flex items-center gap-2">
-                            <a href="@Url.Action("Edit", "TeachPlan")/${plan.id}?role=${encodeURIComponent(currentRole)}" 
-                               class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition" title="Edit">
+                            <button type="button" onclick="openEditTeachPlanModal(${plan.id}, '${escapeJs(plan.topic || '')}', ${plan.subjectId || 1})" 
+                                    class="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition cursor-pointer" title="Edit">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                            </a>
+                            </button>
                             <button type="button" onclick="deleteTeachPlan(${plan.id})" class="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition cursor-pointer" title="Delete">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
@@ -391,6 +445,90 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        function escapeJs(text) {
+            if (!text) return '';
+            return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+
+        // Edit Teach Plan Modal
+        const editTeachPlanModal = document.getElementById('editTeachPlanModal');
+
+        function openEditTeachPlanModal(id, topic, subjectId) {
+            document.getElementById('editTeachPlanId').value = id;
+            document.getElementById('editTeachPlanTopic').value = topic || '';
+            document.getElementById('editTeachPlanSubjectId').value = subjectId || 1;
+            editTeachPlanModal.classList.remove('hidden');
+            const firstInput = document.getElementById('editTeachPlanTopic');
+            if (firstInput) setTimeout(() => firstInput.focus(), 100);
+        }
+
+        function closeEditTeachPlanModal() {
+            editTeachPlanModal.classList.add('hidden');
+        }
+
+        function submitEditTeachPlan() {
+            const id = document.getElementById('editTeachPlanId').value;
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            const submitBtn = document.getElementById('btnSubmitEditTeachPlan');
+
+            const model = {
+                Id: parseInt(id, 10),
+                Topic: document.getElementById('editTeachPlanTopic').value.trim(),
+                SubjectId: parseInt(document.getElementById('editTeachPlanSubjectId').value, 10)
+            };
+
+            if (!model.Topic || !model.SubjectId) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="inline-block animate-spin mr-1">⌛</span> Updating...';
+            }
+
+            $.ajax({
+                url: '@Url.Action("Update", "TeachPlan")/' + id + '?role=' + encodeURIComponent(currentRole),
+                type: 'POST',
+                data: model,
+                headers: {
+                    'RequestVerificationToken': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(res) {
+                    if (res && res.isSuccess) {
+                        closeEditTeachPlanModal();
+                        if (window.showToast) window.showToast(res.message || 'Test Plan updated successfully!', true);
+                        loadTeachPlans();
+                    } else {
+                        if (window.showToast) window.showToast(res ? res.message : 'Failed to update plan', false);
+                        else alert(res ? res.message : 'Failed to update plan');
+                    }
+                },
+                error: function(xhr) {
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Server error updating plan';
+                    if (window.showToast) window.showToast(msg, false);
+                    else alert(msg);
+                },
+                complete: function() {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Update Test Plan</span>';
+                    }
+                }
+            });
+        }
+
+        // Close on backdrop click & ESC
+        editTeachPlanModal.addEventListener('click', (e) => {
+            if (e.target === editTeachPlanModal) closeEditTeachPlanModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !editTeachPlanModal.classList.contains('hidden')) {
+                closeEditTeachPlanModal();
+            }
+        });
 
         // Debounced live search
         let searchTimeout = null;
